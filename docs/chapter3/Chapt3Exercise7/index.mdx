@@ -72,6 +72,15 @@ sidebar_label: Chapter 3 - Exercise 7
   </div>
 </div>
 
+## Inline Previews
+
+### MATLAB - Chapt3Exercise7.m
+
+```matlab title="Chapt3Exercise7.m"
+%Chapt3Exercise7.m%numerical solution to Schroedinger equation for%rectangular potential well with infinite barrier energyclearclf;length = 10;																%length of well (nm)npoints=200;																%number of sample pointsx=0:length/npoints:length;												%position of sample pointsmass=0.07;																	%effective electron massnum_sol=4;																	%number of solutions soughtfor i=1:npoints+1; v(i)=0; end										%potential (eV)[energy,phi]=solve_schM(length,npoints,v,mass,num_sol);		%call solve_schM    for i=1:num_sol sprintf(['eigenenergy (',num2str(i),') = ',num2str(energy(i)),' eV'])		%energy eigenvalues end     figure(1); plot(x,v,'b');xlabel('Distance (nm)'),ylabel('Potential energy, (eV)'); ttl=['Chapt3Exercise7, m* = ',num2str(mass),'m0, Length = ',num2str(length),'nm']; title(ttl);s=char('y','k','r','g','b','m','c');								%plot curves in different colorsfigure(2);for i=1:num_sol   j=1+mod(i,7);     plot(x,phi(:,i),s(j));											%plot eigenfunctions     hold on;  end xlabel('Distance (nm)'),ylabel('Wave function'); title(ttl);hold off;
+```
+
+
 ---
 
 *Program ID: `Chapt3Exercise7`*

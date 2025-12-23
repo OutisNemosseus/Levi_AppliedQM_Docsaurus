@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Program Docs Generator - Documentation</title>
+  <style>
+    :root {
+      --sidebar-width: 280px;
+      --header-height: 60px;
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --bg-dark: #1e1e2e;
+      --bg-sidebar: #252535;
+      --bg-content: #fafafa;
+      --text-light: #e4e4e7;
+      --text-muted: #a1a1aa;
+      --border: #3f3f50;
+      --code-bg: #2d2d3d;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; background: var(--bg-content); }
+    .header { position: fixed; top: 0; left: 0; right: 0; height: var(--header-height); background: var(--bg-dark); color: white; display: flex; align-items: center; padding: 0 24px; z-index: 100; border-bottom: 1px solid var(--border); }
+    .header h1 { font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+    .header .badge { background: var(--primary); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
+    .sidebar { position: fixed; top: var(--header-height); left: 0; width: var(--sidebar-width); height: calc(100vh - var(--header-height)); background: var(--bg-sidebar); color: var(--text-light); overflow-y: auto; border-right: 1px solid var(--border); }
+    .sidebar-section { padding: 16px 0; border-bottom: 1px solid var(--border); }
+    .sidebar-section:last-child { border-bottom: none; }
+    .sidebar-title { padding: 0 20px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 8px; }
+    .sidebar-nav { list-style: none; }
+    .sidebar-nav a { display: block; padding: 8px 20px; color: var(--text-light); text-decoration: none; font-size: 0.9rem; transition: all 0.2s; border-left: 3px solid transparent; }
+    .sidebar-nav a:hover { background: rgba(255,255,255,0.05); color: white; }
+    .sidebar-nav a.active { background: rgba(99, 102, 241, 0.15); border-left-color: var(--primary); color: white; }
+    .sidebar-nav .nav-icon { margin-right: 8px; opacity: 0.7; }
+    .nav-group { margin-bottom: 4px; }
+    .nav-group-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 20px; cursor: pointer; color: var(--text-light); font-size: 0.9rem; transition: all 0.2s; }
+    .nav-group-header:hover { background: rgba(255,255,255,0.05); }
+    .nav-group-header .arrow { transition: transform 0.2s; }
+    .nav-group.collapsed .arrow { transform: rotate(-90deg); }
+    .nav-group.collapsed .nav-group-items { display: none; }
+    .nav-group-items { padding-left: 16px; }
+    .nav-group-items a { font-size: 0.85rem; padding: 6px 20px; }
+    .main { margin-left: var(--sidebar-width); margin-top: var(--header-height); min-height: calc(100vh - var(--header-height)); }
+    .content { max-width: 900px; margin: 0 auto; padding: 40px; }
+    .page { display: none; }
+    .page.active { display: block; }
+    h1 { font-size: 2.25rem; margin-bottom: 16px; color: #1a1a2e; }
+    h2 { font-size: 1.5rem; margin: 32px 0 16px; color: #1a1a2e; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; }
+    h3 { font-size: 1.25rem; margin: 24px 0 12px; color: #1a1a2e; }
+    p { margin-bottom: 16px; color: #374151; }
+    ul, ol { margin: 0 0 16px 24px; color: #374151; }
+    li { margin-bottom: 8px; }
+    pre { background: var(--code-bg); color: #e4e4e7; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 16px 0; font-family: 'Fira Code', Consolas, monospace; font-size: 0.9rem; line-height: 1.5; }
+    code { font-family: 'Fira Code', Consolas, monospace; background: #e5e7eb; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: #dc2626; }
+    pre code { background: none; padding: 0; color: inherit; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+    th { background: #f3f4f6; font-weight: 600; color: #1a1a2e; }
+    .card { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .card-title { font-weight: 600; color: #1a1a2e; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .architecture { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin: 24px 0; }
+    .arch-layer { display: flex; gap: 12px; margin-bottom: 12px; justify-content: center; flex-wrap: wrap; }
+    .arch-box { background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 12px 20px; text-align: center; min-width: 120px; transition: all 0.2s; }
+    .arch-box:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15); }
+    .arch-box.primary { background: var(--primary); color: white; border-color: var(--primary); }
+    .arch-box .icon { font-size: 1.5rem; margin-bottom: 4px; }
+    .arch-box .label { font-size: 0.85rem; font-weight: 500; }
+    .arch-arrow { text-align: center; color: #94a3b8; font-size: 1.5rem; margin: 8px 0; }
+    .principle-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin: 24px 0; }
+    .principle-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; }
+    .principle-card h4 { font-size: 1.1rem; margin-bottom: 8px; }
+    .principle-card p { color: rgba(255,255,255,0.9); font-size: 0.9rem; margin: 0; }
+    .module-tree { font-family: monospace; background: #1e1e2e; color: #a6e3a1; padding: 20px; border-radius: 8px; line-height: 1.8; white-space: pre; }
+    .module-tree .folder { color: #89b4fa; }
+    .module-tree .file { color: #f9e2af; }
+    .module-tree .comment { color: #6c7086; }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .main { margin-left: 0; }
+      .content { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>📚 Program Docs Generator <span class="badge">v2.0</span></h1>
+  </header>
+
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Getting Started</div>
+      <ul class="sidebar-nav">
+        <li><a href="#overview" class="active" onclick="showPage('overview')"><span class="nav-icon">🏠</span>Overview</a></li>
+        <li><a href="#architecture" onclick="showPage('architecture')"><span class="nav-icon">🏗️</span>Architecture</a></li>
+        <li><a href="#solid" onclick="showPage('solid')"><span class="nav-icon">💎</span>SOLID Principles</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Modules</div>
+      <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup(this)"><span><span class="nav-icon">⚙️</span>Config</span><span class="arrow">▼</span></div>
+        <ul class="nav-group-items sidebar-nav"><li><a href="#config" onclick="showPage('config')">index.js</a></li></ul>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup(this)"><span><span class="nav-icon">🔧</span>Utils</span><span class="arrow">▼</span></div>
+        <ul class="nav-group-items sidebar-nav">
+          <li><a href="#utils-string" onclick="showPage('utils-string')">stringUtils.js</a></li>
+          <li><a href="#utils-fs" onclick="showPage('utils-fs')">fileSystem.js</a></li>
+          <li><a href="#utils-logger" onclick="showPage('utils-logger')">logger.js</a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup(this)"><span><span class="nav-icon">🔍</span>Parsers</span><span class="arrow">▼</span></div>
+        <ul class="nav-group-items sidebar-nav">
+          <li><a href="#parser-program" onclick="showPage('parser-program')">programParser.js</a></li>
+          <li><a href="#parser-file" onclick="showPage('parser-file')">fileClassifier.js</a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup(this)"><span><span class="nav-icon">🎨</span>Generators</span><span class="arrow">▼</span></div>
+        <ul class="nav-group-items sidebar-nav">
+          <li><a href="#gen-template" onclick="showPage('gen-template')">templateBuilder.js</a></li>
+          <li><a href="#gen-page" onclick="showPage('gen-page')">pageGenerators.js</a></li>
+          <li><a href="#gen-sidebar" onclick="showPage('gen-sidebar')">sidebarGenerator.js</a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup(this)"><span><span class="nav-icon">⚡</span>Services</span><span class="arrow">▼</span></div>
+        <ul class="nav-group-items sidebar-nav">
+          <li><a href="#svc-doc" onclick="showPage('svc-doc')">documentProcessor.js</a></li>
+          <li><a href="#svc-clean" onclick="showPage('svc-clean')">cleanService.js</a></li>
+          <li><a href="#svc-watch" onclick="showPage('svc-watch')">watchService.js</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Testing</div>
+      <ul class="sidebar-nav"><li><a href="#testing" onclick="showPage('testing')"><span class="nav-icon">🧪</span>Unit Tests</a></li></ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">API Reference</div>
+      <ul class="sidebar-nav"><li><a href="#api" onclick="showPage('api')"><span class="nav-icon">📖</span>Full API</a></li></ul>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="content">
+      <!-- Overview -->
+      <div id="overview" class="page active">
+        <h1>Program Docs Generator</h1>
+        <p>A SOLID-compliant documentation generator that converts academic program files into Docusaurus-compatible MDX documentation.</p>
+        <div class="card">
+          <div class="card-title">✨ Features</div>
+          <ul>
+            <li><strong>Multi-format support</strong> - MATLAB, LaTeX, PDF, HTML, Jupyter, Text</li>
+            <li><strong>Auto-categorization</strong> - Groups files by chapter and program ID</li>
+            <li><strong>Watch mode</strong> - Auto-regenerate on file changes</li>
+            <li><strong>Fully testable</strong> - Comprehensive unit tests with 80%+ coverage</li>
+          </ul>
+        </div>
+        <h2>Quick Start</h2>
+        <pre><code>npm install
+npm start        # Run generation
+npm run watch    # Watch mode
+npm run clean    # Clean files
+npm test         # Run tests</code></pre>
+        <h2>File Naming</h2>
+        <p>Pattern: <code>Chapt&lt;N&gt;&lt;Type&gt;&lt;#&gt;&lt;variant&gt;.&lt;ext&gt;</code></p>
+        <table>
+          <thead><tr><th>Example</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td><code>Chapt1Exercise8.m</code></td><td>Chapter 1, Exercise 8</td></tr>
+            <tr><td><code>Chapt2Fig3a.pdf</code></td><td>Chapter 2, Figure 3A</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Architecture -->
+      <div id="architecture" class="page">
+        <h1>Architecture</h1>
+        <div class="architecture">
+          <div class="arch-layer"><div class="arch-box primary"><div class="icon">🎯</div><div class="label">CLI Entry</div></div></div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-layer"><div class="arch-box"><div class="icon">🏭</div><div class="label">Application</div></div></div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-layer">
+            <div class="arch-box"><div class="icon">⚡</div><div class="label">Services</div></div>
+            <div class="arch-box"><div class="icon">🎨</div><div class="label">Generators</div></div>
+            <div class="arch-box"><div class="icon">🔍</div><div class="label">Parsers</div></div>
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-layer">
+            <div class="arch-box"><div class="icon">🔧</div><div class="label">Utilities</div></div>
+            <div class="arch-box"><div class="icon">⚙️</div><div class="label">Config</div></div>
+          </div>
+        </div>
+        <h2>Directory Structure</h2>
+        <div class="module-tree"><span class="folder">src/</span>
+├── <span class="folder">config/</span>
+│   └── <span class="file">index.js</span>         <span class="comment"># Configuration</span>
+├── <span class="folder">utils/</span>
+│   ├── <span class="file">stringUtils.js</span>   <span class="comment"># String functions</span>
+│   ├── <span class="file">fileSystem.js</span>    <span class="comment"># FS abstraction</span>
+│   └── <span class="file">logger.js</span>        <span class="comment"># Logging</span>
+├── <span class="folder">parsers/</span>
+│   ├── <span class="file">programParser.js</span> <span class="comment"># Filename parsing</span>
+│   └── <span class="file">fileClassifier.js</span><span class="comment"># Type classification</span>
+├── <span class="folder">generators/</span>
+│   ├── <span class="file">templateBuilder.js</span><span class="comment"># MDX components</span>
+│   ├── <span class="file">pageGenerators.js</span><span class="comment"># Page strategies</span>
+│   └── <span class="file">sidebarGenerator.js</span><span class="comment"># Sidebar config</span>
+├── <span class="folder">services/</span>
+│   ├── <span class="file">documentProcessor.js</span><span class="comment"># Orchestrator</span>
+│   ├── <span class="file">cleanService.js</span>  <span class="comment"># Cleanup</span>
+│   └── <span class="file">watchService.js</span>  <span class="comment"># File watching</span>
+├── <span class="file">app.js</span>             <span class="comment"># DI container</span>
+└── <span class="file">index.js</span>           <span class="comment"># CLI entry</span></div>
+      </div>
+
+      <!-- SOLID -->
+      <div id="solid" class="page">
+        <h1>SOLID Principles</h1>
+        <div class="principle-grid">
+          <div class="principle-card" style="background: linear-gradient(135deg, #f093fb, #f5576c);"><h4>🎯 Single Responsibility</h4><p>Each module has one reason to change.</p></div>
+          <div class="principle-card" style="background: linear-gradient(135deg, #4facfe, #00f2fe);"><h4>🔓 Open/Closed</h4><p>New file types without modifying existing code.</p></div>
+          <div class="principle-card" style="background: linear-gradient(135deg, #43e97b, #38f9d7);"><h4>🔄 Liskov Substitution</h4><p>All generators implement same interface.</p></div>
+          <div class="principle-card" style="background: linear-gradient(135deg, #fa709a, #fee140);"><h4>🎛️ Interface Segregation</h4><p>Small, focused interfaces.</p></div>
+          <div class="principle-card" style="background: linear-gradient(135deg, #667eea, #764ba2);"><h4>💉 Dependency Inversion</h4><p>Dependencies via injection.</p></div>
+        </div>
+        <h2>Dependency Injection</h2>
+        <pre><code>const processor = createDocumentProcessor({
+  fileSystem,      // Injected
+  programParser,   // Injected
+  fileClassifier,  // Injected
+  generatorFactory,// Injected
+  config,          // Injected
+});</code></pre>
+      </div>
+
+      <!-- Config -->
+      <div id="config" class="page">
+        <h1>Config Module</h1>
+        <p><code>src/config/index.js</code> - Manages configuration and file types.</p>
+        <h2>Exports</h2>
+        <pre><code>const { createConfig, getFileTypeConfig, getChapterName } = require('./config');
+const config = createConfig({ baseDir: '/custom/path' });
+getFileTypeConfig('.m'); // { type: 'matlab', ... }</code></pre>
+        <h2>File Types</h2>
+        <table>
+          <thead><tr><th>Ext</th><th>Type</th><th>Text</th></tr></thead>
+          <tbody>
+            <tr><td>.m</td><td>matlab</td><td>✅</td></tr>
+            <tr><td>.tex</td><td>latex</td><td>✅</td></tr>
+            <tr><td>.pdf</td><td>pdf</td><td>❌</td></tr>
+            <tr><td>.html</td><td>html</td><td>✅</td></tr>
+            <tr><td>.ipynb</td><td>ipynb</td><td>❌</td></tr>
+            <tr><td>.txt</td><td>text</td><td>✅</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- String Utils -->
+      <div id="utils-string" class="page">
+        <h1>String Utilities</h1>
+        <p><code>src/utils/stringUtils.js</code> - Pure utility functions.</p>
+        <h2>Functions</h2>
+        <pre><code>escapeForYaml('Title: Sub')     // '"Title: Sub"'
+truncateString('Hello', 3)      // { content: 'Hel', truncated: true }
+sortByOrder(['c','a'], ['a','c']) // ['a','c']
+groupBy(items, i => i.type)     // Map
+debounce(fn, 1000)              // Debounced function</code></pre>
+      </div>
+
+      <!-- FileSystem Utils -->
+      <div id="utils-fs" class="page">
+        <h1>FileSystem Utilities</h1>
+        <p><code>src/utils/fileSystem.js</code> - Abstracted FS operations.</p>
+        <pre><code>const fs = createFileSystem();
+fs.ensureDir('/path');
+fs.readFile('/file');   // { success, content }
+fs.writeFile('/file', 'content');
+fs.copyFile(src, dest);</code></pre>
+      </div>
+
+      <!-- Logger Utils -->
+      <div id="utils-logger" class="page">
+        <h1>Logger Utilities</h1>
+        <p><code>src/utils/logger.js</code> - Logging with formatting.</p>
+        <pre><code>const logger = createLogger();
+logger.log('Processing...');
+logger.success('Done!');  // ✅ Done!
+logger.fail('Error');     // ❌ Error
+const nullLogger = createNullLogger(); // Silent</code></pre>
+      </div>
+
+      <!-- Program Parser -->
+      <div id="parser-program" class="page">
+        <h1>Program Parser</h1>
+        <p><code>src/parsers/programParser.js</code> - Parses program info from filenames.</p>
+        <pre><code>defaultParser.parse('Chapt1Exercise8', '')
+// { programId: 'Chapt1Exercise8', chapter: 'chapter1', 
+//   type: 'Exercise', number: '8', displayName: '...' }
+
+defaultParser.matches('Chapt1Ex8')  // true
+defaultParser.extractProgramId('Chapt1Ex8.m', '.m')</code></pre>
+      </div>
+
+      <!-- File Classifier -->
+      <div id="parser-file" class="page">
+        <h1>File Classifier</h1>
+        <p><code>src/parsers/fileClassifier.js</code> - Classifies files by type.</p>
+        <pre><code>const classifier = createFileClassifier(['.m', '.pdf']);
+classifier.isSupported('.m');  // true
+classifier.classify('test.m', '.m');
+classifier.filterSupported(files, getExt);
+classifier.sortByTypePriority(files);</code></pre>
+      </div>
+
+      <!-- Template Builder -->
+      <div id="gen-template" class="page">
+        <h1>Template Builder</h1>
+        <p><code>src/generators/templateBuilder.js</code> - MDX components.</p>
+        <pre><code>buildFrontmatter({ title: 'Page' });
+buildButton({ href, label, color, icon });
+buildCodeBlock({ language, content });
+buildAdmonition({ type: 'warning', content });
+buildIframe({ src, height });
+buildTable({ headers, rows });</code></pre>
+      </div>
+
+      <!-- Page Generators -->
+      <div id="gen-page" class="page">
+        <h1>Page Generators</h1>
+        <p><code>src/generators/pageGenerators.js</code> - Strategy pattern.</p>
+        <pre><code>const factory = new PageGeneratorFactory();
+factory.generate('matlab', { programInfo, filename, ... });
+
+// Available: index, matlab, latex, pdf, html, ipynb, text
+
+// Add custom
+factory.registerGenerator('python', new PythonGenerator());</code></pre>
+      </div>
+
+      <!-- Sidebar Generator -->
+      <div id="gen-sidebar" class="page">
+        <h1>Sidebar Generator</h1>
+        <p><code>src/generators/sidebarGenerator.js</code></p>
+        <pre><code>const generator = createSidebarGenerator();
+const sidebarJs = generator.generate(byChapterMap);</code></pre>
+      </div>
+
+      <!-- Document Processor -->
+      <div id="svc-doc" class="page">
+        <h1>Document Processor</h1>
+        <p><code>src/services/documentProcessor.js</code> - Main orchestrator.</p>
+        <pre><code>const processor = createDocumentProcessor({ ...deps });
+processor.scanInbox();       // { success, files }
+processor.groupByProgram(files);
+processor.processAll();      // { processed, skipped, ... }</code></pre>
+      </div>
+
+      <!-- Clean Service -->
+      <div id="svc-clean" class="page">
+        <h1>Clean Service</h1>
+        <p><code>src/services/cleanService.js</code></p>
+        <pre><code>const cleaner = createCleanService({ ...deps });
+cleaner.cleanAll();
+cleaner.cleanChapter('1');
+cleaner.cleanProgram('Chapt1Ex8', '1');</code></pre>
+      </div>
+
+      <!-- Watch Service -->
+      <div id="svc-watch" class="page">
+        <h1>Watch Service</h1>
+        <p><code>src/services/watchService.js</code></p>
+        <pre><code>const watcher = createWatchService({ ...deps });
+watcher.start({ debounceMs: 1000 });
+watcher.isWatching();  // true
+watcher.stop();</code></pre>
+      </div>
+
+      <!-- Testing -->
+      <div id="testing" class="page">
+        <h1>Unit Tests</h1>
+        <pre><code>npm test              # Run all
+npm run test:watch    # Watch mode
+npm run test:coverage # Coverage report</code></pre>
+        <h2>Test Structure</h2>
+        <div class="module-tree"><span class="folder">tests/</span>
+├── <span class="file">testUtils.js</span>
+├── <span class="folder">utils/</span>
+│   └── <span class="file">stringUtils.test.js</span>
+├── <span class="folder">parsers/</span>
+│   ├── <span class="file">programParser.test.js</span>
+│   └── <span class="file">fileClassifier.test.js</span>
+├── <span class="folder">generators/</span>
+│   ├── <span class="file">templateBuilder.test.js</span>
+│   └── <span class="file">pageGenerators.test.js</span>
+└── <span class="folder">services/</span>
+    └── <span class="file">documentProcessor.test.js</span></div>
+      </div>
+
+      <!-- API -->
+      <div id="api" class="page">
+        <h1>Full API</h1>
+        <pre><code>const { createApplication } = require('./app');
+const app = createApplication({ config: {...} });
+app.run();    // Process all
+app.watch();  // Watch mode
+app.clean();  // Clean
+app.help();   // Show help</code></pre>
+        <h2>Extension Example</h2>
+        <pre><code>// Add Python support
+registerFileType('.py', { type: 'python', ... });
+factory.registerGenerator('python', new PyGenerator());</code></pre>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function showPage(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(id)?.classList.add('active');
+      document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+      document.querySelector(`[onclick="showPage('${id}')"]`)?.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+    function toggleGroup(h) { h.closest('.nav-group').classList.toggle('collapsed'); }
+    window.addEventListener('hashchange', () => { if(location.hash) showPage(location.hash.slice(1)); });
+    if(location.hash) showPage(location.hash.slice(1));
+  </script>
+</body>
+</html>

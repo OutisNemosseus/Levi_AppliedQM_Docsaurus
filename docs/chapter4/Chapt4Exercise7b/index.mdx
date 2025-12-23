@@ -72,6 +72,15 @@ sidebar_label: Chapter 4 - Exercise 7B
   </div>
 </div>
 
+## Inline Previews
+
+### MATLAB - Chapt4Exercise7b.m
+
+```matlab title="Chapt4Exercise7b.m"
+%Chapt4Exercise7b.m%transmission through asymmetric double barrier as a function of voltage biasclearclf;  dL=1E-10;					%increment in distance (m)N=130;						%number of samples of potentialEmin=(pi*1e-5);			%add (pi*1.0e-5) to energy to avoid divide by zeroEmax=4;						%maximum particle energy (eV)npoints=400;				%number of points in energy plot				dE=(Emax-Emin)/npoints;	%energy increment (eV)hbar=1.05457159e-34;		%Planck's constant (J s)eye=complex(0.,1.);		%sqare root -1m0=9.109382e-31;			%bare electron mass (kg)meff=0.07;					%effective electron massm=meff*m0;					%effective electron mass (kg)echarge=1.6021764e-19;	%electron charge (C)E=0.025;						%energy of incident electron (eV)   for j=1:npoints      bigP=[1,0;0,1]; V(1:N)=0;V(11:51)=0.5;V(89:119)=1.13;      Vo(j)=Emin+j*dE;f(1:10)=0;for x=11:119; f(x)=Vo(j)*(11-x)/108; end; f(120:130)=0-Vo(j); V=V+f;      for i=1:N         k(i)=sqrt(2*echarge*m*(E-V(i)))/hbar;      end      for n=1:(N-1)         p(1,1)=0.5*(1+k(n+1)/k(n))*exp(-eye*k(n)*dL);         p(1,2)=0.5*(1-k(n+1)/k(n))*exp(-eye*k(n)*dL);         p(2,1)=0.5*(1-k(n+1)/k(n))*exp(eye*k(n)*dL);         p(2,2)=0.5*(1+k(n+1)/k(n))*exp(eye*k(n)*dL);         bigP=bigP*p;      end      Trans(j)=(abs(1/bigP(1,1)))^2;   end   figure(1);ttl=['Chapt4Exercise7b, m_{eff} = ',num2str(meff),' x m_0, E = ',num2str(E),' eV'];plot(Trans,Vo);xlabel('Trans. coeff.');ylabel('Applied voltage, (eV)')title(ttl);figure(2);plot(-log(Trans),Vo);axis([0,20,0,Emax]);xlabel('-ln trans. coeff.');ylabel('Applied voltage, (eV)');title(ttl);
+```
+
+
 ---
 
 *Program ID: `Chapt4Exercise7b`*

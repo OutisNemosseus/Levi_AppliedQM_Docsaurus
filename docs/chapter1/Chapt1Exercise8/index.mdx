@@ -72,6 +72,15 @@ sidebar_label: Chapter 1 - Exercise 8
   </div>
 </div>
 
+## Inline Previews
+
+### MATLAB - Chapt1Exercise8.m
+
+```matlab title="Chapt1Exercise8.m"
+%Chapt1Exercise8.m%response of a damped harmonic oscillator with resonance at frequency w0 = 10%input value of GAMMA from keyboardclear;clf;eye=complex(0,1);							%square-root of minus onedelta=pi*1e-6								%small addition to increment avoids divide by zeroGAMMA = input('Input \GAMMA = ');	%input broadening term 1wmax=30										%maximum frequencyw0=10;										%center frequency 10gamma=GAMMA*w0;							%GAMMA=gamma/w0peak=2/gamma								%peakgamma2=eye*gamma/2;		w02=w0^2;x=[0:(0.05+delta):wmax];				%frequency [start:increment:stop]y=1./((w02-x.^2)-gamma2);y1=abs(y);y3=real(y);y4=imag(y);y2=y4./y3;y2=atan(y2);figure(1);subplot(1,2,1),plot(x,y1);axis([0,wmax,0,1.1*peak]);temp1=['Chapt1Exercise 8, \Gamma = ',num2str(GAMMA),', \omega _{0} = ',num2str(w0)];title(temp1);xlabel('Frequency, \omega'),ylabel('Abs(x)');subplot(1,2,2),plot(x,y2);axis([0,wmax,-2,2]);xlabel('Frequency, \omega'),ylabel('Phase(x)');figure(2); subplot(1,2,1),plot(x,y3);axis([0,wmax,1.1*min(y3),1.1*max(y3)]);title(temp1);xlabel('Frequency, \omega'),ylabel('Real(x)');subplot(1,2,2),plot(x,y4);axis([0,wmax,0,1.1*peak]);xlabel('Frequency, \omega'),ylabel('Imag(x)');
+```
+
+
 ---
 
 *Program ID: `Chapt1Exercise8`*

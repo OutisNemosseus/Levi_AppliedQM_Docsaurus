@@ -72,6 +72,15 @@ sidebar_label: Chapter 1 - Fig 8
   </div>
 </div>
 
+## Inline Previews
+
+### MATLAB - Chapt1Fig8.m
+
+```matlab title="Chapt1Fig8.m"
+%Chapt1Fig8.m%classical sho monatomic linear chain dispersion;clear;clf;kappa=1;											%spring constantm1=1;												%mass of particleymax=(4*kappa/m1)^0.5;						%maximum frequencyx=[-pi:.01:pi];								%wave vector [start:increment:stop]   y21=sqrt(4*kappa/m1)*abs(sin(x(:)/2));	%the acoustic branchfigure(1);plot(x,y21,'b');								%the acoustic branchaxis([-pi,pi,0,1.1*ymax]);temp2=['Chapt1Fig8, \kappa = ',num2str(kappa),', m = ',num2str(m1)];title(temp2);xlabel(['Wave vector, q']);ylabel(['Frequency, \omega(q)']);
+```
+
+
 ---
 
 *Program ID: `Chapt1Fig8`*
