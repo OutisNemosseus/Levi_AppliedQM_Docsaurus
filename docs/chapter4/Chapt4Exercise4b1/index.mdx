@@ -72,15 +72,6 @@ sidebar_label: Chapter 4 - Exercise 4B1
   </div>
 </div>
 
-## Inline Previews
-
-### MATLAB - Chapt4Exercise4b1.m
-
-```matlab title="Chapt4Exercise4b1.m"
-%Chapt4Exercise4b1.m%sin2 potential wellclearclf;																		%set up potential profile V(eV)L=2e-8;																%parameter L (m)N=600;																%number of potential values dL=L/N;																%increment in distance (m) n=4;																	%parameter nfor j=1:N; x(j)=j*L/(N); end;									%set up x-position arrayV(1:N)=0;															%initialize potential to be zerofor j=1:N;      V(j)=2*((sin(n*2*pi*x(j)/L))^2);						%calculate potential valuesend   Emin=pi*1e-5;														%add (pi*1.0e-5) to energy to avoid divide by zeroEmax=3;																%maximum particle energy (eV)npoints=3000;														%number of points in energy plotdE=Emax/npoints;													%energy increment (eV)hbar=1.05457159e-34;												%Planck's constant (Js)eye=complex(0.,1.);												%square root of -1m0=9.109382e-31;													%bare electron mass (kg)meff=0.07;															%effective electron mass / m0m=meff*m0;															%effective electron mass (kg)echarge=1.6021764e-19;											%electron charge (C)   for j=1:npoints      E(j)=dE*j+Emin;											%energy E(j) (eV)     	bigP=[1,0;0,1];											%default value of matrix bigP        for i=1:N         k(i)=sqrt(2*echarge*m*(E(j)-V(i)))/hbar; 		%wave vector at energy E       end      for n=1:(N-1)												%multiply out propagation matrix         p(1,1)=0.5*(1+k(n+1)/k(n))*exp(-eye*k(n)*dL);         p(1,2)=0.5*(1-k(n+1)/k(n))*exp(-eye*k(n)*dL);         p(2,1)=0.5*(1-k(n+1)/k(n))*exp(eye*k(n)*dL);         p(2,2)=0.5*(1+k(n+1)/k(n))*exp(eye*k(n)*dL);         bigP=bigP*p;      end      Trans(j)=(abs(1/bigP(1,1)))^2;						%transmission probability   end   figure(1); 															%plot potential and transmission coefficientsubplot(1,2,1),plot(x,V),axis([0,1.1*L,0,Emax]),xlabel('Distance, x (m)'),ylabel('Potential energy, V (eV)');ttl = sprintf(['Chapt4Exercise4b1, m_{eff}=',num2str(meff),' x m_0']);title (ttl);subplot(1,2,2),plot(Trans,E),axis([0,1,0,Emax]),xlabel('Transmission coefficient'),ylabel('Energy, E (eV)');figure(2); subplot(1,2,1),plot(x,V),axis([0,1.1*L,0,Emax]),xlabel('Distance, x (m)'),ylabel('Potential energy, V (eV)');title (ttl);subplot(1,2,2),plot(-log(Trans),E),axis([0,60,0,Emax]),xlabel('-ln trans. coeff.'),ylabel('Energy, E (eV)');
-```
-
-
 ---
 
 *Program ID: `Chapt4Exercise4b1`*

@@ -1,0 +1,387 @@
+---
+title: Chapter 8 - Exercise 1B - LaTeX
+sidebar_label: LaTeX Source
+---
+
+# Chapter 8 - Exercise 1B - LaTeX Document
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+  <a href="/programs/latex/Chapt8Exercise1b/Chapt8Exercise1b.tex" download="Chapt8Exercise1b.tex"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .tex
+  </a>
+  <a href="/programs/latex/Chapt8Exercise1b/Chapt8Exercise1b.tex" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+## LaTeX Source
+
+```latex title="Chapt8Exercise1b.tex"
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{graphicx}
+
+\geometry{margin=1in}
+
+\lstset{
+    language=Matlab,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{orange},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10}
+}
+
+\newtheorem{axiom}{Axiom}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{\textbf{Chapt8Exercise1b.m} \\ Quantum Well Wavefunction Probability \\ \large Fourier Transform Approach to Finite Barrier Tunneling}
+\author{Semiconductor Physics Documentation}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document provides a comprehensive analysis of \texttt{Chapt8Exercise1b.m}, which calculates the probability amplitude squared for a quantum well wavefunction as a function of a dimensionless parameter $\gamma$. The code uses sinc-function representations arising from Fourier transforms of finite-width barrier wavefunctions.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Theoretical Foundation}
+%==============================================================================
+
+\subsection{Quantum Confinement Axioms}
+
+\begin{axiom}[Schr\"odinger Equation]
+The time-independent behavior of a non-relativistic particle is governed by:
+\begin{equation}
+\hat{H}\psi = E\psi \quad \text{where} \quad \hat{H} = -\frac{\hbar^2}{2m}\nabla^2 + V(\mathbf{r})
+\end{equation}
+\end{axiom}
+
+\begin{axiom}[Born Interpretation]
+The probability density of finding a particle at position $\mathbf{r}$ is:
+\begin{equation}
+P(\mathbf{r}) = |\psi(\mathbf{r})|^2
+\end{equation}
+\end{axiom}
+
+\begin{axiom}[Continuity Conditions]
+At a potential discontinuity, the wavefunction $\psi$ and its derivative $\psi'$ (weighted by $1/m^*$ in heterostructures) must be continuous.
+\end{axiom}
+
+\subsection{Finite Quantum Well}
+
+\begin{definition}[Finite Square Well Potential]
+A one-dimensional finite quantum well is defined by:
+\begin{equation}
+V(z) = \begin{cases}
+0 & |z| \leq L/2 \\
+V_0 & |z| > L/2
+\end{cases}
+\end{equation}
+where $L$ is the well width and $V_0$ is the barrier height.
+\end{definition}
+
+\begin{theorem}[Bound State Solutions]
+For $0 < E < V_0$, the bound state wavefunctions have the form:
+\begin{equation}
+\psi(z) = \begin{cases}
+A\cos(kz) \text{ or } A\sin(kz) & |z| \leq L/2 \\
+Be^{-\kappa|z|} & |z| > L/2
+\end{cases}
+\end{equation}
+where:
+\begin{align}
+k &= \sqrt{\frac{2mE}{\hbar^2}} \\
+\kappa &= \sqrt{\frac{2m(V_0-E)}{\hbar^2}}
+\end{align}
+\end{theorem}
+
+\subsection{Fourier Transform Representation}
+
+\begin{definition}[Sinc Function]
+The cardinal sine function is defined as:
+\begin{equation}
+\text{sinc}(x) = \frac{\sin(x)}{x}
+\end{equation}
+with $\text{sinc}(0) = 1$ by L'H\^opital's rule.
+\end{definition}
+
+\begin{theorem}[Fourier Transform of Rectangular Function]
+The Fourier transform of a rectangular pulse of width $2a$ centered at the origin is:
+\begin{equation}
+\mathcal{F}\{\text{rect}(x/2a)\} = 2a \cdot \text{sinc}(ka)
+\end{equation}
+\end{theorem}
+
+\subsection{Probability Amplitude in Momentum Space}
+
+For a quantum well of width related to the quantum number $n$, the probability amplitude in the basis of plane waves involves:
+\begin{equation}
+|A(\gamma)|^2 \propto \left|\frac{\sin(\pi(n/\gamma - 1))}{\pi(n/\gamma - 1)} - \frac{\sin(\pi(n/\gamma + 1))}{\pi(n/\gamma + 1)}\right|^2
+\end{equation}
+
+where $\gamma$ is a dimensionless parameter representing the ratio of some characteristic scale to the well width.
+
+%==============================================================================
+\section{Mathematical Derivation}
+%==============================================================================
+
+\subsection{The Amplitude Expression}
+
+The code computes:
+\begin{equation}
+a = \frac{1}{\sqrt{\gamma}} \left[\frac{\sin(\pi(n/\gamma - 1))}{\pi(n/\gamma - 1)} - \frac{\sin(\pi(n/\gamma + 1))}{\pi(n/\gamma + 1)}\right]
+\end{equation}
+
+Let us define:
+\begin{align}
+y_1 &= \left(\frac{n}{\gamma} - 1\right)\pi \\
+y_2 &= \left(\frac{n}{\gamma} + 1\right)\pi
+\end{align}
+
+Then:
+\begin{equation}
+a = \frac{1}{\sqrt{\gamma}} \left[\frac{\sin(y_1)}{y_1} - \frac{\sin(y_2)}{y_2}\right]
+\end{equation}
+
+\subsection{Physical Interpretation}
+
+The expression represents the overlap integral between:
+\begin{itemize}
+\item A bound state wavefunction of quantum number $n$
+\item A plane wave basis state characterized by $\gamma$
+\end{itemize}
+
+The probability $|a|^2$ gives the momentum distribution of the confined particle.
+
+\subsection{Special Cases}
+
+\begin{lemma}[Resonance Condition]
+When $\gamma = n$:
+\begin{align}
+y_1 &= 0 \implies \text{sinc}(y_1) = 1 \\
+y_2 &= 2\pi \implies \text{sinc}(y_2) = 0
+\end{align}
+Maximum probability occurs near these resonance points.
+\end{lemma}
+
+%==============================================================================
+\section{Line-by-Line Code Analysis}
+%==============================================================================
+
+\subsection{Initialization}
+
+\begin{lstlisting}
+clear
+clf;
+\end{lstlisting}
+\textit{Clear workspace and figure.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+err=0.00001;
+\end{lstlisting}
+\begin{equation}
+\epsilon = 10^{-5}
+\end{equation}
+\textit{Small offset to avoid division by zero when $y_1 = 0$ or $y_2 = 0$.}
+
+\subsection{Main Computation Loop}
+
+\begin{lstlisting}
+for n=1:5
+\end{lstlisting}
+\textit{Loop over quantum numbers $n = 1, 2, 3, 4, 5$ (first five bound states).}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   for x=0:1000
+      gamma=1.0+x*0.004+err;
+\end{lstlisting}
+\begin{equation}
+\gamma = 1 + 0.004x + \epsilon \quad \text{for } x = 0, 1, \ldots, 1000
+\end{equation}
+\textit{Discretize $\gamma$ from 1 to 5 with step size 0.004.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+      y1=((n/gamma)-1.0)*pi;
+\end{lstlisting}
+\begin{equation}
+y_1 = \left(\frac{n}{\gamma} - 1\right)\pi
+\end{equation}
+\textit{First sinc argument.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+      y2=((n/gamma)+1.0)*pi;
+\end{lstlisting}
+\begin{equation}
+y_2 = \left(\frac{n}{\gamma} + 1\right)\pi
+\end{equation}
+\textit{Second sinc argument.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+      a=sqrt(1/gamma)*((sin(y1)/y1)-(sin(y2)/y2));
+\end{lstlisting}
+\begin{equation}
+a = \frac{1}{\sqrt{\gamma}}\left[\text{sinc}(y_1) - \text{sinc}(y_2)\right]
+\end{equation}
+\textit{Compute the probability amplitude using the difference of two sinc functions.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+      a2(x+1)=a*a;
+\end{lstlisting}
+\begin{equation}
+|a|^2 = a^2
+\end{equation}
+\textit{Store the probability (amplitude squared) in array.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   end
+\end{lstlisting}
+\textit{End of inner loop over $\gamma$ values.}
+
+\subsection{Plotting}
+
+\begin{lstlisting}
+   plot(1:0.004:5,a2), axis([1,5,0,1]), hold on
+\end{lstlisting}
+\begin{equation}
+\text{Plot } |a|^2 \text{ vs } \gamma \in [1, 5]
+\end{equation}
+\textit{Plot probability vs $\gamma$ with y-axis limited to $[0, 1]$.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   xlabel('\gamma'),ylabel('Probability');
+   title(['Chapt8Exercise1b']);
+end
+hold off;
+\end{lstlisting}
+\textit{Add labels and title; overlay all five curves.}
+
+%==============================================================================
+\section{Numerical Method: Direct Evaluation}
+%==============================================================================
+
+\subsection{Grid-Based Computation}
+
+This code uses direct numerical evaluation on a discrete grid:
+
+\begin{enumerate}
+\item \textbf{Grid Generation}: Create $\gamma$ values from 1 to 5 with step 0.004
+\begin{equation}
+\gamma_k = 1 + 0.004k + \epsilon, \quad k = 0, 1, \ldots, 1000
+\end{equation}
+
+\item \textbf{Function Evaluation}: For each $\gamma_k$ and quantum number $n$:
+\begin{equation}
+|a(\gamma_k, n)|^2 = \frac{1}{\gamma_k}\left[\text{sinc}\left(\frac{n\pi}{\gamma_k} - \pi\right) - \text{sinc}\left(\frac{n\pi}{\gamma_k} + \pi\right)\right]^2
+\end{equation}
+
+\item \textbf{Singularity Avoidance}: The small offset $\epsilon = 10^{-5}$ prevents evaluation exactly at points where denominators vanish.
+\end{enumerate}
+
+\subsection{Alternative: Using MATLAB's sinc Function}
+
+The code could be rewritten using MATLAB's built-in sinc function:
+\begin{equation}
+\text{sinc}_{\text{MATLAB}}(x) = \frac{\sin(\pi x)}{\pi x}
+\end{equation}
+
+Note: MATLAB's definition differs by a factor of $\pi$:
+\begin{equation}
+\text{sinc}_{\text{code}}(y) = \frac{\sin(y)}{y} = \text{sinc}_{\text{MATLAB}}(y/\pi)
+\end{equation}
+
+%==============================================================================
+\section{Physical Interpretation}
+%==============================================================================
+
+\subsection{Peak Locations}
+
+The probability $|a|^2$ peaks when the resonance condition $\gamma \approx n$ is satisfied:
+\begin{itemize}
+\item For $n = 1$: Peak near $\gamma = 1$
+\item For $n = 2$: Peak near $\gamma = 2$
+\item For $n = 3$: Peak near $\gamma = 3$
+\item And so on...
+\end{itemize}
+
+\subsection{Physical Meaning of $\gamma$}
+
+The parameter $\gamma$ represents a ratio of length scales or momentum scales:
+\begin{equation}
+\gamma = \frac{k_{\text{external}}}{k_{\text{well}}}
+\end{equation}
+
+When $\gamma = n$, the external wavefunction matches the $n$-th bound state, maximizing the overlap.
+
+\subsection{Decay of Probability}
+
+Away from resonance ($\gamma \neq n$), the probability decays as:
+\begin{equation}
+|a|^2 \sim \frac{1}{\gamma(\gamma - n)^2} \quad \text{for } |\gamma - n| \gg 1
+\end{equation}
+
+This is the characteristic decay of sinc$^2$ functions.
+
+%==============================================================================
+\section{Results Analysis}
+%==============================================================================
+
+\subsection{Expected Plot Features}
+
+\begin{enumerate}
+\item Five curves, one for each quantum number $n = 1$ to 5
+\item Each curve peaks near $\gamma = n$
+\item Peak heights decrease with increasing $n$ (due to $1/\sqrt{\gamma}$ factor)
+\item Side lobes appear between peaks
+\end{enumerate}
+
+\subsection{Normalization}
+
+The $1/\sqrt{\gamma}$ factor ensures proper normalization:
+\begin{equation}
+\int_0^\infty |a(\gamma)|^2 \, d\gamma = 1
+\end{equation}
+
+%==============================================================================
+\section{Summary}
+%==============================================================================
+
+This code calculates and plots the probability distribution in a dimensionless parameter space, showing how quantum well bound states project onto a continuous spectrum. The sinc function structure arises naturally from the Fourier transform of the localized wavefunction, and the resonance condition $\gamma = n$ identifies the dominant contribution of each bound state.
+
+\end{document}
+
+```
+
+---
+
+[← Back to Chapter 8 - Exercise 1B](./)

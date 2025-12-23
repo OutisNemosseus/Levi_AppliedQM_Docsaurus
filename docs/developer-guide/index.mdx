@@ -1,0 +1,160 @@
+---
+title: Developer Guide
+sidebar_label: Developer Guide
+sidebar_position: 1
+---
+
+# Developer Guide
+
+Welcome to the Applied QM Documentation Generator developer guide. This documentation covers the SOLID-compliant modular architecture of the documentation generator.
+
+## Quick Start
+
+```bash
+# Run generation
+node scripts/index.js
+
+# With custom source folder
+node scripts/index.js -s ./my-files -r
+
+# Watch mode
+node scripts/index.js --watch
+
+# Clean generated files
+node scripts/index.js --clean
+```
+
+## Architecture Overview
+
+The generator follows **SOLID principles** with a modular design:
+
+```
+scripts/
+├── index.js              # CLI entry point
+├── app.js                # Dependency injection container
+├── config/               # Configuration management
+│   ├── index.js         # Config factory
+│   ├── fileTypes.js     # File type definitions
+│   └── chapters.js      # Chapter name mappings
+├── utils/                # Utility functions
+│   ├── fileSystem.js    # File I/O abstraction
+│   ├── logger.js        # Logging interface
+│   └── helpers.js       # General helpers
+├── parsers/              # File parsing
+│   ├── programParser.js # Filename parser
+│   └── fileClassifier.js# File type classifier
+├── generators/           # MDX generators
+│   ├── BaseGenerator.js # Abstract base class
+│   ├── MatlabGenerator.js
+│   ├── LatexGenerator.js
+│   ├── PdfGenerator.js
+│   ├── HtmlGenerator.js
+│   ├── NotebookGenerator.js
+│   ├── TextGenerator.js
+│   ├── IndexGenerator.js
+│   ├── SidebarGenerator.js
+│   └── GeneratorFactory.js
+└── services/             # Business logic
+    ├── DocumentProcessor.js
+    ├── CleanService.js
+    └── WatchService.js
+```
+
+## SOLID Principles Applied
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Single Responsibility** | Each module has one job |
+| **Open/Closed** | Add new generators without modifying existing code |
+| **Liskov Substitution** | All generators extend BaseGenerator |
+| **Interface Segregation** | Small, focused interfaces |
+| **Dependency Inversion** | Services depend on abstractions |
+
+## Module Categories
+
+### Configuration (`config/`)
+- **`index.js`** - Configuration factory with CLI support
+- **`fileTypes.js`** - File type metadata (extensions, colors, emojis)
+- **`chapters.js`** - Chapter number to name mappings
+
+### Utilities (`utils/`)
+- **`fileSystem.js`** - File I/O operations abstraction
+- **`logger.js`** - Centralized logging with formatting
+- **`helpers.js`** - General utility functions
+
+### Parsers (`parsers/`)
+- **`programParser.js`** - Extract program info from filenames
+- **`fileClassifier.js`** - Classify files by extension
+
+### Generators (`generators/`)
+- **`BaseGenerator.js`** - Abstract base class with common methods
+- **Type Generators** - One per file type (MATLAB, LaTeX, PDF, etc.)
+- **`IndexGenerator.js`** - Program entry page generator
+- **`SidebarGenerator.js`** - Docusaurus sidebar config
+- **`GeneratorFactory.js`** - Factory pattern for generators
+
+### Services (`services/`)
+- **`DocumentProcessor.js`** - Main orchestration service
+- **`CleanService.js`** - Cleanup operations
+- **`WatchService.js`** - File watching for auto-regeneration
+
+## Extending the Generator
+
+### Adding a New File Type
+
+1. **Add type config** in `config/fileTypes.js`:
+```javascript
+'.xyz': {
+  type: 'xyz',
+  label: 'XYZ File',
+  emoji: '📎',
+  color: '#123456',
+  canReadText: true,
+  codeLanguage: 'xyz',
+}
+```
+
+2. **Create generator** in `generators/XyzGenerator.js`:
+```javascript
+const BaseGenerator = require('./BaseGenerator');
+
+class XyzGenerator extends BaseGenerator {
+  getType() { return 'xyz'; }
+
+  generate(programInfo, fileData) {
+    // Generate MDX content
+  }
+}
+
+module.exports = XyzGenerator;
+```
+
+3. **Register in factory** (`GeneratorFactory.js`):
+```javascript
+const XyzGenerator = require('./XyzGenerator');
+// Add to initializeGenerators()
+```
+
+## Data Flow
+
+```
+INBOX Files
+    ↓
+ProgramParser (extract metadata)
+    ↓
+FileClassifier (determine type)
+    ↓
+GeneratorFactory (get appropriate generator)
+    ↓
+Generator.generate() (create MDX)
+    ↓
+FileSystem.writeFile() (save)
+    ↓
+SidebarGenerator (update sidebar)
+```
+
+## See Also
+
+- [Configuration Guide](./config/)
+- [Generators Reference](./generators/)
+- [Services Reference](./services/)

@@ -1,0 +1,1 @@
+ function [fermi]=fermi(beta,energy,mu1)%	fermi is the Fermi-Dirac function%	x=(energy-mu1)*beta;   if(x > 180.0);				%check overflow      x=180.;      end;    if(x < -180.);			%check underflow       x=-180.;       end;	fermi=1./((exp(x))+1.);	return;

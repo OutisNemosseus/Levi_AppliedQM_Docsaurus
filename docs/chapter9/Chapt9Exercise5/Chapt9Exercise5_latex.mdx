@@ -1,0 +1,497 @@
+---
+title: Chapter 9 - Exercise 5 - LaTeX
+sidebar_label: LaTeX Source
+---
+
+# Chapter 9 - Exercise 5 - LaTeX Document
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+  <a href="/programs/latex/Chapt9Exercise5/Chapt9Exercise5.tex" download="Chapt9Exercise5.tex"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .tex
+  </a>
+  <a href="/programs/latex/Chapt9Exercise5/Chapt9Exercise5.tex" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+## LaTeX Source
+
+```latex title="Chapt9Exercise5.tex"
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{cleveref}
+
+\geometry{margin=1in}
+
+\lstset{
+  language=Matlab,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  commentstyle=\color{green!60!black},
+  numbers=left,
+  numberstyle=\tiny,
+  breaklines=true,
+  frame=single
+}
+
+\newtheorem{axiom}{Axiom}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{Light-Current Characteristics of Semiconductor Lasers\\[0.5em]\large Detailed Analysis of \texttt{Chapt9Exercise5.m}}
+\author{Generated Documentation}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document provides comprehensive theoretical foundations and line-by-line code analysis for \texttt{Chapt9Exercise5.m}, which computes the steady-state light output versus injection current (L-I curve) for a semiconductor laser diode. The code uses fourth-order Runge-Kutta integration to solve rate equations at each current level, extracting the steady-state response to construct the characteristic L-I curve that defines laser threshold and slope efficiency.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Theoretical Foundation}
+%==============================================================================
+
+\subsection{Axioms of L-I Characteristics}
+
+\begin{axiom}[Steady-State Equilibrium]
+At each injection current level, the laser reaches a steady state where:
+\begin{equation}
+\frac{dn}{dt} = 0, \quad \frac{dS}{dt} = 0
+\end{equation}
+\end{axiom}
+
+\begin{axiom}[Threshold Transition]
+Below threshold ($I < I_{th}$), the laser operates as an LED with spontaneous emission. Above threshold ($I > I_{th}$), stimulated emission dominates and output power increases linearly with current.
+\end{axiom}
+
+\begin{axiom}[Carrier Clamping]
+Above threshold, the carrier density clamps at the threshold value:
+\begin{equation}
+n \approx n_{th} = n_0 + \frac{\kappa}{\Gamma g_0 v_g/n_g} \quad \text{for } I > I_{th}
+\end{equation}
+\end{axiom}
+
+\subsection{Fundamental Definitions}
+
+\begin{definition}[Threshold Current]
+The threshold current is the injection level required to achieve transparency plus compensate all optical losses:
+\begin{equation}
+I_{th} = \frac{eV}{\tau_n(n_{th})} \cdot n_{th} = eV(An_{th} + Bn_{th}^2 + Cn_{th}^3)
+\end{equation}
+\end{definition}
+
+\begin{definition}[Differential Quantum Efficiency]
+The external differential quantum efficiency relates photon output rate to injected electron rate:
+\begin{equation}
+\eta_d = \eta_i \cdot \frac{\alpha_m}{\alpha_m + \alpha_i}
+\end{equation}
+where $\eta_i$ is the internal quantum efficiency.
+\end{definition}
+
+\begin{definition}[Slope Efficiency]
+The slope of the L-I curve above threshold:
+\begin{equation}
+\frac{dP}{dI} = \eta_d \cdot \frac{h\nu}{e} = \eta_d \cdot \frac{hc}{e\lambda}
+\end{equation}
+with units of W/A.
+\end{definition}
+
+\subsection{Core Theorems}
+
+\begin{theorem}[Steady-State Photon Density]
+Above threshold, the steady-state photon density is:
+\begin{equation}
+S_0 = \frac{I - I_{th}}{eV \cdot \kappa} \cdot \frac{1}{1 + \varepsilon S_0/(g-\kappa)}
+\end{equation}
+For small gain compression:
+\begin{equation}
+S_0 \approx \frac{\Gamma(I - I_{th})}{eV \cdot \kappa}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Setting $dS/dt = 0$ in the rate equation:
+\begin{equation}
+(g - \kappa)S_0 + \beta R_{sp} = 0
+\end{equation}
+Above threshold, $g \approx \kappa$ (gain clamping), so the excess current $(I - I_{th})$ goes entirely into stimulated emission:
+\begin{equation}
+\frac{I - I_{th}}{eV} = g \cdot S_0 \approx \kappa S_0
+\end{equation}
+\end{proof}
+
+\begin{theorem}[L-I Curve Shape]
+The complete L-I characteristic is:
+\begin{equation}
+P(I) = \begin{cases}
+\beta B n^2 V \cdot \frac{hc}{\lambda} \cdot \frac{\alpha_m}{\alpha_m + \alpha_i} & I < I_{th} \\[1em]
+\eta_d \frac{hc}{e\lambda}(I - I_{th}) & I > I_{th}
+\end{cases}
+\end{equation}
+\end{theorem}
+
+\begin{theorem}[Carrier Density vs Current]
+The carrier density behavior:
+\begin{equation}
+n(I) = \begin{cases}
+\text{increases with } I & I < I_{th} \\
+n_{th} \approx \text{constant} & I > I_{th}
+\end{cases}
+\end{equation}
+This ``clamping'' is a signature of lasing action.
+\end{theorem}
+
+%==============================================================================
+\section{Line-by-Line Code Analysis}
+%==============================================================================
+
+\subsection{Header and Constants}
+
+\begin{lstlisting}
+%Chapt9Exercise5.m
+%  solves single mode laser rate equations
+%  using 4th order Runge-Kutta method and plots
+%  light output, L, and carrier density, n, vs current, I
+\end{lstlisting}
+Program header describing L-I curve computation.
+
+\begin{lstlisting}
+%  gain=g=gamma*gslope*(n-n0)*(1-epsi*s)
+%  fcn=n'=(I/ev)-(n/tau_n)-(g*s)
+%  fcs=s'=(g-K)*s+beta*Rsp
+\end{lstlisting}
+\textbf{Rate equations:}
+\begin{align}
+g &= \Gamma g_0 (n - n_0)(1 - \varepsilon S) \\
+\frac{dn}{dt} &= \frac{I}{eV} - \frac{n}{\tau_n} - gS \\
+\frac{dS}{dt} &= (g - \kappa)S + \beta R_{sp}
+\end{align}
+
+\begin{lstlisting}
+clear;
+clf;
+% declare constants
+hconstjs=6.6262e-34;      %Planck's constant (J s)
+echargec=1.6021e-19;      %electron charge (C)
+vlightcm=2.997925e10;     %velocity of light (cm s-1)
+pi2=2*pi;                 %value of 2pi
+
+ngplot=100;               %number of points plotted
+nsteps=2000;              %steps in time integration
+\end{lstlisting}
+\textbf{Physical constants and simulation parameters:}
+\begin{align}
+h &= 6.6262 \times 10^{-34} \text{ J$\cdot$s} \\
+e &= 1.6021 \times 10^{-19} \text{ C} \\
+c &= 2.997925 \times 10^{10} \text{ cm/s}
+\end{align}
+The L-I curve has 100 points; each uses 2000 RK4 steps to reach steady state.
+
+\subsection{Parameter File Reading}
+
+\begin{lstlisting}
+fp = fopen('datainLI.txt','r');
+for i=1:1:20
+    x(i) = fscanf(fp, '%e', 1);
+end   
+fclose(fp);
+
+ngroup     = x(1);        %refractive index
+clength    = x(2);        %cavity length (cm)
+thick      = x(3);        %thickness (cm)
+width      = x(4);        %width (cm)
+\end{lstlisting}
+\textbf{Cavity parameters from file:} Reading standardized input file for device geometry.
+
+\begin{lstlisting}
+tincrement = x(5);        %time increment (s)
+initialn   = x(6);        %initial carrier density (cm-3)
+
+Anr        = x(7);        %non-radiative rate (s-1)
+Bcons      = x(8);        %radiative coefficient (cm3 s-1)
+Ccons      = x(9);        %Auger coefficient (cm6 s-1)
+\end{lstlisting}
+\textbf{Recombination parameters:} The ABC model for carrier lifetime:
+\begin{equation}
+\frac{1}{\tau_n} = A + Bn + Cn^2
+\end{equation}
+
+\begin{lstlisting}
+n0density  = x(10);       %transparency density (cm-3)
+gslope     = x(11);       %gain-slope (cm2 s-1)
+epsi       = x(12);       %gain compression (cm3)
+beta       = x(13);       %spontaneous emission factor
+gamma_cons = x(14);       %confinement factor
+wavelength = x(15);       %emission wavelength (um)
+\end{lstlisting}
+\textbf{Gain parameters:}
+\begin{equation}
+g = \Gamma g_0 (n - n_0)(1 - \varepsilon S)
+\end{equation}
+
+\begin{lstlisting}
+mirrone    = x(16);       %reflectivity mirror 1
+mirrtwo    = x(17);       %reflectivity mirror 2
+alfa_i     = x(18);       %internal loss (cm-1)
+
+Imin       = x(19);       %start current value
+Imax       = x(20);       %end current value
+\end{lstlisting}
+\textbf{Optical losses and current range:}
+\begin{equation}
+\alpha_m = \frac{1}{2L}\ln\frac{1}{R_1 R_2}
+\end{equation}
+Current swept from $I_{min}$ to $I_{max}$.
+
+\subsection{Initialization}
+
+\begin{lstlisting}
+sdensity = 0.0;
+ndensity = initialn * 1.0e-21;
+
+alfa_m   = log( 1.0/(mirrone * mirrtwo) ) / ( 2.0 * clength );
+alfasum  = alfa_m + alfa_i;
+\end{lstlisting}
+\textbf{Initial conditions:} Start with empty cavity and calculate total optical loss.
+
+\subsection{Unit Rescaling}
+
+\begin{lstlisting}
+echarge    = echargec*1.0e9*1.0e3;    % rescaled charge
+vlight     = vlightcm/1.0e9/1.0e-7;  % nm/ns
+
+tincrement = tincrement * 1.0e9;
+gslope     = gslope * 1.0e14;
+n0density  = n0density * 1.0e-21;
+\end{lstlisting}
+\textbf{Unit conversions:} Time in ns, length in nm, current in mA for numerical stability.
+
+\begin{lstlisting}
+clength    = clength / 1.0e-7;
+width      = width / 1.0e-7;
+thick      = thick / 1.0e-7;
+
+Anr        = Anr / 1.0e9;
+Bcons      = Bcons / (1.0e9*1.0e-21);
+Ccons      = Ccons / (1.0e9*1.0e-42);
+\end{lstlisting}
+Length dimensions converted to nm; recombination coefficients rescaled.
+
+\begin{lstlisting}
+epsi       = epsi / 1.0e-21;
+gslope     = gslope * vlight / ngroup;
+alfasum    = alfasum * 1.0e-7;
+kappa      = alfasum * vlight / ngroup;
+volume     = clength * width * thick;
+\end{lstlisting}
+\textbf{Key quantities:}
+\begin{align}
+\kappa &= \frac{\alpha_{tot} v_g}{n_g} \quad \text{(photon decay rate)} \\
+V &= L \times w \times d \quad \text{(active volume)}
+\end{align}
+
+\subsection{Power Output Scaling}
+
+\begin{lstlisting}
+tmp   = hconstjs * (vlightcm * 1.0e-2)/(wavelength * 1.0e-6);
+tmp   = tmp * alfa_m * vlightcm;
+tmp   = tmp * 1000.0*volume/ngroup;
+lightout = tmp*(1.0-mirrone)/(2.0-mirrone-mirrtwo);
+\end{lstlisting}
+\textbf{Photon to power conversion:}
+\begin{equation}
+P = \frac{hc}{\lambda} \cdot \alpha_m v_g S V \cdot \frac{1-R_1}{(1-R_1)+(1-R_2)}
+\end{equation}
+Output power from facet 1 proportional to its transmission.
+
+\subsection{Data Array}
+
+\begin{lstlisting}
+data(1)=gamma_cons;
+data(2)=gslope;
+data(3)=n0density;
+data(4)=epsi;
+data(5)=kappa;
+data(6)=Bcons;
+data(7)=Anr;
+data(8)=Ccons;
+data(9)=volume;
+data(10)=beta;
+\end{lstlisting}
+Parameters passed to Runge-Kutta integrator.
+
+\subsection{Main L-I Curve Loop}
+
+\begin{lstlisting}
+photonold=0;
+current=0;
+dcurrent=(Imax-Imin)/ngplot;
+
+for j=1:ngplot
+   current=current+dcurrent;
+   
+   for i = 1:nsteps;   
+       [sdensity, ndensity]=runge4(current, sdensity, ndensity, tincrement, data);
+       carrier = ndensity * 1.0e21/1.0e18;
+       photon = (lightout*sdensity);
+       photonold=photon;
+   end;
+   currentI(j)=current;
+   photonL(j)=photon;
+   carrierN(j)=carrier;
+end
+\end{lstlisting}
+\textbf{Algorithm structure:}
+\begin{enumerate}
+\item Sweep current from $I_{min}$ to $I_{max}$ in 100 steps
+\item At each current, run 2000 RK4 iterations to reach steady state
+\item Record final (steady-state) photon density and carrier density
+\item Use previous steady state as initial condition for next current (warm start)
+\end{enumerate}
+
+\textbf{Warm start advantage:} By using the steady state from $I_j$ as initial condition for $I_{j+1}$, convergence is faster for small $\Delta I$.
+
+\subsection{Plotting}
+
+\begin{lstlisting}
+figure(1);
+plot(currentI,photonL,'r-');
+title('Chapt9Exercise5, light output as function of injection current')
+xlabel('Current, I (mA)');
+ylabel('Light, L (mW)');
+\end{lstlisting}
+\textbf{L-I curve (linear scale):} Shows threshold kink and linear slope above threshold.
+
+\begin{lstlisting}
+figure(2);
+plot(currentI,log(photonL),'r-');
+xlabel('Current, I (mA)');
+ylabel('log(light), log(L) (mW)');
+\end{lstlisting}
+\textbf{L-I curve (log scale):} Reveals spontaneous emission below threshold.
+
+\begin{lstlisting}
+figure(3);
+plot(currentI,carrierN,'b');
+title('Chapt9Exercise5, carrier density as function of injection current')
+xlabel('Current, I (mA)');
+ylabel('Carrier density, n (cm^{-3})');
+\end{lstlisting}
+\textbf{n-I curve:} Shows carrier clamping above threshold.
+
+%==============================================================================
+\section{Numerical Methods}
+%==============================================================================
+
+\subsection{Steady-State Extraction}
+
+The code uses time-domain integration to find steady state rather than solving algebraic equations directly. This approach:
+\begin{itemize}
+\item Handles the nonlinear gain compression term naturally
+\item Avoids issues with multiple solutions
+\item Captures hysteresis if present (though not in this simple model)
+\end{itemize}
+
+\subsection{Convergence Criterion}
+
+The implicit criterion is that 2000 time steps (at typically 1 ps each = 2 ns) is sufficient for transients to decay. For typical parameters:
+\begin{itemize}
+\item Carrier lifetime $\tau_n \sim 3$ ns
+\item Relaxation oscillation period $\sim 0.2$ ns
+\item 2000 steps covers several $\tau_n$, ensuring convergence
+\end{itemize}
+
+\subsection{Warm Start Strategy}
+
+By not resetting initial conditions between current points:
+\begin{equation}
+(S_0, n_0)_{I_{j+1}} = (S_{ss}, n_{ss})_{I_j}
+\end{equation}
+This dramatically reduces required steps since the system starts near the new equilibrium.
+
+%==============================================================================
+\section{Physical Interpretation}
+%==============================================================================
+
+\subsection{Below Threshold ($I < I_{th}$)}
+
+The device operates as an LED:
+\begin{itemize}
+\item Carrier density increases with current: $n \propto I$
+\item Spontaneous emission: $P \propto Bn^2 \propto I^2$
+\item Gain $< $ loss, so no amplification
+\end{itemize}
+
+\subsection{At Threshold ($I = I_{th}$)}
+
+The transition point:
+\begin{itemize}
+\item $g(n_{th}) = \kappa$
+\item Round-trip gain equals unity
+\item Coherent oscillation begins
+\end{itemize}
+
+\subsection{Above Threshold ($I > I_{th}$)}
+
+Laser operation:
+\begin{itemize}
+\item Carrier density clamps: $n \approx n_{th}$
+\item Additional current goes to photons: $\Delta P \propto (I - I_{th})$
+\item Slope efficiency: $\eta_d \cdot hc/(e\lambda) \approx 0.3-0.5$ W/A
+\end{itemize}
+
+\subsection{Characteristic Features}
+
+The L-I curve reveals:
+\begin{enumerate}
+\item \textbf{Threshold current}: The kink position
+\item \textbf{Slope efficiency}: Derivative above threshold
+\item \textbf{Internal losses}: From $\eta_d = \alpha_m/(\alpha_m + \alpha_i)$
+\item \textbf{Carrier clamping}: Constant $n$ above threshold
+\end{enumerate}
+
+%==============================================================================
+\section{Summary}
+%==============================================================================
+
+This code computes the fundamental L-I characteristic of a semiconductor laser by:
+\begin{itemize}
+\item Sweeping injection current over a specified range
+\item Using RK4 time integration to find steady-state at each current
+\item Employing warm start for computational efficiency
+\item Extracting both light output and carrier density vs current
+\end{itemize}
+
+The resulting L-I curve demonstrates:
+\begin{itemize}
+\item Sharp threshold transition
+\item Linear power increase above threshold
+\item Carrier density clamping
+\item Logarithmic plot reveals sub-threshold spontaneous emission
+\end{itemize}
+
+The external parameter file approach allows easy variation of device parameters to study their effects on threshold current and slope efficiency.
+
+\end{document}
+
+```
+
+---
+
+[← Back to Chapter 9 - Exercise 5](./)

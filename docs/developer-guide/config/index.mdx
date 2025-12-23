@@ -1,0 +1,141 @@
+---
+title: Configuration Module
+sidebar_label: Configuration
+---
+
+# Configuration Module
+
+The configuration module (`scripts/config/`) manages all application settings with CLI override support.
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `index.js` | Configuration factory + CLI parser |
+| `fileTypes.js` | File type definitions |
+| `chapters.js` | Chapter name mappings |
+
+## API Reference
+
+### `parseArgs(argv?)`
+
+Parse command line arguments.
+
+```javascript
+const { parseArgs } = require('./config');
+
+const options = parseArgs(['--source', './files', '-r']);
+// => { command: null, source: './files', recursive: true }
+```
+
+**Parameters:**
+- `argv` (string[], optional) - Arguments to parse. Defaults to `process.argv.slice(2)`
+
+**Returns:** `CliOptions` object
+```typescript
+interface CliOptions {
+  command: 'watch' | 'clean' | 'help' | null;
+  source: string | null;
+  recursive: boolean;
+}
+```
+
+### `createConfig(cliOptions?)`
+
+Create configuration object with CLI overrides.
+
+```javascript
+const { createConfig } = require('./config');
+
+const config = createConfig({ source: './myfiles', recursive: true });
+console.log(config.inboxDir);  // Absolute path to ./myfiles
+console.log(config.recursive); // true
+```
+
+**Parameters:**
+- `cliOptions` (CliOptions, optional) - CLI options to apply
+
+**Returns:** `Config` object with all settings
+
+### Configuration Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `inboxDir` | string | Source directory path |
+| `docsOutputDir` | string | Docs output path |
+| `staticOutputDir` | string | Static files output path |
+| `sidebarPath` | string | Path to sidebars.js |
+| `programPattern` | RegExp | Pattern to match program names |
+| `supportedExtensions` | string[] | Supported file extensions |
+| `recursive` | boolean | Scan subdirectories |
+| `version` | string | Generator version |
+
+## File Types (`fileTypes.js`)
+
+Defines metadata for each supported file type.
+
+```javascript
+const { FILE_TYPES, getTypeConfig, isSupported } = require('./config/fileTypes');
+
+// Check if extension is supported
+isSupported('.m');  // true
+isSupported('.xyz'); // false
+
+// Get type configuration
+const config = getTypeConfig('.pdf');
+// => { type: 'pdf', label: 'PDF Document', emoji: '📕', ... }
+```
+
+### File Type Schema
+
+```typescript
+interface FileTypeConfig {
+  type: string;       // Internal identifier
+  label: string;      // Display label
+  emoji: string;      // Display emoji
+  color: string;      // Theme color (hex)
+  canReadText: boolean;
+  codeLanguage?: string;
+  maxPreviewLength?: number;
+  useIframe?: boolean;
+  iframeHeight?: string;
+}
+```
+
+### Supported Types
+
+| Extension | Type | Can Read Text |
+|-----------|------|---------------|
+| `.m` | matlab | Yes |
+| `.tex` | latex | Yes |
+| `.pdf` | pdf | No |
+| `.html` | html | Yes |
+| `.ipynb` | ipynb | No |
+| `.txt` | text | Yes |
+
+## Chapters (`chapters.js`)
+
+Maps chapter numbers to display names.
+
+```javascript
+const { getChapterName, CHAPTER_NAMES } = require('./config/chapters');
+
+getChapterName('1');  // 'Introduction to Quantum Mechanics'
+getChapterName('utilities'); // 'Utility Functions'
+getChapterName('99'); // 'Chapter 99'
+```
+
+## Example: Custom Configuration
+
+```javascript
+const { createConfig } = require('./scripts/config');
+
+// Create config with custom source
+const config = createConfig({
+  source: '/path/to/my/files',
+  recursive: true,
+});
+
+console.log(config.inboxDir);           // /path/to/my/files
+console.log(config.supportedExtensions); // ['.m', '.tex', ...]
+```

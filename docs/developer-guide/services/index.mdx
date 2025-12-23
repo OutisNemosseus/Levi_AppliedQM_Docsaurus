@@ -1,0 +1,174 @@
+---
+title: Services Module
+sidebar_label: Services
+---
+
+# Services Module
+
+The services module (`scripts/services/`) contains the main business logic.
+
+## DocumentProcessor
+
+The main orchestration service that coordinates the entire generation process.
+
+```javascript
+const { createDocumentProcessor } = require('./services/DocumentProcessor');
+
+const processor = createDocumentProcessor({
+  config,
+  fileSystem,
+  logger,
+  parser,
+  classifier,
+  generatorFactory,
+});
+
+const stats = processor.process();
+console.log(stats.processed); // Number of files processed
+```
+
+### Dependencies
+
+| Dependency | Purpose |
+|------------|---------|
+| `config` | Application configuration |
+| `fileSystem` | File I/O operations |
+| `logger` | Logging output |
+| `parser` | Program filename parser |
+| `classifier` | File type classifier |
+| `generatorFactory` | MDX generator factory |
+
+### Process Flow
+
+```
+process()
+├── Check source directory exists
+├── Scan for supported files
+├── Group files by program ID
+├── For each program:
+│   ├── Create output directories
+│   ├── Copy files to static/
+│   ├── Generate detail pages (.mdx)
+│   └── Generate index page
+├── Generate sidebar
+└── Print statistics
+```
+
+### Statistics Object
+
+```typescript
+interface Stats {
+  processed: number;   // Files successfully processed
+  skipped: number;     // Files skipped
+  utilities: number;   // Utility files count
+  byChapter: Map<string, Set<string>>; // Programs per chapter
+  byType: Map<string, number>;         // Files per type
+  programFiles: Map<string, object>;   // All program data
+}
+```
+
+## CleanService
+
+Removes generated documentation files.
+
+```javascript
+const { createCleanService } = require('./services/CleanService');
+
+const cleanService = createCleanService({
+  config,
+  fileSystem,
+  logger,
+});
+
+const result = cleanService.clean();
+console.log(result.foldersRemoved); // Number of folders removed
+```
+
+### What Gets Cleaned
+
+- `docs/chapter1/` through `docs/chapter9/`
+- `docs/utilities/`
+- `static/programs/`
+
+### API
+
+| Method | Description |
+|--------|-------------|
+| `clean()` | Clean all generated files |
+| `cleanChapter(num)` | Clean specific chapter |
+
+## WatchService
+
+Monitors source directory for changes and auto-regenerates.
+
+```javascript
+const { createWatchService } = require('./services/WatchService');
+
+const watchService = createWatchService({
+  config,
+  fileSystem,
+  logger,
+  processCallback: () => processor.process(),
+});
+
+watchService.start();
+// Now monitoring for changes...
+
+// To stop:
+watchService.stop();
+```
+
+### Features
+
+- Debounced processing (1 second)
+- Only triggers on supported file types
+- Graceful shutdown on SIGINT/SIGTERM
+- Initial run on start
+
+### API
+
+| Method | Description |
+|--------|-------------|
+| `start()` | Start watching (returns boolean) |
+| `stop()` | Stop watching |
+| `isWatching()` | Check if currently watching |
+
+## Integration Example
+
+```javascript
+const { createConfig } = require('./config');
+const { createFileSystem } = require('./utils/fileSystem');
+const { createLogger } = require('./utils/logger');
+const { createProgramParser } = require('./parsers/programParser');
+const { createFileClassifier } = require('./parsers/fileClassifier');
+const { createGeneratorFactory } = require('./generators/GeneratorFactory');
+const { createDocumentProcessor } = require('./services/DocumentProcessor');
+
+// Wire up dependencies
+const config = createConfig({ source: './files' });
+const fileSystem = createFileSystem();
+const logger = createLogger();
+const parser = createProgramParser(config.programPattern);
+const classifier = createFileClassifier(config.fileTypes);
+const generatorFactory = createGeneratorFactory(config);
+
+const processor = createDocumentProcessor({
+  config,
+  fileSystem,
+  logger,
+  parser,
+  classifier,
+  generatorFactory,
+});
+
+// Run processing
+const stats = processor.process();
+```
+
+## Error Handling
+
+All services handle errors gracefully:
+
+- File operations return success/failure booleans
+- Errors are logged but don't crash the process
+- Skipped files are counted in statistics

@@ -1,0 +1,373 @@
+---
+title: Chapter 9 - Exercise 1 - LaTeX
+sidebar_label: LaTeX Source
+---
+
+# Chapter 9 - Exercise 1 - LaTeX Document
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+  <a href="/programs/latex/Chapt9Exercise1/Chapt9Exercise1.tex" download="Chapt9Exercise1.tex"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .tex
+  </a>
+  <a href="/programs/latex/Chapt9Exercise1/Chapt9Exercise1.tex" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+## LaTeX Source
+
+```latex title="Chapt9Exercise1.tex"
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+
+\geometry{margin=1in}
+
+\lstset{
+    language=Matlab,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{orange},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10}
+}
+
+\newtheorem{axiom}{Axiom}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{\textbf{Chapt9Exercise1.m} \\ Optical Gain and Spontaneous Emission in Semiconductors \\ \large Direct-Gap Semiconductor Laser Theory}
+\author{Semiconductor Physics Documentation}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document provides a comprehensive analysis of \texttt{Chapt9Exercise1.m}, which calculates the optical gain spectrum and spontaneous emission rate as functions of photon energy for various carrier densities. The theory covers the fundamental physics of population inversion and stimulated emission in direct-gap semiconductors.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Theoretical Foundation}
+%==============================================================================
+
+\subsection{Fundamental Axioms of Light-Matter Interaction}
+
+\begin{axiom}[Einstein Relations]
+For a two-level system, the rates of absorption, stimulated emission, and spontaneous emission are related by:
+\begin{equation}
+B_{12} = B_{21}, \quad A_{21} = \frac{8\pi h\nu^3}{c^3} B_{21}
+\end{equation}
+where $B$ coefficients describe stimulated processes and $A$ describes spontaneous emission.
+\end{axiom}
+
+\begin{axiom}[Fermi's Golden Rule for Optical Transitions]
+The optical transition rate is:
+\begin{equation}
+W = \frac{2\pi}{\hbar}|M_{cv}|^2 \rho_r(E)
+\end{equation}
+where $M_{cv}$ is the optical matrix element and $\rho_r$ is the reduced density of states.
+\end{axiom}
+
+\subsection{Joint Density of States}
+
+\begin{definition}[Reduced Density of States]
+For parabolic bands with electron mass $m_e$ and hole mass $m_{hh}$, the reduced mass is:
+\begin{equation}
+m_r = \frac{m_e m_{hh}}{m_e + m_{hh}}
+\end{equation}
+The joint density of states is:
+\begin{equation}
+\rho_r(\hbar\omega - E_g) = \frac{1}{2\pi^2}\left(\frac{2m_r}{\hbar^2}\right)^{3/2} \sqrt{\hbar\omega - E_g}
+\end{equation}
+\end{definition}
+
+\subsection{Optical Gain Theory}
+
+\begin{theorem}[Gain Formula]
+The optical gain (or absorption) coefficient is:
+\begin{equation}
+g(\hbar\omega) = C \cdot \sqrt{\hbar\omega - E_g} \cdot (f_e + f_h - 1)
+\end{equation}
+where:
+\begin{itemize}
+\item $C$ is a material constant
+\item $f_e$, $f_h$ are electron and hole Fermi functions
+\item $E_g$ is the bandgap energy
+\end{itemize}
+\end{theorem}
+
+\begin{definition}[Bernard-Duraffourg Condition]
+For optical gain ($g > 0$), we require:
+\begin{equation}
+f_e + f_h > 1
+\end{equation}
+This is equivalent to population inversion.
+\end{definition}
+
+\begin{theorem}[Population Inversion Criterion]
+The condition $f_e + f_h > 1$ is satisfied when:
+\begin{equation}
+\hbar\omega < \mu_e + \mu_h = \Delta\mu
+\end{equation}
+where $\mu_e$ and $\mu_h$ are the quasi-Fermi levels for electrons and holes.
+\end{theorem}
+
+\subsection{Spontaneous Emission}
+
+\begin{theorem}[Spontaneous Emission Rate]
+The spontaneous emission spectrum is:
+\begin{equation}
+r_{sp}(\hbar\omega) = C \cdot \sqrt{\hbar\omega - E_g} \cdot f_e \cdot f_h
+\end{equation}
+\end{theorem}
+
+\subsection{Energy Distribution in Bands}
+
+For a photon of energy $\hbar\omega$ above the bandgap:
+\begin{align}
+E_e &= \frac{\hbar\omega - E_g}{1 + m_e/m_{hh}} = \frac{m_{hh}}{m_e + m_{hh}}(\hbar\omega - E_g) \\
+E_h &= \frac{\hbar\omega - E_g}{1 + m_{hh}/m_e} = \frac{m_e}{m_e + m_{hh}}(\hbar\omega - E_g)
+\end{align}
+
+%==============================================================================
+\section{Line-by-Line Code Analysis}
+%==============================================================================
+
+\subsection{Physical Constants}
+
+\begin{lstlisting}
+clf;
+   echarge=1.6021764e-19;
+   hbar=1.05457159e-34;
+   c = 2.99792458e8;
+   kB=8.61734e-5;
+   epsilon0=8.8541878e-12;
+\end{lstlisting}
+\begin{equation}
+e, \hbar, c, k_B, \varepsilon_0
+\end{equation}
+\textit{Fundamental physical constants.}
+
+\subsection{Material Parameters}
+
+\begin{lstlisting}
+   m0=9.109382e-31;
+   me=0.07*m0;
+   mhh=0.5*m0;
+   mr=1/(1/me+1/mhh);
+   rerr=1e-3;
+\end{lstlisting}
+\begin{equation}
+m_e = 0.07 m_0, \quad m_{hh} = 0.5 m_0, \quad m_r = \frac{m_e m_{hh}}{m_e + m_{hh}}
+\end{equation}
+\textit{Effective masses for GaAs: light electron mass, heavy hole mass.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   nr=3.3;
+   Eg=1.4
+\end{lstlisting}
+\begin{equation}
+n_r = 3.3, \quad E_g = 1.4 \text{ eV}
+\end{equation}
+\textit{Refractive index and bandgap of GaAs.}
+
+\subsection{Temperature Parameters}
+
+\begin{lstlisting}
+   kelvin=300.0;
+   kBT=kB*kelvin;
+   beta=1/kBT;
+\end{lstlisting}
+\begin{equation}
+T = 300 \text{ K}, \quad k_B T = 25.9 \text{ meV}, \quad \beta = 1/(k_B T)
+\end{equation}
+\textit{Room temperature thermal parameters.}
+
+\subsection{Carrier Density Loop}
+
+\begin{lstlisting}
+   for k=1:1:10
+      n=k*1.e18;
+	ncarrier=n*1e6;
+\end{lstlisting}
+\begin{equation}
+n \in \{1, 2, \ldots, 10\} \times 10^{18} \text{ cm}^{-3}
+\end{equation}
+\textit{Loop over 10 carrier densities from $10^{18}$ to $10^{19}$ cm$^{-3}$.}
+
+\subsection{Chemical Potentials}
+
+\begin{lstlisting}
+   muhh=mu(mhh,ncarrier,kelvin,rerr)
+   mue=mu(me,ncarrier,kelvin,rerr)
+   deltamu=mue+muhh
+\end{lstlisting}
+\begin{equation}
+\mu_h = \mu(m_{hh}, n, T), \quad \mu_e = \mu(m_e, n, T), \quad \Delta\mu = \mu_e + \mu_h
+\end{equation}
+\textit{Calculate quasi-Fermi levels using external function mu.m.}
+
+\subsection{Material Constant}
+
+\begin{lstlisting}
+      const=2.64e4;
+\end{lstlisting}
+\begin{equation}
+C = 2.64 \times 10^4 \text{ cm}^{-1}
+\end{equation}
+\textit{Constant calibrated to give $\sim330$ cm$^{-1}$ gain at $n = 2 \times 10^{18}$ cm$^{-3}$.}
+
+\subsection{Energy Loop}
+
+\begin{lstlisting}
+      deltae=0.001;
+   	for j=1:300
+      	Energy(j)=j*deltae;
+\end{lstlisting}
+\begin{equation}
+\Delta E = 1 \text{ meV}, \quad E_j = j \times 1 \text{ meV for } j = 1, \ldots, 300
+\end{equation}
+\textit{Energy above bandgap, from 1 meV to 300 meV.}
+
+\subsection{Energy Distribution}
+
+\begin{lstlisting}
+      	Ehh=(Energy(j))/(1+mhh/me);
+      	Ee=(Energy(j))/(1+me/mhh);
+\end{lstlisting}
+\begin{equation}
+E_h = \frac{E}{1 + m_{hh}/m_e}, \quad E_e = \frac{E}{1 + m_e/m_{hh}}
+\end{equation}
+\textit{Partition energy between electron and hole according to effective masses.}
+
+\subsection{Fermi Functions}
+
+\begin{lstlisting}
+      	fhh=fermi(beta,Ehh,muhh);
+      	fe=fermi(beta,Ee,mue);
+\end{lstlisting}
+\begin{equation}
+f_h = \frac{1}{e^{\beta(E_h - \mu_h)} + 1}, \quad f_e = \frac{1}{e^{\beta(E_e - \mu_e)} + 1}
+\end{equation}
+\textit{Fermi-Dirac occupation probabilities.}
+
+\subsection{Gain and Spontaneous Emission}
+
+\begin{lstlisting}
+      	gain(j)=const*(Energy(j)^0.5)*(fe+fhh-1);
+      	rspon(j)=(const)*(Energy(j)^0.5)*(fe*fhh);
+\end{lstlisting}
+\begin{equation}
+g(E) = C \sqrt{E} (f_e + f_h - 1)
+\end{equation}
+\begin{equation}
+r_{sp}(E) = C \sqrt{E} \cdot f_e \cdot f_h
+\end{equation}
+\textit{Core physics: gain requires population inversion, spontaneous emission proportional to product.}
+
+\subsection{Plotting}
+
+\begin{lstlisting}
+   figure(1)
+   hold on;
+   plot(Energy+Eg, gain);
+   xlabel('Photon energy, h\omega (eV)');
+   ylabel('Optical gain, g (cm^{-1})');
+\end{lstlisting}
+\textit{Plot gain vs photon energy (Energy + Eg gives absolute photon energy).}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   figure(2)
+   hold on;
+   plot(Energy+Eg,rspon,'r');
+   xlabel('Photon energy, h\omega (eV)');
+   ylabel('Spontaneous emission, rsp (arb.)');
+\end{lstlisting}
+\textit{Plot spontaneous emission spectrum.}
+
+%==============================================================================
+\section{Physical Interpretation}
+%==============================================================================
+
+\subsection{Gain Spectrum Features}
+
+\begin{enumerate}
+\item \textbf{Transparency point}: $g = 0$ when $f_e + f_h = 1$
+\item \textbf{Peak gain}: Occurs near $\hbar\omega \approx E_g + k_B T$
+\item \textbf{High-energy cutoff}: $g \to 0$ as $\hbar\omega \to \Delta\mu + E_g$
+\item \textbf{Low-energy cutoff}: $g \to 0$ as $\hbar\omega \to E_g$ (no states)
+\end{enumerate}
+
+\subsection{Carrier Density Dependence}
+
+\begin{itemize}
+\item Higher $n$ $\Rightarrow$ larger $\mu_e$, $\mu_h$
+\item Larger $\Delta\mu$ $\Rightarrow$ wider gain spectrum
+\item Peak gain increases approximately linearly with $n$
+\end{itemize}
+
+\subsection{Spontaneous Emission Spectrum}
+
+\begin{itemize}
+\item Peaks at higher energy than gain peak
+\item Broader than gain spectrum (no sharp cutoff)
+\item Area under curve gives total spontaneous emission rate
+\end{itemize}
+
+%==============================================================================
+\section{The mu Function: Chemical Potential Calculation}
+%==============================================================================
+
+The external function \texttt{mu(m, n, T, rerr)} solves:
+\begin{equation}
+n = N_c \mathcal{F}_{1/2}\left(\frac{\mu}{k_B T}\right)
+\end{equation}
+where $\mathcal{F}_{1/2}$ is the Fermi-Dirac integral of order 1/2.
+
+Typical approach:
+\begin{enumerate}
+\item Initial guess: Non-degenerate approximation $\mu_0 = k_B T \ln(n/N_c)$
+\item Newton-Raphson iteration
+\item Convergence when relative change $< rerr$
+\end{enumerate}
+
+%==============================================================================
+\section{Summary}
+%==============================================================================
+
+This code demonstrates the fundamental physics of semiconductor optical gain:
+\begin{itemize}
+\item Gain requires population inversion ($f_e + f_h > 1$)
+\item The gain spectrum has a characteristic shape determined by the joint density of states and Fermi functions
+\item Higher carrier injection increases both peak gain and spectral width
+\item Spontaneous emission is always present and represents the minimum loss mechanism
+\end{itemize}
+
+\end{document}
+
+```
+
+---
+
+[← Back to Chapter 9 - Exercise 1](./)

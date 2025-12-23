@@ -1,0 +1,403 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{cleveref}
+
+\geometry{margin=1in}
+
+\lstset{
+  language=Matlab,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  commentstyle=\color{green!60!black},
+  numbers=left,
+  numberstyle=\tiny,
+  breaklines=true,
+  frame=single
+}
+
+\newtheorem{axiom}{Axiom}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{Fabry-P\'{e}rot Optical Resonator:\\Short Cavity / VCSEL Regime\\[0.5em]\large Detailed Analysis of \texttt{Chapt9Fig6b.m}}
+\author{Generated Documentation}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document provides comprehensive theoretical foundations and line-by-line code analysis for \texttt{Chapt9Fig6b.m}, which calculates the intensity spectrum of a short-cavity Fabry-P\'{e}rot resonator ($L = 3$ $\mu$m) with high reflectivity mirrors ($R_1 = R_2 = 0.95$). This configuration is representative of vertical-cavity surface-emitting lasers (VCSELs), demonstrating large free spectral range and true single-mode operation capability.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Theoretical Foundation}
+%==============================================================================
+
+\subsection{Axioms of Short-Cavity Resonators}
+
+\begin{axiom}[Mode Spacing Scaling]
+Free spectral range is inversely proportional to cavity length:
+\begin{equation}
+\Delta\nu_{FSR} = \frac{c}{2n_r L} \propto \frac{1}{L}
+\end{equation}
+Short cavities have widely spaced modes.
+\end{axiom}
+
+\begin{axiom}[Single-Mode Condition]
+Single longitudinal mode operation occurs when the gain bandwidth is narrower than the FSR:
+\begin{equation}
+\Delta\nu_{gain} < \Delta\nu_{FSR}
+\end{equation}
+\end{axiom}
+
+\begin{axiom}[High-Q Requirement]
+Short cavities require high reflectivity to maintain sufficient photon lifetime:
+\begin{equation}
+\tau_p = \frac{n_r L}{c(1-\sqrt{R_1 R_2})}
+\end{equation}
+\end{axiom}
+
+\subsection{Fundamental Definitions}
+
+\begin{definition}[VCSEL Cavity]
+A vertical-cavity surface-emitting laser has:
+\begin{itemize}
+\item Cavity length $L \sim \lambda$ to few $\lambda$ (typically 1--5 $\mu$m)
+\item Distributed Bragg Reflector (DBR) mirrors with $R > 0.99$
+\item Vertical emission perpendicular to substrate
+\end{itemize}
+\end{definition}
+
+\begin{definition}[Effective Cavity Length]
+Including DBR penetration depth:
+\begin{equation}
+L_{eff} = L_{active} + 2L_{DBR}
+\end{equation}
+where $L_{DBR} \approx \lambda/(4\Delta n)$ is the DBR penetration.
+\end{definition}
+
+\begin{definition}[Mode Number for Short Cavity]
+\begin{equation}
+m = \frac{2n_r L}{\lambda}
+\end{equation}
+For $L = 3$ $\mu$m, $n_r = 3.3$, $\lambda = 1.31$ $\mu$m: $m \approx 15$.
+\end{definition}
+
+\subsection{Core Theorems}
+
+\begin{theorem}[High-Finesse Airy Function]
+For $R \to 1$, the Airy function approaches a series of narrow Lorentzians:
+\begin{equation}
+I(\nu) \approx I_{max} \sum_m \frac{(\delta\nu/2)^2}{(\nu - \nu_m)^2 + (\delta\nu/2)^2}
+\end{equation}
+where $\delta\nu = \Delta\nu_{FSR}/\mathcal{F}$ and $\nu_m = m \cdot \Delta\nu_{FSR}$.
+\end{theorem}
+
+\begin{theorem}[Finesse for High Reflectivity]
+When $R \to 1$:
+\begin{equation}
+\mathcal{F} = \frac{\pi\sqrt{R}}{1-R} \approx \frac{\pi}{1-R}
+\end{equation}
+For $R = 0.9025$ ($R_1 = R_2 = 0.95$): $\mathcal{F} = \pi/0.0975 = 32.2$.
+\end{theorem}
+
+\begin{theorem}[Threshold Condition for Short Cavity]
+The threshold gain must compensate mirror loss over the short cavity:
+\begin{equation}
+\Gamma g_{th} L = \ln\frac{1}{\sqrt{R_1 R_2}} + \alpha_i L
+\end{equation}
+For $R = 0.95$ and $L = 3$ $\mu$m:
+\begin{equation}
+\Gamma g_{th} = \frac{\ln(1/0.95)}{3 \times 10^{-4}} + \alpha_i \approx 171 + \alpha_i \text{ cm}^{-1}
+\end{equation}
+\end{theorem}
+
+\begin{theorem}[Single-Mode Stability]
+Single-mode operation is ensured when:
+\begin{equation}
+\Delta\nu_{FSR} > \Delta\nu_{gain}
+\end{equation}
+For short cavity with $\Delta\nu_{FSR} = 15$ THz and typical gain bandwidth 30 THz, the nearest mode is significantly detuned from gain peak.
+\end{theorem}
+
+%==============================================================================
+\section{Line-by-Line Code Analysis}
+%==============================================================================
+
+\subsection{Initialization and Parameters}
+
+\begin{lstlisting}
+%Chapt9Fig6b
+%Fabry-Perot optical resonator
+clear;
+clf;
+err=0.00001;
+c=3e8;                    %speed of light in vacuum
+nr=3.3;                   %effective refractive index
+lambda0=1310e-9;          %center emission wavelength
+Lc=3e-6;                  %Cavity length
+\end{lstlisting}
+\textbf{Short cavity parameters:}
+\begin{align}
+c &= 3 \times 10^8 \text{ m/s} \\
+n_r &= 3.3 \\
+\lambda_0 &= 1310 \text{ nm} \\
+L_c &= 3 \text{ }\mu\text{m}
+\end{align}
+Cavity length reduced by factor of 100 compared to edge-emitters.
+
+\begin{lstlisting}
+r1=0.95;                  %Reflectivity of mirror1
+r2=0.95;                  %Reflectivity of mirror2
+r=r1*r2;                  %Optical loss per round-trip
+\end{lstlisting}
+\textbf{High-reflectivity symmetric mirrors:}
+\begin{align}
+R_1 = R_2 &= 0.95 \quad \text{(DBR mirrors)} \\
+R &= R_1 R_2 = 0.9025
+\end{align}
+Typical of multi-layer DBR stacks with 20--30 periods.
+
+\subsection{Finesse and Spectral Parameters}
+
+\begin{lstlisting}
+F=pi*r^0.5/(1-r)          %Optical Finesse
+Fconst=(2*F/pi)^2;
+Imax=1/((1-r)^2);         %Peak intensity normalized to I0
+\end{lstlisting}
+\textbf{High finesse:}
+\begin{equation}
+\mathcal{F} = \frac{\pi\sqrt{0.9025}}{1-0.9025} = \frac{\pi \times 0.95}{0.0975} = \frac{2.98}{0.0975} = 30.6
+\end{equation}
+
+\textbf{Coefficient of finesse:}
+\begin{equation}
+F_{const} = \left(\frac{2\mathcal{F}}{\pi}\right)^2 = \frac{4R}{(1-R)^2} = \frac{3.61}{0.0095} = 380
+\end{equation}
+
+\textbf{Peak intensity enhancement:}
+\begin{equation}
+I_{max} = \frac{1}{(1-R)^2} = \frac{1}{0.0095} = 105
+\end{equation}
+Enormous enhancement---photon density 100$\times$ higher inside cavity.
+
+\begin{lstlisting}
+f0=c*1e-12/lambda0;       %center frequency in THz
+deltaf=c*1e-12/(2*Lc*nr)  %FSR in THz
+deltawavelength=lambda0^2/(2*Lc*nr)  %FSR in m
+\end{lstlisting}
+\textbf{Large free spectral range:}
+\begin{align}
+f_0 &= \frac{3 \times 10^8}{1.31 \times 10^{-6}} = 229 \text{ THz} \\
+\Delta f_{FSR} &= \frac{c}{2n_r L} = \frac{3 \times 10^8}{2 \times 3.3 \times 3 \times 10^{-6}} = 15.2 \text{ THz}
+\end{align}
+
+\textbf{Mode spacing in wavelength:}
+\begin{equation}
+\Delta\lambda_{FSR} = \frac{\lambda_0^2}{2n_r L} = \frac{(1.31)^2 \times 10^{-12}}{19.8 \times 10^{-6}} = 87 \text{ nm}
+\end{equation}
+
+\textbf{Mode linewidth:}
+\begin{equation}
+\delta\nu = \frac{\Delta\nu_{FSR}}{\mathcal{F}} = \frac{15.2 \text{ THz}}{30.6} = 0.50 \text{ THz} = 500 \text{ GHz}
+\end{equation}
+
+\subsection{Extended Frequency Scan}
+
+\begin{lstlisting}
+for i=[1:1:10000]
+   Frequency(i)=(f0+i*0.003);
+   Fwavelength(i)=c/Frequency(i);
+   x=sin(pi*Frequency(i)/deltaf);
+   x2=x*x;
+   Intensity(i)=Imax/(1+(Fconst*(x2)));
+end
+\end{lstlisting}
+\textbf{Key differences from previous codes:}
+\begin{itemize}
+\item 10,000 points (vs 1,000)
+\item Step size 0.003 THz (vs 0.001 THz)
+\item Total span: 30 THz
+\end{itemize}
+
+This covers approximately two FSR periods to show multiple resonances.
+
+\textbf{Airy function with high $F_{const}$:}
+\begin{equation}
+I(\nu) = \frac{105}{1 + 380\sin^2\left(\frac{\pi\nu}{15.2 \text{ THz}}\right)}
+\end{equation}
+
+At anti-resonance:
+\begin{equation}
+I_{min} = \frac{105}{1 + 380} = 0.28
+\end{equation}
+Contrast ratio: $I_{max}/I_{min} = 105/0.28 = 375$.
+
+\subsection{Plotting}
+
+\begin{lstlisting}
+figure(1);
+plot(Frequency,Intensity);
+%axis([f0,f0+1,0,5]); 
+hold on;
+xlabel('Frequency, \nu(THz)'),ylabel('Intensity');
+ttl=sprintf('Chapt9Fig6b, r1=%4.2f, r2=%4.2f, nr=%4.2f, f0=%7.2e THz, Lc=%7.2e m',r1,r2,nr,f0,Lc)
+title(ttl);
+
+figure(2);
+plot(Fwavelength*10^-12,Intensity);
+xlabel('Wavelength, \lambda (m)'),ylabel('Intensity');
+title(ttl);
+\end{lstlisting}
+Note: The axis command is commented out to show full range.
+
+%==============================================================================
+\section{Comparison: Edge-Emitter vs VCSEL}
+%==============================================================================
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Parameter} & \textbf{Fig6a1} & \textbf{Fig6a2} & \textbf{Fig6b} \\
+& (Edge, Fresnel) & (Edge, Coated) & (VCSEL) \\
+\hline
+$L_c$ & 300 $\mu$m & 300 $\mu$m & 3 $\mu$m \\
+$R_1, R_2$ & 0.29, 0.29 & 0.4, 0.8 & 0.95, 0.95 \\
+$R$ & 0.082 & 0.32 & 0.9025 \\
+\hline
+$\mathcal{F}$ & 0.98 & 2.61 & 30.6 \\
+$I_{max}$ & 1.19 & 2.16 & 105 \\
+\hline
+$\Delta\nu_{FSR}$ & 152 GHz & 152 GHz & 15.2 THz \\
+$\delta\nu$ & 155 GHz & 58 GHz & 500 GHz \\
+\hline
+Mode number $m$ & 1511 & 1511 & 15 \\
+\hline
+\end{tabular}
+\end{center}
+
+%==============================================================================
+\section{Physical Interpretation}
+%==============================================================================
+
+\subsection{VCSEL Mode Structure}
+
+With only $m \approx 15$ longitudinal modes possible:
+\begin{itemize}
+\item Mode spacing 15 THz $\approx$ 87 nm in wavelength
+\item Only one mode typically within gain bandwidth
+\item Inherent single longitudinal mode operation
+\end{itemize}
+
+\subsection{Gain-Mode Alignment}
+
+The condition for lasing:
+\begin{equation}
+g(\lambda_m) > g_{th}
+\end{equation}
+With 87 nm mode spacing, only the mode nearest gain peak lases.
+
+\subsection{Threshold Considerations}
+
+Despite high $R$, threshold gain is high due to short path:
+\begin{equation}
+g_{th} = \frac{1}{\Gamma L}\ln\frac{1}{R} = \frac{1}{0.03 \times 3 \times 10^{-4}}\ln(1.11) = \frac{0.104}{9 \times 10^{-6}} = 11,600 \text{ cm}^{-1}
+\end{equation}
+(assuming $\Gamma = 0.03$ for thin QW active region)
+
+This requires quantum well active regions with high material gain.
+
+\subsection{Photon Lifetime}
+
+\begin{equation}
+\tau_p = \frac{n_r}{c \cdot \alpha_m} = \frac{n_r L}{c \cdot \ln(1/R)} = \frac{3.3 \times 3 \times 10^{-6}}{3 \times 10^8 \times 0.103} = 0.32 \text{ ps}
+\end{equation}
+
+Very short photon lifetime leads to:
+\begin{itemize}
+\item High modulation bandwidth potential
+\item Reduced relaxation oscillation effects
+\item Fast switching capability
+\end{itemize}
+
+\subsection{Intensity Enhancement}
+
+The factor $I_{max} = 105$ means:
+\begin{itemize}
+\item Photon density inside cavity 100$\times$ incident
+\item Compensates for short gain length
+\item Essential for achieving lasing in thin active region
+\end{itemize}
+
+%==============================================================================
+\section{Numerical Methods}
+%==============================================================================
+
+\subsection{Resolution Requirements}
+
+With $\delta\nu = 500$ GHz and step size 3 GHz:
+\begin{equation}
+\text{Points per FWHM} = \frac{500}{3} \approx 167
+\end{equation}
+Excellent resolution of resonance peaks.
+
+\subsection{Span Coverage}
+
+Total scan: 10,000 $\times$ 0.003 = 30 THz, covering:
+\begin{equation}
+\frac{30 \text{ THz}}{15.2 \text{ THz}} \approx 2 \text{ FSR periods}
+\end{equation}
+Shows two complete resonance peaks.
+
+\subsection{Numerical Precision}
+
+With $F_{const} = 380$, near resonance:
+\begin{equation}
+I \approx \frac{105}{1 + 380 \times (\pi\delta\nu/\Delta\nu_{FSR})^2}
+\end{equation}
+Standard double precision handles this without issues.
+
+%==============================================================================
+\section{Summary}
+%==============================================================================
+
+This code simulates a short-cavity, high-finesse Fabry-P\'{e}rot resonator representative of VCSELs:
+
+\textbf{Key parameters:}
+\begin{itemize}
+\item Cavity length $L = 3$ $\mu$m (100$\times$ shorter than edge-emitter)
+\item High reflectivity $R = 0.95$ (DBR mirrors)
+\item Finesse $\mathcal{F} = 30.6$ (12$\times$ higher than coated edge-emitter)
+\end{itemize}
+
+\textbf{Resulting characteristics:}
+\begin{itemize}
+\item Large FSR = 15 THz (87 nm)---ensures single-mode operation
+\item Few longitudinal modes ($m \approx 15$)
+\item High intensity enhancement (105$\times$)---compensates short gain path
+\item Sharp resonances with contrast ratio 375:1
+\end{itemize}
+
+\textbf{VCSEL advantages demonstrated:}
+\begin{itemize}
+\item Inherent single longitudinal mode selection
+\item High modulation bandwidth from short $\tau_p$
+\item Circular beam from vertical geometry (not shown in this 1D model)
+\end{itemize}
+
+This simulation captures the essential physics that makes VCSELs fundamentally different from edge-emitting lasers.
+
+\end{document}

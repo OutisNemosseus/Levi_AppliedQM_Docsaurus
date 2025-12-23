@@ -1,0 +1,223 @@
+---
+title: Generators Module
+sidebar_label: Generators
+---
+
+# Generators Module
+
+The generators module (`scripts/generators/`) creates MDX documentation pages using the **Strategy** and **Factory** patterns.
+
+## Architecture
+
+```
+BaseGenerator (abstract)
+    ├── MatlabGenerator
+    ├── LatexGenerator
+    ├── PdfGenerator
+    ├── HtmlGenerator
+    ├── NotebookGenerator
+    └── TextGenerator
+
+IndexGenerator (special - lists all files)
+SidebarGenerator (special - creates sidebar config)
+
+GeneratorFactory (creates appropriate generator)
+```
+
+## BaseGenerator
+
+Abstract base class providing common functionality.
+
+```javascript
+const BaseGenerator = require('./generators/BaseGenerator');
+
+class MyGenerator extends BaseGenerator {
+  getType() {
+    return 'mytype';
+  }
+
+  generate(programInfo, fileData) {
+    const { displayName } = programInfo;
+    const { filename, staticPath, content, config } = fileData;
+
+    // Use inherited methods
+    const frontmatter = this.generateFrontmatter(
+      `${displayName} - My Type`,
+      'My Type'
+    );
+
+    const buttons = this.generateButtons(staticPath, filename, config);
+    const backLink = this.generateBackLink(displayName);
+
+    return `${frontmatter}
+
+# ${displayName}
+
+${buttons}
+
+Content here...
+
+${backLink}
+`;
+  }
+}
+```
+
+### Inherited Methods
+
+| Method | Description |
+|--------|-------------|
+| `generateFrontmatter(title, label)` | Create YAML frontmatter |
+| `generateButtons(staticPath, filename, config)` | Create download/open buttons |
+| `generateBackLink(displayName)` | Create back navigation link |
+| `generateViewerButton(programId)` | Create viewer button (if configured) |
+
+## Type Generators
+
+Each file type has a dedicated generator:
+
+### MatlabGenerator
+- Syntax-highlighted code block
+- Download and Open Raw buttons
+
+### LatexGenerator
+- Syntax-highlighted code block
+- Auto-truncation for long files
+- Truncation warning
+
+### PdfGenerator
+- Embedded iframe preview
+- Open in New Tab button
+- Fallback tip
+
+### HtmlGenerator
+- Live iframe preview
+- Collapsible source code
+
+### NotebookGenerator
+- Download button
+- External links (nbviewer, Colab) if configured
+
+### TextGenerator
+- Plain text code block
+
+## GeneratorFactory
+
+Factory for creating generators by type.
+
+```javascript
+const { createGeneratorFactory } = require('./generators/GeneratorFactory');
+
+const factory = createGeneratorFactory(config);
+
+// Get generator for a type
+const matlabGen = factory.getGenerator('matlab');
+const content = matlabGen.generate(programInfo, fileData);
+
+// Or use factory method
+const content = factory.generateForType('pdf', programInfo, fileData);
+
+// Generate index page
+const indexContent = factory.generateIndex(programInfo, filesList);
+
+// Generate sidebar
+const sidebarContent = factory.generateSidebar(byChapter);
+```
+
+### Factory API
+
+| Method | Description |
+|--------|-------------|
+| `getGenerator(type)` | Get generator instance by type |
+| `hasGenerator(type)` | Check if generator exists |
+| `getRegisteredTypes()` | Get all registered types |
+| `registerGenerator(gen)` | Register custom generator |
+| `generateForType(type, info, data)` | Generate content by type |
+| `generateIndex(info, files)` | Generate index page |
+| `generateSidebar(byChapter)` | Generate sidebar config |
+
+## IndexGenerator
+
+Generates the main entry page (index.mdx) for each program.
+
+```javascript
+const IndexGenerator = require('./generators/IndexGenerator');
+
+const indexGen = new IndexGenerator(config);
+const content = indexGen.generate(programInfo, [
+  { filename: 'prog.m', staticPath: '/programs/matlab/prog/prog.m', config: {...} },
+  { filename: 'prog.pdf', staticPath: '/programs/pdf/prog/prog.pdf', config: {...} },
+]);
+```
+
+Features:
+- File cards with download/view buttons
+- Sorted by type priority (matlab → latex → pdf → ...)
+- File count and type icons
+
+## SidebarGenerator
+
+Generates Docusaurus sidebar configuration.
+
+```javascript
+const SidebarGenerator = require('./generators/SidebarGenerator');
+
+const sidebarGen = new SidebarGenerator(config);
+const content = sidebarGen.generate(byChapter);
+// Returns JavaScript module content for sidebars.js
+```
+
+## Adding a Custom Generator
+
+1. **Create the generator class:**
+
+```javascript
+// generators/CustomGenerator.js
+const BaseGenerator = require('./BaseGenerator');
+
+class CustomGenerator extends BaseGenerator {
+  getType() {
+    return 'custom';
+  }
+
+  generate(programInfo, fileData) {
+    const { displayName } = programInfo;
+    const { filename, staticPath, content, config } = fileData;
+
+    return `---
+title: ${displayName} - Custom
+sidebar_label: Custom File
+---
+
+# ${displayName}
+
+Custom content here...
+
+[← Back to ${displayName}](./)
+`;
+  }
+}
+
+module.exports = CustomGenerator;
+```
+
+2. **Register in GeneratorFactory:**
+
+```javascript
+// In GeneratorFactory.js initializeGenerators()
+const CustomGenerator = require('./CustomGenerator');
+// ...
+this.generators.set('custom', new CustomGenerator(this.config));
+```
+
+3. **Add file type in config/fileTypes.js:**
+
+```javascript
+'.custom': {
+  type: 'custom',
+  label: 'Custom File',
+  emoji: '🔧',
+  color: '#ff6600',
+  canReadText: true,
+}
+```

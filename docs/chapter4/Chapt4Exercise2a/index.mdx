@@ -72,15 +72,6 @@ sidebar_label: Chapter 4 - Exercise 2A
   </div>
 </div>
 
-## Inline Previews
-
-### MATLAB - Chapt4Exercise2a.m
-
-```matlab title="Chapt4Exercise2a.m"
-%Chapt4Exercise2a.m%transmission through asymmetric double barrierclearclf;									%set up potential profile position L(nm), potential V(eV)N=6;									%number of samples of potentialmeff=0.07;							%effective electron mass (m/m0)vb1=0.5;								%first potential barrier energy (eV)vb2=1.13;							%second potential barrier energy (eV)bx1=4.0;								%first potential barrier width (nm)bx2=3.0;								%second potential barrier width (nm)wx1=3.6;								%potential well width (nm)L=[1,1,bx1,wx1,bx2,2]*1e-9;	%distance array (nm)V=[0,0,vb1,0,vb2,0];				%potential arrayEmin=pi*1e-5;						%add (pi*1.0e-5) to energy to avoid divide by zeroEmax=1.4;							%maximum particle energy (eV)npoints=400;						%number of points in energy plotdE=Emax/npoints;					%energy increment (eV)hbar=1.05457159e-34;				%Planck's constant (Js)eye=complex(0.,1.);				%square root of -1m0=9.109382e-31;					%bare electron mass (kg)m=meff*m0;							%effective electron mass (kg)echarge=1.6021764e-19;			%electron charge (C)   for j=1:npoints      E(j)=dE*j+Emin;     	bigP=[1,0;0,1];										%default value of matrix bigP        for i=1:N         k(i)=sqrt(2*echarge*m*(E(j)-V(i)))/hbar;	%wave number at each position in potential V(j)      end      for n=1:(N-1)         p(1,1)=0.5*(1+k(n+1)/k(n))*exp(-eye*k(n)*L(n));         p(1,2)=0.5*(1-k(n+1)/k(n))*exp(-eye*k(n)*L(n));         p(2,1)=0.5*(1-k(n+1)/k(n))*exp(eye*k(n)*L(n));         p(2,2)=0.5*(1+k(n+1)/k(n))*exp(eye*k(n)*L(n));         bigP=bigP*p;      end      Trans(j)=(abs(1/bigP(1,1)))^2;	%transmission probability   end   figure(1); 										%plot potential and transmission coefficientVp=[V;V];Vp=Vp(:);dx=1e-12;										%small distance increment used in potential plotLx(1)=1.e-9;for i=1:N   for j=2:i      Lx(i)=L(j)+Lx(j-1);					%distance, x   endendxp=[0,Lx(1)-dx,Lx(1),Lx(2)-dx,Lx(2),Lx(3)-dx,Lx(3),Lx(4)-dx,Lx(4),Lx(5)-dx,Lx(5),Lx(6)]*1e9;subplot(1,2,1),plot(xp,Vp),axis([0,xp(12),0,1.4]),xlabel('Distance, x (nm)'),ylabel('Potential energy, V(x) (eV)');ttl = sprintf('Chapt4Exercise2a, b_1=%3.1fnm, b_2=%3.1fnm, w_1=%3.1fnm',bx1,bx2,wx1);title (ttl);subplot(1,2,2),plot(Trans,E),axis([0,1,0,1.4]),xlabel('Transmission coefficient'),ylabel('Energy, E (eV)');ttl2 = sprintf('m_{eff}=%4.2fm_0',meff);title (ttl2);figure(2); subplot(1,2,1),plot(xp,Vp),axis([0,xp(12),0,1.4]),xlabel('Distance, x (nm)'),ylabel('Potential energy, V(x) (eV)');title (ttl);subplot(1,2,2),plot(-log(Trans),E),xlabel('-ln trans. coeff.'),ylabel('Energy, E (eV)');title (ttl2);
-```
-
-
 ---
 
 *Program ID: `Chapt4Exercise2a`*

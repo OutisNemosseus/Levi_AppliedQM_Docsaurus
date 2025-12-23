@@ -1,0 +1,324 @@
+---
+title: Chapter 8 - Exercise 7B - LaTeX
+sidebar_label: LaTeX Source
+---
+
+# Chapter 8 - Exercise 7B - LaTeX Document
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+  <a href="/programs/latex/Chapt8Exercise7b/Chapt8Exercise7b.tex" download="Chapt8Exercise7b.tex"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .tex
+  </a>
+  <a href="/programs/latex/Chapt8Exercise7b/Chapt8Exercise7b.tex" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+## LaTeX Source
+
+```latex title="Chapt8Exercise7b.tex"
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+
+\geometry{margin=1in}
+
+\lstset{
+    language=Matlab,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{orange},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10}
+}
+
+\newtheorem{axiom}{Axiom}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{\textbf{Chapt8Exercise7b.m} \\ Thomas-Fermi vs RPA Screening at Low Density \\ \large Breakdown of Thomas-Fermi Approximation}
+\author{Semiconductor Physics Documentation}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document analyzes \texttt{Chapt8Exercise7b.m}, which compares Thomas-Fermi and RPA scattering rates at a low carrier density of $n = 10^{14}$ cm$^{-3}$. At this density, the Thomas-Fermi approximation breaks down, revealing the importance of non-local screening effects captured by RPA.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Theoretical Foundation}
+%==============================================================================
+
+\subsection{Validity Conditions for Thomas-Fermi Screening}
+
+\begin{theorem}[Thomas-Fermi Validity]
+The Thomas-Fermi approximation is valid when:
+\begin{equation}
+q \ll k_F \quad \text{and} \quad q_{\text{TF}} \sim k_F
+\end{equation}
+This requires the electron gas to be sufficiently dense (degenerate).
+\end{theorem}
+
+\begin{definition}[Degeneracy Criterion]
+An electron gas is degenerate when:
+\begin{equation}
+E_F \gg k_B T
+\end{equation}
+where the Fermi energy is $E_F = \hbar^2 k_F^2/(2m^*)$.
+\end{definition}
+
+\subsection{Low-Density Regime}
+
+At $n = 10^{14}$ cm$^{-3}$:
+\begin{equation}
+k_F = (3\pi^2 n)^{1/3} = (3\pi^2 \times 10^{20})^{1/3} \approx 1.43 \times 10^{7} \text{ m}^{-1}
+\end{equation}
+
+Compare to $n = 10^{18}$ cm$^{-3}$:
+\begin{equation}
+k_F = 3.09 \times 10^{8} \text{ m}^{-1}
+\end{equation}
+
+The Fermi wavevector decreases by a factor of $\sim 20$.
+
+\subsection{Consequences for Screening}
+
+\begin{theorem}[Weak Screening Limit]
+At low density:
+\begin{equation}
+q_{\text{TF}} \propto \sqrt{k_F} \propto n^{1/6}
+\end{equation}
+The screening length increases, making screening less effective.
+\end{theorem}
+
+\begin{corollary}[RPA Corrections]
+When $q \gtrsim k_F$, the RPA dielectric function deviates significantly from Thomas-Fermi:
+\begin{equation}
+\varepsilon_{\text{RPA}}(q) \neq \varepsilon_{\text{TF}}(q) \quad \text{for } q \gtrsim k_F
+\end{equation}
+\end{corollary}
+
+%==============================================================================
+\section{Line-by-Line Code Analysis}
+%==============================================================================
+
+\subsection{Key Parameter: Low Carrier Density}
+
+\begin{lstlisting}
+clear;clf;
+n=1e14;
+n=n*1e6;
+\end{lstlisting}
+\begin{equation}
+n = 10^{14} \text{ cm}^{-3} = 10^{20} \text{ m}^{-3}
+\end{equation}
+\textit{Critical difference: carrier density is $10^4$ times lower than Chapt8Exercise7a.}
+
+\subsection{Physical Constants (Same as 7a)}
+
+\begin{lstlisting}
+m0=9.109382e-31;
+echarge=1.6021764e-19;
+epsilon0=8.85419e-12;
+hbar=1.05457159e-34;
+hbar3=hbar^3;
+m=0.07*m0;
+epsilonr0=13.2;
+epsilon=epsilon0*epsilonr0;
+\end{lstlisting}
+\textit{Material parameters for GaAs remain unchanged.}
+
+\subsection{Fermi Wavevector}
+
+\begin{lstlisting}
+kF=(3*(pi^2)*n)^(1/3)
+\end{lstlisting}
+\begin{equation}
+k_F = (3\pi^2 \times 10^{20})^{1/3} \approx 1.43 \times 10^{7} \text{ m}^{-1}
+\end{equation}
+\textit{Much smaller than at high density, indicating weak degeneracy.}
+
+\subsection{Energy Loop}
+
+\begin{lstlisting}
+E=-0.1*echarge;
+for j=1:1:2
+E=E+0.2*echarge;
+   k=sqrt(2*m*E)/hbar;
+k3=k^3;
+\end{lstlisting}
+\begin{equation}
+E \in \{0.1, 0.3\} \text{ eV}, \quad k = \frac{\sqrt{2m^* E}}{\hbar}
+\end{equation}
+\textit{Same electron energies as Chapt8Exercise7a for comparison.}
+
+\subsection{RPA Constants}
+
+\begin{lstlisting}
+   rs0=((3/(4*pi*n))^(1/3))*(m*(echarge^2)/(4*pi*epsilon0*(hbar^2)));
+   xi=((32*(pi^2)/9)^(1/3))/(pi^2);
+\end{lstlisting}
+\begin{equation}
+r_s = \left(\frac{3}{4\pi n}\right)^{1/3} \cdot \frac{m^* e^2}{4\pi\varepsilon_0\hbar^2}
+\end{equation}
+\textit{At low density, $r_s$ is larger, indicating stronger electron-electron correlations.}
+
+\subsection{Thomas-Fermi Wavevector}
+
+\begin{lstlisting}
+  qTF=sqrt(kF*m*echarge^2/(epsilon*(pi^2)*(hbar^2)));
+\end{lstlisting}
+\begin{equation}
+q_{\text{TF}} = \sqrt{\frac{k_F m^* e^2}{\varepsilon \pi^2 \hbar^2}}
+\end{equation}
+\textit{Smaller $k_F$ leads to smaller $q_{\text{TF}}$, weaker screening.}
+
+\subsection{Angular Discretization}
+
+\begin{lstlisting}
+theta=[pi/1800:pi/1800:pi];
+	q=2*k*sin(theta/2);
+   eta=sin(theta/2);
+   deta=pi*cos(theta/2)./2/180;
+   eta3=eta.^3;
+\end{lstlisting}
+\textit{Same angular grid as Chapt8Exercise7a.}
+
+\subsection{RPA Dielectric Function}
+
+\begin{lstlisting}
+   x=q/kF;
+   absx=abs(x+2)./abs(x-2);
+   RPAepsilonr=epsilonr0+((rs0./x.^3)*xi.*(x+((1-((x.^2)/4)).*log(absx))));
+\end{lstlisting}
+\begin{equation}
+x = q/k_F \quad \text{(now larger values since $k_F$ is smaller)}
+\end{equation}
+\textit{At low density, $x = q/k_F$ can be $\gg 1$, where TF fails.}
+
+\subsection{Thomas-Fermi Dielectric Function}
+
+\begin{lstlisting}
+   TFepsilon=epsilon*(1+qTF^2./q.^2);
+\end{lstlisting}
+\begin{equation}
+\varepsilon_{\text{TF}} = \varepsilon\left(1 + \frac{q_{\text{TF}}^2}{q^2}\right)
+\end{equation}
+\textit{With smaller $q_{\text{TF}}$, the screening term is less effective.}
+
+\subsection{Scattering Rates}
+
+\begin{lstlisting}
+   RPArate=2*pi*m/hbar3/k3*n*(echarge^2/4/pi/epsilon0)^2.*deta./RPAepsilonr.^2./eta3;
+   TFrate =2*pi*m/hbar3/k3*n*(echarge^2/4/pi)^2.*deta./TFepsilon.^2./eta3;
+\end{lstlisting}
+\begin{equation}
+\frac{1}{\tau} = \frac{2\pi m^*}{\hbar^3 k^3} n \left(\frac{e^2}{4\pi}\right)^2 \frac{d\eta}{\varepsilon(q)^2 \eta^3}
+\end{equation}
+\textit{Same formula, but $n$ is lower and screening is weaker.}
+
+\subsection{Plotting with Restricted Axis}
+
+\begin{lstlisting}
+  plot(theta*180/pi, TFrate,'r');
+  axis([0,35,0,9e9]);
+  ...
+  plot(theta*180/pi, RPArate,'b');
+\end{lstlisting}
+\textit{Axis restricted to $\theta \in [0°, 35°]$ to focus on the forward-scattering region where differences are largest.}
+
+%==============================================================================
+\section{Physical Interpretation}
+%==============================================================================
+
+\subsection{Why TF Fails at Low Density}
+
+The Thomas-Fermi approximation assumes:
+\begin{enumerate}
+\item Local response: Perturbation at $\mathbf{r}$ only affects density at $\mathbf{r}$
+\item Degenerate limit: All states up to $E_F$ are filled
+\item Slow spatial variation: $q \ll k_F$
+\end{enumerate}
+
+At $n = 10^{14}$ cm$^{-3}$:
+\begin{itemize}
+\item Fermi energy: $E_F \approx 0.1$ meV (non-degenerate at room temperature)
+\item Typical scattering wavevector: $q \sim k \gg k_F$
+\item TF assumption $q \ll k_F$ is violated
+\end{itemize}
+
+\subsection{RPA Captures the Correct Physics}
+
+The RPA (Lindhard) function includes:
+\begin{equation}
+\varepsilon(q) = 1 + \frac{q_{\text{TF}}^2}{q^2} \cdot g(q/k_F)
+\end{equation}
+
+where $g(x)$ is a correction factor that:
+\begin{itemize}
+\item Equals 1 for $x \ll 1$ (recovers TF)
+\item Decreases for $x \gtrsim 1$ (weakens screening)
+\item Vanishes for $x \gg 1$ (bare Coulomb restored)
+\end{itemize}
+
+\subsection{Expected Results}
+
+\begin{itemize}
+\item TF (red curve): Underestimates scattering at large angles
+\item RPA (blue curve): Shows stronger scattering due to weaker screening
+\item Difference is most pronounced at large $q$ (large angles)
+\end{itemize}
+
+%==============================================================================
+\section{Comparison with Chapt8Exercise7a}
+%==============================================================================
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcc}
+\toprule
+Parameter & Chapt8Exercise7a & Chapt8Exercise7b \\
+\midrule
+Carrier density $n$ & $10^{18}$ cm$^{-3}$ & $10^{14}$ cm$^{-3}$ \\
+Fermi wavevector $k_F$ & $3.09 \times 10^8$ m$^{-1}$ & $1.43 \times 10^7$ m$^{-1}$ \\
+Screening & Strong & Weak \\
+TF validity & Good & Poor \\
+TF-RPA agreement & Good & Poor \\
+\bottomrule
+\end{tabular}
+\caption{Comparison of the two exercises}
+\end{table}
+
+%==============================================================================
+\section{Summary}
+%==============================================================================
+
+This code demonstrates the breakdown of the Thomas-Fermi approximation at low carrier densities. When the electron gas is non-degenerate and the typical scattering wavevector exceeds the Fermi wavevector, the local Thomas-Fermi approximation fails, and the full RPA treatment becomes necessary. The restricted angular range in the plot highlights the region where differences between TF and RPA are most pronounced.
+
+\end{document}
+
+```
+
+---
+
+[← Back to Chapter 8 - Exercise 7B](./)

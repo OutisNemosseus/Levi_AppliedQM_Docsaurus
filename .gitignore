@@ -26,5 +26,6 @@ yarn-error.log*
 *.swo
 *~
 
-# INBOX - source files, don't commit to git
-INBOX/
+# INBOX - source files, don't commit to git (but keep the folder)
+INBOX/*
+!INBOX/.gitkeep

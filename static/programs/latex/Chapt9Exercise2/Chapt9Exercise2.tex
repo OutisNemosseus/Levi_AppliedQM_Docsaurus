@@ -1,0 +1,355 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+
+\geometry{margin=1in}
+
+\lstset{
+    language=Matlab,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{orange},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10}
+}
+
+\newtheorem{axiom}{Axiom}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{\textbf{Chapt9Exercise2.m} \\ Peak Gain and Total Spontaneous Emission \\ \large Carrier Density Dependence for Laser Design}
+\author{Semiconductor Physics Documentation}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document analyzes \texttt{Chapt9Exercise2.m}, which calculates the peak optical gain and total spontaneous emission as functions of carrier density. These relationships are fundamental for semiconductor laser design, determining threshold current and efficiency.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Theoretical Foundation}
+%==============================================================================
+
+\subsection{Gain-Carrier Density Relationship}
+
+\begin{theorem}[Empirical Gain Model]
+The peak gain can be approximated by a logarithmic or linear relationship:
+\begin{equation}
+g_{\max} \approx g_0 \ln\left(\frac{n}{n_0}\right) \quad \text{or} \quad g_{\max} \approx a(n - n_0)
+\end{equation}
+where $n_0$ is the transparency carrier density and $g_0$ (or $a$) is the gain coefficient.
+\end{theorem}
+
+\begin{definition}[Transparency Carrier Density]
+At transparency ($g = 0$), the quasi-Fermi level separation equals the bandgap:
+\begin{equation}
+\Delta\mu = \mu_e + \mu_h = E_g
+\end{equation}
+(in the notation where energies are measured from band edges)
+\end{definition}
+
+\subsection{Total Spontaneous Emission}
+
+\begin{definition}[Integrated Spontaneous Emission]
+The total spontaneous emission rate is:
+\begin{equation}
+R_{sp} = \int_0^\infty r_{sp}(E) \, dE = \int_0^\infty C\sqrt{E} \cdot f_e(E) \cdot f_h(E) \, dE
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Carrier Lifetime]
+The radiative recombination rate defines the spontaneous lifetime:
+\begin{equation}
+R_{sp} = \frac{n}{\tau_{sp}} = Bn^2
+\end{equation}
+where $B$ is the radiative recombination coefficient (for non-degenerate case).
+\end{theorem}
+
+\subsection{Quasi-Fermi Level Separation}
+
+\begin{theorem}[Transparency Condition]
+For population inversion to exist at the bandgap energy:
+\begin{equation}
+\mu_e + \mu_h > E_g \quad \Rightarrow \quad \Delta\mu > 0
+\end{equation}
+(measuring chemical potentials from band edges)
+\end{theorem}
+
+%==============================================================================
+\section{Line-by-Line Code Analysis}
+%==============================================================================
+
+\subsection{Physical Constants and Material Parameters}
+
+\begin{lstlisting}
+clf
+   echarge=1.6021764e-19;
+   hbar=1.05457159e-34;
+   c = 2.99792458e8;
+   kB=8.61734e-5;
+   epsilon0=8.8541878e-12;
+\end{lstlisting}
+\textit{Fundamental constants.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   m0=9.109382e-31;
+   me=0.07*m0;
+   mhh=0.5*m0;
+   mr=1/(1/me+1/mhh);
+   rerr=1e-3;
+\end{lstlisting}
+\begin{equation}
+m_e = 0.07 m_0, \quad m_{hh} = 0.5 m_0, \quad m_r = \frac{m_e m_{hh}}{m_e + m_{hh}}
+\end{equation}
+\textit{GaAs effective masses.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   nr=3.3;
+   Eg=1.4
+\end{lstlisting}
+\begin{equation}
+n_r = 3.3, \quad E_g = 1.4 \text{ eV}
+\end{equation}
+\textit{GaAs optical and electronic properties.}
+
+\subsection{Carrier Density Range}
+
+\begin{lstlisting}
+   n1=1e18;
+   ncarrier1=n1*1e6;
+   n2=1e19;
+   ncarrier2=n2*1e6;
+\end{lstlisting}
+\begin{equation}
+n \in [10^{18}, 10^{19}] \text{ cm}^{-3}
+\end{equation}
+\textit{Carrier density range spanning typical laser operation.}
+
+\subsection{Temperature}
+
+\begin{lstlisting}
+   kelvin=300.0;
+   kBT=kB*kelvin;
+   beta=1/kBT;
+\end{lstlisting}
+\begin{equation}
+T = 300 \text{ K}, \quad k_B T \approx 25.9 \text{ meV}
+\end{equation}
+\textit{Room temperature operation.}
+
+\subsection{Gain Constant}
+
+\begin{lstlisting}
+   const=2.64e4;
+\end{lstlisting}
+\begin{equation}
+C = 2.64 \times 10^4 \text{ cm}^{-1}
+\end{equation}
+\textit{Calibrated to give realistic gain values.}
+
+\subsection{Main Loop Over Carrier Density}
+
+\begin{lstlisting}
+   deltacarrier=(ncarrier2-ncarrier1)/100;
+   for k=1:100
+      ncarrier(k)=ncarrier1+(k-1)*deltacarrier;
+\end{lstlisting}
+\begin{equation}
+n_k = 10^{18} + (k-1) \times 9 \times 10^{22} \text{ m}^{-3}
+\end{equation}
+\textit{100 carrier density points from $10^{18}$ to $10^{19}$ cm$^{-3}$.}
+
+\subsection{Chemical Potential Calculation}
+
+\begin{lstlisting}
+      muhh(k)=mu(mhh,ncarrier(k),kelvin,rerr);
+   mue(k) =mu(me, ncarrier(k),kelvin,rerr);
+   deltamu(k)=mue(k)+muhh(k);
+\end{lstlisting}
+\begin{equation}
+\mu_h(n_k), \quad \mu_e(n_k), \quad \Delta\mu(n_k) = \mu_e + \mu_h
+\end{equation}
+\textit{Calculate quasi-Fermi levels and their sum for each carrier density.}
+
+\subsection{Energy Integration Loop}
+
+\begin{lstlisting}
+      deltae=0.001;
+      rspon=0;
+      peakgain(k)=-10000;
+      rspontotal(k)=0;
+\end{lstlisting}
+\textit{Initialize with $\Delta E = 1$ meV, large negative initial peak gain.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   	for j=1:500
+      	Energy(j)=j*deltae;
+      	Ehh=Energy(j)/(1+mhh/me);
+      	Ee=Energy(j)/(1+me/mhh);
+      	fhh=fermi(beta,Ehh,muhh(k));
+      	fe=fermi(beta,Ee,mue(k));
+\end{lstlisting}
+\begin{equation}
+E_j \in [1, 500] \text{ meV}, \quad E_h, E_e, f_h, f_e
+\end{equation}
+\textit{Loop over energies and compute Fermi functions.}
+
+\subsection{Gain and Spontaneous Emission Computation}
+
+\begin{lstlisting}
+         gain(j)=const*(Energy(j)^0.5)*(fhh+fe-1);
+         rspon=rspon+(const*(Energy(j)^0.5))*(fe*fhh)*deltae;
+         if(gain(j) > peakgain(k))
+            peakgain(k)=gain(j);
+         end
+\end{lstlisting}
+\begin{equation}
+g(E) = C\sqrt{E}(f_e + f_h - 1)
+\end{equation}
+\begin{equation}
+R_{sp} = \sum_j C\sqrt{E_j} \cdot f_e \cdot f_h \cdot \Delta E
+\end{equation}
+\textit{Track maximum gain and integrate spontaneous emission.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+      rspontotal(k)=rspon;
+\end{lstlisting}
+\textit{Store total spontaneous emission for this carrier density.}
+
+\subsection{Plotting Results}
+
+\begin{lstlisting}
+   figure(1)
+   plot(ncarrier./1e6, deltamu);
+   xlabel('Carrier concentration, n (cm^{-3})');
+   ylabel('Difference in chemical potential,  \Delta\mu (eV)');
+\end{lstlisting}
+\textit{Plot 1: $\Delta\mu$ vs carrier density.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   figure(2)
+   plot(ncarrier./1e6, peakgain);
+   xlabel('Carrier concentration, n (cm^{-3})');
+   ylabel('Peak optical gain, g (cm^{-1})');
+\end{lstlisting}
+\textit{Plot 2: Peak gain vs carrier density.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   figure(3)
+   plot(ncarrier./1e6, rspontotal);
+   xlabel('Carrier concentration, n (cm^{-3})');
+   ylabel('Total spontaneous emission, rsp _{total} (arb.)');
+\end{lstlisting}
+\textit{Plot 3: Total spontaneous emission vs carrier density.}
+
+%==============================================================================
+\section{Numerical Method: Peak Finding and Integration}
+%==============================================================================
+
+\subsection{Peak Gain Determination}
+
+The code uses a simple maximum search:
+\begin{equation}
+g_{\max} = \max_{E} \{g(E)\}
+\end{equation}
+
+A more sophisticated approach would use gradient-based search or interpolation to find the true maximum between grid points.
+
+\subsection{Trapezoidal Integration for $R_{sp}$}
+
+The spontaneous emission is integrated using a Riemann sum:
+\begin{equation}
+R_{sp} \approx \sum_{j=1}^{500} r_{sp}(E_j) \cdot \Delta E
+\end{equation}
+
+This is equivalent to the trapezoidal rule for uniformly spaced points.
+
+%==============================================================================
+\section{Physical Interpretation}
+%==============================================================================
+
+\subsection{$\Delta\mu$ vs Carrier Density}
+
+\begin{itemize}
+\item $\Delta\mu$ increases with $n$
+\item At low $n$: $\Delta\mu < 0$ (absorption)
+\item At transparency: $\Delta\mu = 0$
+\item At high $n$: $\Delta\mu > 0$ (gain)
+\item Relationship is approximately logarithmic in $n$
+\end{itemize}
+
+\subsection{Peak Gain vs Carrier Density}
+
+\begin{itemize}
+\item Below transparency: $g_{\max} < 0$ (net absorption)
+\item Above transparency: $g_{\max}$ increases approximately linearly with $n - n_0$
+\item Typical values: $g_{\max} \sim 100$--1000 cm$^{-1}$ for laser operation
+\end{itemize}
+
+\subsection{Total Spontaneous Emission}
+
+\begin{itemize}
+\item Increases faster than linearly with $n$ (due to Fermi function overlap)
+\item Represents fundamental loss mechanism in lasers
+\item Determines below-threshold LED emission
+\end{itemize}
+
+%==============================================================================
+\section{Design Implications}
+%==============================================================================
+
+\subsection{Threshold Condition}
+
+At laser threshold:
+\begin{equation}
+g_{\max} = \alpha_i + \alpha_m
+\end{equation}
+where $\alpha_i$ is internal loss and $\alpha_m$ is mirror loss.
+
+From the $g_{\max}(n)$ curve, one can determine the threshold carrier density $n_{th}$.
+
+\subsection{Threshold Current}
+
+\begin{equation}
+J_{th} = \frac{en_{th}d}{\tau_{sp}(n_{th})}
+\end{equation}
+where $d$ is the active layer thickness.
+
+%==============================================================================
+\section{Summary}
+%==============================================================================
+
+This code generates the key curves for semiconductor laser design:
+\begin{enumerate}
+\item $\Delta\mu(n)$: Determines transparency condition
+\item $g_{\max}(n)$: Determines threshold carrier density
+\item $R_{sp}(n)$: Determines below-threshold emission and carrier lifetime
+\end{enumerate}
+
+These relationships are essential for optimizing laser structures and predicting device performance.
+
+\end{document}

@@ -1,10 +1,42 @@
 const fs = require('fs');
 const path = require('path');
 
+// ============ Parse CLI arguments ============
+function parseArgs() {
+  const args = process.argv.slice(2);
+  const options = {
+    command: null,
+    source: null,
+    recursive: false,
+  };
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--watch' || arg === '-w') {
+      options.command = 'watch';
+    } else if (arg === '--clean' || arg === '-c') {
+      options.command = 'clean';
+    } else if (arg === '--help' || arg === '-h') {
+      options.command = 'help';
+    } else if (arg === '--source' || arg === '-s') {
+      options.source = args[++i];
+    } else if (arg === '--recursive' || arg === '-r') {
+      options.recursive = true;
+    }
+  }
+
+  return options;
+}
+
+const CLI_OPTIONS = parseArgs();
+
 // ============ 配置区域 ============
 const CONFIG = {
   // 统一投递箱：所有文件丢这里，脚本自动分类
-  INBOX_DIR: path.join(__dirname, '../INBOX'),
+  // Can be overridden with --source flag
+  INBOX_DIR: CLI_OPTIONS.source
+    ? path.resolve(CLI_OPTIONS.source)
+    : path.join(__dirname, '../INBOX'),
 
   // 目标文件夹：生成的 .mdx 文件位置
   DOCS_OUTPUT_DIR: path.join(__dirname, '../docs'),
@@ -20,6 +52,9 @@ const CONFIG = {
 
   // 支持的文件扩展名（现在包含 PDF, HTML, LaTeX, Jupyter）
   SUPPORTED_EXTENSIONS: ['.m', '.tex', '.ipynb', '.pdf', '.html', '.txt'],
+
+  // Recursive scanning (scan subdirectories)
+  RECURSIVE: CLI_OPTIONS.recursive,
 
   // 网站基础 URL - 如果有在线查看器可以设置
   VIEWER_BASE_URL: null,
@@ -99,6 +134,7 @@ const CHAPTER_NAMES = {
   '7': 'Band Structure',
   '8': 'Perturbation Theory',
   '9': 'Statistical Mechanics',
+  'utilities': 'Utility Functions',
 };
 
 // ============ 工具函数 ============
@@ -114,10 +150,60 @@ function getFileTypeConfig(filename) {
   return FILE_TYPES[ext] || null;
 }
 
+/**
+ * Recursively scan a directory for files
+ * @param {string} dir - Directory to scan
+ * @param {boolean} recursive - Whether to scan subdirectories
+ * @returns {string[]} - Array of file paths (relative to dir)
+ */
+function scanDirectory(dir, recursive = false) {
+  const results = [];
+
+  if (!fs.existsSync(dir)) {
+    return results;
+  }
+
+  const items = fs.readdirSync(dir, { withFileTypes: true });
+
+  for (const item of items) {
+    if (item.isDirectory()) {
+      if (recursive) {
+        const subFiles = scanDirectory(path.join(dir, item.name), true);
+        results.push(...subFiles.map(f => path.join(item.name, f)));
+      }
+    } else if (item.isFile()) {
+      results.push(item.name);
+    }
+  }
+
+  return results;
+}
+
 function extractProgramInfo(filename) {
   const baseName = path.basename(filename, path.extname(filename));
   const match = baseName.match(CONFIG.PROGRAM_PATTERN);
-  if (!match) return null;
+
+  // If doesn't match chapter pattern, treat as utility file
+  if (!match) {
+    // Only process supported extensions as utilities
+    const ext = path.extname(filename).toLowerCase();
+    if (!CONFIG.SUPPORTED_EXTENSIONS.includes(ext)) {
+      return null;
+    }
+
+    // Create utility program info
+    return {
+      programId: baseName,
+      chapter: 'utilities',
+      chapterNum: 'utilities',
+      type: 'Utility',
+      number: '',
+      variant: '',
+      displayName: baseName,
+      chapterDisplay: 99, // Sort utilities at the end
+      isUtility: true,
+    };
+  }
 
   const [, chapter, type, number, variant] = match;
   const programId = `Chapt${chapter}${type}${number}${variant || ''}`;
@@ -131,6 +217,7 @@ function extractProgramInfo(filename) {
     variant: variant || '',
     displayName: `Chapter ${chapter} - ${type} ${number}${variant ? variant.toUpperCase() : ''}`,
     chapterDisplay: parseInt(chapter, 10),
+    isUtility: false,
   };
 }
 
@@ -624,12 +711,13 @@ function generateDetailPage(programInfo, filename, staticPath, fileContent, conf
 // ============ 主处理逻辑 ============
 
 function processAllPrograms() {
-  console.log('\n📚 Applied QM Documentation Generator v2.0');
+  console.log('\n📚 Applied QM Documentation Generator v2.1');
   console.log('   Universal INBOX with Auto-Categorization\n');
 
   const stats = {
     processed: 0,
     skipped: 0,
+    utilities: 0,
     byChapter: new Map(),
     byType: new Map(),
     programFiles: new Map(), // programId -> { programInfo, files: [] }
@@ -637,31 +725,37 @@ function processAllPrograms() {
 
   // 检查 INBOX 目录
   if (!fs.existsSync(CONFIG.INBOX_DIR)) {
-    console.log(`❌ INBOX folder not found: ${CONFIG.INBOX_DIR}`);
+    console.log(`❌ Source folder not found: ${CONFIG.INBOX_DIR}`);
     console.log(`   Please create it and add your files there.\n`);
+    console.log(`   Or use --source <path> to specify a different folder.\n`);
     return;
   }
 
-  // 扫描 INBOX
-  const allFiles = fs.readdirSync(CONFIG.INBOX_DIR);
+  // 扫描目录 (支持递归)
+  const allFiles = scanDirectory(CONFIG.INBOX_DIR, CONFIG.RECURSIVE);
   const supportedFiles = allFiles.filter(f => {
     const ext = path.extname(f).toLowerCase();
     return CONFIG.SUPPORTED_EXTENSIONS.includes(ext);
   });
 
-  console.log(`📥 Scanning INBOX: ${supportedFiles.length} supported file(s)\n`);
+  const sourceLabel = CONFIG.RECURSIVE ? 'recursively' : '';
+  console.log(`📥 Scanning ${sourceLabel}: ${CONFIG.INBOX_DIR}`);
+  console.log(`   Found ${supportedFiles.length} supported file(s)\n`);
 
   if (supportedFiles.length === 0) {
-    console.log('   No supported files found in INBOX.');
+    console.log('   No supported files found.');
     console.log(`   Supported extensions: ${CONFIG.SUPPORTED_EXTENSIONS.join(', ')}\n`);
     return;
   }
 
   // 第一遍：收集所有文件，按 programId 分组
-  supportedFiles.forEach(filename => {
+  supportedFiles.forEach(filePath => {
+    // Get just the filename for pattern matching
+    const filename = path.basename(filePath);
     const programInfo = extractProgramInfo(filename);
+
     if (!programInfo) {
-      console.log(`   ⚠️  Skipped (name doesn't match pattern): ${filename}`);
+      console.log(`   ⚠️  Skipped (unsupported extension): ${filename}`);
       stats.skipped++;
       return;
     }
@@ -673,7 +767,11 @@ function processAllPrograms() {
       return;
     }
 
-    const { programId, chapterNum } = programInfo;
+    const { programId, chapterNum, isUtility } = programInfo;
+
+    if (isUtility) {
+      stats.utilities++;
+    }
 
     // 按 programId 分组
     if (!stats.programFiles.has(programId)) {
@@ -682,7 +780,8 @@ function processAllPrograms() {
         files: [],
       });
     }
-    stats.programFiles.get(programId).files.push({ filename, config });
+    // Store full relative path for recursive scanning support
+    stats.programFiles.get(programId).files.push({ filename, filePath, config });
 
     // 统计
     if (!stats.byChapter.has(chapterNum)) {
@@ -709,13 +808,14 @@ function processAllPrograms() {
     const filesList = [];
 
     // 处理每个文件
-    files.forEach(({ filename, config }) => {
+    files.forEach(({ filename, filePath, config }) => {
       // Static 目录：按类型分类
       // 结构: static/programs/<type>/<programId>/<filename>
       const programStaticDir = path.join(CONFIG.STATIC_OUTPUT_DIR, config.type, programId);
       ensureDir(programStaticDir);
 
-      const sourcePath = path.join(CONFIG.INBOX_DIR, filename);
+      // Use filePath for source (supports recursive scanning)
+      const sourcePath = path.join(CONFIG.INBOX_DIR, filePath || filename);
       const staticDestPath = path.join(programStaticDir, filename);
 
       // 复制文件到 static
@@ -787,6 +887,7 @@ function processAllPrograms() {
   console.log(`✨ Generation Complete!\n`);
   console.log(`   📁 Programs:  ${stats.programFiles.size}`);
   console.log(`   📄 Files:     ${stats.processed}`);
+  console.log(`   🔧 Utilities: ${stats.utilities}`);
   console.log(`   ⏭️  Skipped:   ${stats.skipped}`);
 
   if (stats.byType.size > 0) {
@@ -799,9 +900,15 @@ function processAllPrograms() {
 
   if (stats.byChapter.size > 0) {
     console.log(`\n📚 Programs by Chapter:`);
-    Array.from(stats.byChapter.keys()).sort().forEach(ch => {
+    Array.from(stats.byChapter.keys()).sort((a, b) => {
+      // Sort utilities to the end
+      if (a === 'utilities') return 1;
+      if (b === 'utilities') return -1;
+      return parseInt(a, 10) - parseInt(b, 10);
+    }).forEach(ch => {
       const programs = stats.byChapter.get(ch);
-      console.log(`   Chapter ${parseInt(ch, 10)}: ${programs.size} program(s)`);
+      const label = ch === 'utilities' ? 'Utilities' : `Chapter ${parseInt(ch, 10)}`;
+      console.log(`   ${label}: ${programs.size} program(s)`);
     });
   }
 
@@ -954,20 +1061,38 @@ function watchMode() {
 function showHelp() {
   console.log(`
 ╔════════════════════════════════════════════════════════════════════╗
-║      Applied QM Documentation Generator v2.0                      ║
+║      Applied QM Documentation Generator v2.1                      ║
 ║      Universal INBOX with Auto-Categorization                     ║
 ╚════════════════════════════════════════════════════════════════════╝
 
-Usage: node scripts/generate-program-docs.js [command]
+Usage: node scripts/generate-program-docs.js [options] [command]
 
 Commands:
-  (none)        Process all files in INBOX once
-  --watch, -w   Watch INBOX for changes and auto-regenerate
+  (none)        Process all files once
+  --watch, -w   Watch for changes and auto-regenerate
   --clean, -c   Remove all generated documentation
   --help, -h    Show this message
 
-INBOX Location:
+Options:
+  --source, -s <path>   Scan a specific folder instead of INBOX
+  --recursive, -r       Recursively scan subdirectories
+
+Examples:
+  node scripts/generate-program-docs.js
+      → Scan INBOX folder
+
+  node scripts/generate-program-docs.js -s ../my-files
+      → Scan a custom folder
+
+  node scripts/generate-program-docs.js -s ../my-files -r
+      → Recursively scan a folder and all subfolders
+
+  node scripts/generate-program-docs.js -s "C:/path/to/folder" -r
+      → Scan absolute path recursively
+
+Current Source:
   ${CONFIG.INBOX_DIR}
+  Recursive: ${CONFIG.RECURSIVE ? 'Yes' : 'No'}
 
   Drop ALL your files here (any supported type):
     Chapt1Exercise8.m
@@ -975,6 +1100,7 @@ INBOX Location:
     Chapt1Exercise8.tex
     Chapt1Exercise8.html
     Chapt2Fig3a.ipynb
+    fermi.m (utility files also supported!)
     ...
 
 Supported File Types:
@@ -1034,14 +1160,11 @@ Example Workflow:
 }
 
 // ============ 入口 ============
-const args = process.argv.slice(2);
-const command = args[0];
-
-if (command === '--watch' || command === '-w') {
+if (CLI_OPTIONS.command === 'watch') {
   watchMode();
-} else if (command === '--clean' || command === '-c') {
+} else if (CLI_OPTIONS.command === 'clean') {
   cleanGenerated();
-} else if (command === '--help' || command === '-h') {
+} else if (CLI_OPTIONS.command === 'help') {
   showHelp();
 } else {
   processAllPrograms();

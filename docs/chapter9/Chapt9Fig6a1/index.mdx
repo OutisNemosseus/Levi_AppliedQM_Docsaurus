@@ -7,7 +7,7 @@ sidebar_label: Chapter 9 - Fig 6A1
 
 > **Chapter 9**: Statistical Mechanics
 >
-> 📊 1 file(s) available
+> 📊 📝 📕 3 file(s) available
 
 ## Available Files
 
@@ -72,14 +72,125 @@ sidebar_label: Chapter 9 - Fig 6A1
   </div>
 </div>
 
-## Inline Previews
+<div style={{
+  border: '1px solid #e5e7eb',
+  borderRadius: '8px',
+  padding: '16px',
+  marginBottom: '12px',
+  backgroundColor: '#fafafa',
+}}>
+  <div style={{display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px'}}>
+    <span style={{fontSize: '24px'}}>📝</span>
+    <div>
+      <strong style={{color: '#008080'}}>LaTeX</strong>
+      <div style={{fontSize: '12px', color: '#666'}}>`Chapt9Fig6a1.tex`</div>
+    </div>
+  </div>
+  <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+    <a
+      href="./Chapt9Fig6a1_latex"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#008080',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      📖 View Details
+    </a>
+    <a
+      href="/programs/latex/Chapt9Fig6a1/Chapt9Fig6a1.tex"
+      download="Chapt9Fig6a1.tex"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#10b981',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      📥 Download
+    </a>
+    <a
+      href="/programs/latex/Chapt9Fig6a1/Chapt9Fig6a1.tex"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#6b7280',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      🔗 Open
+    </a>
+  </div>
+</div>
 
-### MATLAB - Chapt9Fig6a1.m
-
-```matlab title="Chapt9Fig6a1.m"
-%Chapt9Fig6a1%Fabry-Perot optical resonatorclear;clf;err=0.00001;c=3e8;							%speed of light in vacuumnr=3.3;							%effective refractive index in cavitylambda0=1310e-9;				%center emission wavelengthLc=300e-6;						%cavity lengthr1=((1-nr)/(1+nr))^2;		%reflectivity of mirror1r2=((1-nr)/(1+nr))^2;		%reflectivity of mirror2r=r1*r2;							%optical loss per photon round-tripF=pi*r^0.5/(1-r);				%optical FinesseFconst=(2*F/pi)^2;Imax=1/((1-r)^2);				%peak intensity inside cavity normalized to I0f0=c*1e-12/lambda0;			%center frequency in THzdeltaf=c*1e-12/(2*Lc*nr);	%THzdeltawavelength=lambda0^2/(2*Lc*nr);  %m;for i=[1:1:1000]   Frequency(i)=(f0+i*0.001);   Fwavelength(i)=c/Frequency(i);   x=sin(pi*Frequency(i)/deltaf);   x2=x*x;   Intensity(i)=Imax/(1+(Fconst*(x2)));endfigure(1); plot(Frequency,Intensity); axis([f0,f0+1,0,4]);  xlabel('Frequency, \nu(THz)'),ylabel('Intensity'); ttl=sprintf('Chapt9Fig6a1, r1=%4.2f, r2=%4.2f, nr=%4.2f, f0=%7.2e THz, Lc=%7.2e m',r1,r2,nr,f0,Lc) title(ttl);  figure(2); plot(Fwavelength*10^-12,Intensity); xlabel('Wavelength, \lambda (m)'),ylabel('Intensity'); title(ttl);
-```
-
+<div style={{
+  border: '1px solid #e5e7eb',
+  borderRadius: '8px',
+  padding: '16px',
+  marginBottom: '12px',
+  backgroundColor: '#fafafa',
+}}>
+  <div style={{display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px'}}>
+    <span style={{fontSize: '24px'}}>📕</span>
+    <div>
+      <strong style={{color: '#dc2626'}}>PDF Document</strong>
+      <div style={{fontSize: '12px', color: '#666'}}>`Chapt9Fig6a1.pdf`</div>
+    </div>
+  </div>
+  <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+    <a
+      href="./Chapt9Fig6a1_pdf"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#dc2626',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      📖 View Details
+    </a>
+    <a
+      href="/programs/pdf/Chapt9Fig6a1/Chapt9Fig6a1.pdf"
+      download="Chapt9Fig6a1.pdf"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#10b981',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      📥 Download
+    </a>
+    <a
+      href="/programs/pdf/Chapt9Fig6a1/Chapt9Fig6a1.pdf"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#6b7280',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      🔗 Open
+    </a>
+  </div>
+</div>
 
 ---
 

@@ -1,0 +1,358 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{cleveref}
+
+\geometry{margin=1in}
+
+\lstset{
+  language=Matlab,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  commentstyle=\color{green!60!black},
+  numbers=left,
+  numberstyle=\tiny,
+  breaklines=true,
+  frame=single
+}
+
+\newtheorem{axiom}{Axiom}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{Fabry-P\'{e}rot Optical Resonator:\\Low Reflectivity Regime\\[0.5em]\large Detailed Analysis of \texttt{Chapt9Fig6a1.m}}
+\author{Generated Documentation}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document provides comprehensive theoretical foundations and line-by-line code analysis for \texttt{Chapt9Fig6a1.m}, which calculates the intensity transmission spectrum of a Fabry-P\'{e}rot optical resonator with Fresnel reflectivity (low $R$). The code demonstrates the fundamental physics of optical cavities, including mode spacing, finesse, and the Airy function that governs resonance structure.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Theoretical Foundation}
+%==============================================================================
+
+\subsection{Axioms of Optical Resonators}
+
+\begin{axiom}[Wave Superposition]
+Electric fields from multiple reflections add coherently:
+\begin{equation}
+E_{total} = \sum_{n=0}^{\infty} E_n e^{i\phi_n}
+\end{equation}
+where the phase $\phi_n$ depends on optical path length.
+\end{axiom}
+
+\begin{axiom}[Resonance Condition]
+Constructive interference occurs when the round-trip phase is a multiple of $2\pi$:
+\begin{equation}
+2n_r L = m\lambda, \quad m \in \mathbb{Z}
+\end{equation}
+\end{axiom}
+
+\begin{axiom}[Energy Conservation]
+For a lossless cavity: $R + T = 1$, where $R$ is reflectivity and $T$ is transmissivity.
+\end{axiom}
+
+\subsection{Fundamental Definitions}
+
+\begin{definition}[Fresnel Reflectivity]
+At normal incidence on a dielectric interface:
+\begin{equation}
+R = \left(\frac{n_1 - n_2}{n_1 + n_2}\right)^2
+\end{equation}
+For a semiconductor-air interface ($n_r \approx 3.3$):
+\begin{equation}
+R = \left(\frac{1 - 3.3}{1 + 3.3}\right)^2 = \left(\frac{-2.3}{4.3}\right)^2 \approx 0.286
+\end{equation}
+\end{definition}
+
+\begin{definition}[Free Spectral Range]
+The frequency spacing between adjacent longitudinal modes:
+\begin{equation}
+\Delta\nu_{FSR} = \frac{c}{2n_r L}
+\end{equation}
+or in wavelength:
+\begin{equation}
+\Delta\lambda_{FSR} = \frac{\lambda^2}{2n_r L}
+\end{equation}
+\end{definition}
+
+\begin{definition}[Finesse]
+The ratio of mode spacing to mode linewidth:
+\begin{equation}
+\mathcal{F} = \frac{\Delta\nu_{FSR}}{\delta\nu} = \frac{\pi\sqrt{R_1 R_2}}{1 - R_1 R_2}
+\end{equation}
+\end{definition}
+
+\begin{definition}[Coefficient of Finesse]
+An alternative measure used in the Airy function:
+\begin{equation}
+F = \left(\frac{2\mathcal{F}}{\pi}\right)^2 = \frac{4R_1 R_2}{(1-R_1 R_2)^2}
+\end{equation}
+\end{definition}
+
+\subsection{Core Theorems}
+
+\begin{theorem}[Airy Function for Transmission]
+The intensity transmission through a Fabry-P\'{e}rot cavity is:
+\begin{equation}
+\frac{I_t}{I_0} = \frac{T_{max}}{1 + F\sin^2(\delta/2)}
+\end{equation}
+where $\delta = 2\pi \cdot 2n_r L/\lambda = 4\pi n_r L\nu/c$ is the round-trip phase.
+\end{theorem}
+
+\begin{proof}
+Consider successive reflections inside the cavity. The transmitted field is:
+\begin{equation}
+E_t = E_0 t_1 t_2 \sum_{n=0}^{\infty} (r_1 r_2)^n e^{in\delta}
+\end{equation}
+The geometric series sums to:
+\begin{equation}
+E_t = \frac{E_0 t_1 t_2}{1 - r_1 r_2 e^{i\delta}}
+\end{equation}
+Taking the intensity $I = |E|^2$:
+\begin{equation}
+I_t = \frac{I_0 T_1 T_2}{|1 - r_1 r_2 e^{i\delta}|^2} = \frac{I_0 T_1 T_2}{(1-R)^2 + 4R\sin^2(\delta/2)}
+\end{equation}
+For $R_1 = R_2 = R$ and using $T = 1-R$:
+\begin{equation}
+I_t = \frac{I_0}{1 + F\sin^2(\delta/2)}, \quad F = \frac{4R}{(1-R)^2}
+\end{equation}
+\end{proof}
+
+\begin{theorem}[Peak Intensity Enhancement]
+At resonance ($\sin(\delta/2) = 0$), the internal intensity is enhanced:
+\begin{equation}
+\frac{I_{internal}}{I_0} = \frac{1}{(1-R)^2} = \frac{1}{(1-\sqrt{R_1 R_2})^2}
+\end{equation}
+\end{theorem}
+
+\begin{theorem}[Mode Linewidth]
+The full-width at half-maximum of each resonance:
+\begin{equation}
+\delta\nu = \frac{\Delta\nu_{FSR}}{\mathcal{F}} = \frac{c(1-R)}{2\pi n_r L\sqrt{R}}
+\end{equation}
+\end{theorem}
+
+%==============================================================================
+\section{Line-by-Line Code Analysis}
+%==============================================================================
+
+\subsection{Initialization}
+
+\begin{lstlisting}
+%Chapt9Fig6a1
+%Fabry-Perot optical resonator
+clear;
+clf;
+err=0.00001;
+\end{lstlisting}
+Program header; \texttt{err} is defined but not used (likely for convergence checks in other versions).
+
+\subsection{Physical Parameters}
+
+\begin{lstlisting}
+c=3e8;                    %speed of light in vacuum
+nr=3.3;                   %effective refractive index
+lambda0=1310e-9;          %center emission wavelength
+Lc=300e-6;                %cavity length
+\end{lstlisting}
+\textbf{Cavity parameters:}
+\begin{align}
+c &= 3 \times 10^8 \text{ m/s} \\
+n_r &= 3.3 \quad \text{(GaAs/InP range)} \\
+\lambda_0 &= 1310 \text{ nm} \\
+L_c &= 300 \text{ }\mu\text{m}
+\end{align}
+
+\begin{lstlisting}
+r1=((1-nr)/(1+nr))^2;     %reflectivity of mirror1
+r2=((1-nr)/(1+nr))^2;     %reflectivity of mirror2
+r=r1*r2;                  %round-trip reflectivity
+\end{lstlisting}
+\textbf{Fresnel reflectivity calculation:}
+\begin{equation}
+R_1 = R_2 = \left(\frac{1-n_r}{1+n_r}\right)^2 = \left(\frac{-2.3}{4.3}\right)^2 = 0.286
+\end{equation}
+Round-trip: $R = R_1 R_2 = 0.0819$.
+
+Note: The code uses the full Fresnel formula but squares it, giving the intensity reflectivity.
+
+\subsection{Finesse and Spectral Parameters}
+
+\begin{lstlisting}
+F=pi*r^0.5/(1-r);         %optical Finesse
+Fconst=(2*F/pi)^2;
+Imax=1/((1-r)^2);         %peak intensity normalized to I0
+\end{lstlisting}
+\textbf{Finesse calculation:}
+\begin{equation}
+\mathcal{F} = \frac{\pi\sqrt{R}}{1-R} = \frac{\pi\sqrt{0.0819}}{1-0.0819} = \frac{0.899}{0.918} = 0.98
+\end{equation}
+This is a \textbf{low finesse} cavity---broad resonances.
+
+\textbf{Coefficient of finesse:}
+\begin{equation}
+F_{const} = \left(\frac{2\mathcal{F}}{\pi}\right)^2 = \frac{4R}{(1-R)^2} = \frac{0.328}{0.843} = 0.389
+\end{equation}
+
+\textbf{Peak intensity enhancement:}
+\begin{equation}
+I_{max} = \frac{1}{(1-R)^2} = \frac{1}{0.843} = 1.19
+\end{equation}
+Only 19\% enhancement due to low finesse.
+
+\begin{lstlisting}
+f0=c*1e-12/lambda0;       %center frequency in THz
+deltaf=c*1e-12/(2*Lc*nr); %FSR in THz
+deltawavelength=lambda0^2/(2*Lc*nr);  %FSR in m
+\end{lstlisting}
+\textbf{Spectral quantities:}
+\begin{align}
+f_0 &= \frac{c}{\lambda_0} = \frac{3\times10^8}{1.31\times10^{-6}} = 229 \text{ THz} \\
+\Delta f_{FSR} &= \frac{c}{2n_r L} = \frac{3\times10^8}{2 \times 3.3 \times 300\times10^{-6}} = 0.152 \text{ THz} = 152 \text{ GHz} \\
+\Delta\lambda_{FSR} &= \frac{\lambda_0^2}{2n_r L} = \frac{(1.31\times10^{-6})^2}{1.98\times10^{-3}} = 0.87 \text{ nm}
+\end{align}
+
+\subsection{Main Computation Loop}
+
+\begin{lstlisting}
+for i=[1:1:1000]
+   Frequency(i)=(f0+i*0.001);
+   Fwavelength(i)=c/Frequency(i);
+   x=sin(pi*Frequency(i)/deltaf);
+   x2=x*x;
+   Intensity(i)=Imax/(1+(Fconst*(x2)));
+end
+\end{lstlisting}
+\textbf{Frequency sweep:} From $f_0$ to $f_0 + 1$ THz in 0.001 THz steps.
+
+\textbf{Airy function implementation:}
+\begin{equation}
+I(\nu) = \frac{I_{max}}{1 + F_{const}\sin^2\left(\frac{\pi\nu}{\Delta\nu_{FSR}}\right)}
+\end{equation}
+
+The argument $\pi\nu/\Delta\nu_{FSR}$ gives:
+\begin{itemize}
+\item At $\nu = m \cdot \Delta\nu_{FSR}$: $\sin = 0$, resonance peak
+\item At $\nu = (m+1/2) \cdot \Delta\nu_{FSR}$: $\sin = \pm 1$, minimum
+\end{itemize}
+
+\subsection{Plotting}
+
+\begin{lstlisting}
+figure(1);
+plot(Frequency,Intensity);
+axis([f0,f0+1,0,4]); 
+xlabel('Frequency, \nu(THz)'),ylabel('Intensity');
+ttl=sprintf('Chapt9Fig6a1, r1=%4.2f, r2=%4.2f, nr=%4.2f, f0=%7.2e THz, Lc=%7.2e m',r1,r2,nr,f0,Lc)
+title(ttl);
+\end{lstlisting}
+Frequency-domain plot showing resonance peaks.
+
+\begin{lstlisting}
+figure(2);
+plot(Fwavelength*10^-12,Intensity);
+xlabel('Wavelength, \lambda (m)'),ylabel('Intensity');
+title(ttl);
+\end{lstlisting}
+Wavelength-domain plot (note: \texttt{10\^{}-12} scaling issue in original code).
+
+%==============================================================================
+\section{Numerical Methods}
+%==============================================================================
+
+\subsection{Direct Evaluation}
+
+The code uses direct evaluation of the Airy function rather than summing infinite series. This is numerically stable and efficient.
+
+\subsection{Frequency Grid}
+
+With 1000 points over 1 THz:
+\begin{equation}
+\Delta\nu_{sample} = 1 \text{ GHz}
+\end{equation}
+Since $\Delta\nu_{FSR} = 152$ GHz, there are $\sim 7$ FSR periods in the plot, each sampled by $\sim 150$ points---adequate resolution.
+
+\subsection{Peak Resolution}
+
+For low finesse $\mathcal{F} \approx 1$, the linewidth is:
+\begin{equation}
+\delta\nu \approx \Delta\nu_{FSR} = 152 \text{ GHz}
+\end{equation}
+The 1 GHz sampling easily resolves these broad peaks.
+
+%==============================================================================
+\section{Physical Interpretation}
+%==============================================================================
+
+\subsection{Low Finesse Characteristics}
+
+With $R_1 = R_2 = 0.286$:
+\begin{itemize}
+\item \textbf{Finesse} $\mathcal{F} \approx 1$: Poor quality factor
+\item \textbf{Broad resonances}: Linewidth $\approx$ FSR
+\item \textbf{Weak enhancement}: Peak only 19\% above baseline
+\item \textbf{Poor mode selectivity}: Overlapping resonances
+\end{itemize}
+
+\subsection{Comparison to Laser Requirements}
+
+A practical laser requires:
+\begin{itemize}
+\item Higher reflectivity: $R > 0.9$ for $\mathcal{F} > 30$
+\item Sharp resonances: For single-mode selection
+\item Higher enhancement: For reduced threshold
+\end{itemize}
+
+This simulation represents a bare semiconductor facet without coatings.
+
+\subsection{Mode Spectrum}
+
+The allowed longitudinal modes satisfy:
+\begin{equation}
+\nu_m = m \cdot \Delta\nu_{FSR} = m \cdot \frac{c}{2n_r L}
+\end{equation}
+Near $\lambda_0 = 1310$ nm:
+\begin{equation}
+m = \frac{2n_r L}{\lambda_0} = \frac{2 \times 3.3 \times 300}{1.31} = 1511
+\end{equation}
+Mode number $\sim 1500$, confirming the cavity supports many modes.
+
+%==============================================================================
+\section{Summary}
+%==============================================================================
+
+This code simulates a Fabry-P\'{e}rot resonator with:
+\begin{itemize}
+\item Fresnel reflectivity from semiconductor-air interface
+\item Low finesse ($\mathcal{F} \approx 1$) due to $R \approx 0.29$
+\item 300 $\mu$m cavity length typical of edge-emitting lasers
+\item FSR of 152 GHz (0.87 nm)
+\end{itemize}
+
+Key results:
+\begin{itemize}
+\item Broad, overlapping resonance peaks
+\item Minimal intensity enhancement
+\item Many longitudinal modes ($m \sim 1500$)
+\item Representative of uncoated laser facets
+\end{itemize}
+
+This serves as a baseline for comparison with high-reflectivity coated cavities.
+
+\end{document}

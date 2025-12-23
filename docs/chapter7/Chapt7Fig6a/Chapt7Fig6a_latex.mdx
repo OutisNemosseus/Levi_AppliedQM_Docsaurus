@@ -1,0 +1,433 @@
+---
+title: Chapter 7 - Fig 6A - LaTeX
+sidebar_label: LaTeX Source
+---
+
+# Chapter 7 - Fig 6A - LaTeX Document
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+  <a href="/programs/latex/Chapt7Fig6a/Chapt7Fig6a.tex" download="Chapt7Fig6a.tex"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .tex
+  </a>
+  <a href="/programs/latex/Chapt7Fig6a/Chapt7Fig6a.tex" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+## LaTeX Source
+
+```latex title="Chapt7Fig6a.tex"
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{float}
+
+\geometry{margin=1in}
+
+\lstset{
+    language=Matlab,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{orange},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10}
+}
+
+\newtheorem{axiom}{Axiom}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{\textbf{Chapt7Fig6a.m} \\ Fermi-Dirac Distribution Function for Semiconductors \\ \large A Complete Mathematical Framework}
+\author{Semiconductor Physics Documentation}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document provides a comprehensive mathematical derivation and code explanation for \texttt{Chapt7Fig6a.m}, which plots the Fermi-Dirac distribution function for electrons in a semiconductor at various temperatures. We develop the theoretical framework from fundamental statistical mechanics axioms through to the numerical implementation.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Theoretical Foundation: From Axioms to Fermi-Dirac Statistics}
+%==============================================================================
+
+\subsection{Fundamental Axioms of Quantum Statistical Mechanics}
+
+\begin{axiom}[Indistinguishability of Identical Particles]
+In quantum mechanics, identical particles (such as electrons) are fundamentally indistinguishable. The state of a system is described by occupation numbers rather than individual particle trajectories.
+\end{axiom}
+
+\begin{axiom}[Pauli Exclusion Principle]
+For fermions (particles with half-integer spin, including electrons), no two particles can occupy the same quantum state simultaneously. Mathematically, for occupation number $n_i$ of state $i$:
+\begin{equation}
+n_i \in \{0, 1\}
+\end{equation}
+\end{axiom}
+
+\begin{axiom}[Principle of Equal A Priori Probabilities]
+In thermal equilibrium, all accessible microstates of an isolated system are equally probable.
+\end{axiom}
+
+\begin{axiom}[Boltzmann Entropy Hypothesis]
+The entropy $S$ of a system is related to the number of microstates $\Omega$ by:
+\begin{equation}
+S = k_B \ln \Omega
+\end{equation}
+where $k_B$ is Boltzmann's constant.
+\end{axiom}
+
+\subsection{Derivation of the Fermi-Dirac Distribution}
+
+\begin{definition}[Grand Canonical Ensemble]
+For a system in thermal and chemical equilibrium with a reservoir at temperature $T$ and chemical potential $\mu$, the probability of a microstate with energy $E$ and particle number $N$ is:
+\begin{equation}
+P(E, N) = \frac{1}{\mathcal{Z}} e^{-\beta(E - \mu N)}
+\end{equation}
+where $\beta = 1/(k_B T)$ and $\mathcal{Z}$ is the grand partition function.
+\end{definition}
+
+\begin{theorem}[Fermi-Dirac Distribution Function]
+For a system of non-interacting fermions in thermal equilibrium, the average occupation number of a single-particle state with energy $E$ is:
+\begin{equation}
+f(E) = \frac{1}{e^{\beta(E-\mu)} + 1}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Consider a single quantum state with energy $\epsilon$. Due to the Pauli exclusion principle, the occupation number can only be $n = 0$ or $n = 1$.
+
+The grand partition function for this single state is:
+\begin{equation}
+\mathcal{Z}_1 = \sum_{n=0}^{1} e^{-\beta(\epsilon - \mu)n} = 1 + e^{-\beta(\epsilon - \mu)}
+\end{equation}
+
+The average occupation is:
+\begin{align}
+\langle n \rangle &= \frac{\sum_{n=0}^{1} n \cdot e^{-\beta(\epsilon - \mu)n}}{\mathcal{Z}_1} \\
+&= \frac{0 \cdot 1 + 1 \cdot e^{-\beta(\epsilon - \mu)}}{1 + e^{-\beta(\epsilon - \mu)}} \\
+&= \frac{e^{-\beta(\epsilon - \mu)}}{1 + e^{-\beta(\epsilon - \mu)}} \\
+&= \frac{1}{e^{\beta(\epsilon - \mu)} + 1}
+\end{align}
+\end{proof}
+
+\subsection{Chemical Potential in Semiconductors}
+
+\begin{definition}[Density of States in 3D]
+For a parabolic band with effective mass $m^*$, the density of states per unit volume is:
+\begin{equation}
+g(E) = \frac{1}{2\pi^2} \left(\frac{2m^*}{\hbar^2}\right)^{3/2} \sqrt{E}
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Carrier Density Integral]
+The electron concentration in the conduction band is given by:
+\begin{equation}
+n = \int_0^{\infty} g(E) f(E) \, dE = \frac{1}{2\pi^2} \left(\frac{2m^*}{\hbar^2}\right)^{3/2} \int_0^{\infty} \frac{\sqrt{E}}{e^{\beta(E-\mu)} + 1} \, dE
+\end{equation}
+\end{theorem}
+
+\begin{definition}[Fermi Integral of Order 1/2]
+The Fermi integral of order $j$ is defined as:
+\begin{equation}
+\mathcal{F}_j(\eta) = \frac{1}{\Gamma(j+1)} \int_0^{\infty} \frac{x^j}{e^{x-\eta} + 1} \, dx
+\end{equation}
+where $\eta = \mu/(k_B T)$ is the reduced chemical potential.
+\end{definition}
+
+\begin{theorem}[Carrier Density in Terms of Fermi Integral]
+\begin{equation}
+n = N_c \mathcal{F}_{1/2}(\eta)
+\end{equation}
+where $N_c = 2\left(\frac{m^* k_B T}{2\pi\hbar^2}\right)^{3/2}$ is the effective density of states.
+\end{theorem}
+
+\subsection{Numerical Method: Newton-Raphson for Chemical Potential}
+
+The code uses a helper function \texttt{chempot.m} to find $\mu$ given $n$. This requires solving the implicit equation:
+\begin{equation}
+n = N_c \mathcal{F}_{1/2}\left(\frac{\mu}{k_B T}\right)
+\end{equation}
+
+\begin{theorem}[Newton-Raphson Method]
+To find the root of $f(x) = 0$, the Newton-Raphson iteration is:
+\begin{equation}
+x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}
+\end{equation}
+\end{theorem}
+
+For finding chemical potential, we solve:
+\begin{equation}
+F(\mu) = n - N_c \mathcal{F}_{1/2}\left(\frac{\mu}{k_B T}\right) = 0
+\end{equation}
+
+The derivative uses the relation:
+\begin{equation}
+\frac{d\mathcal{F}_j}{d\eta} = \mathcal{F}_{j-1}(\eta)
+\end{equation}
+
+%==============================================================================
+\section{Line-by-Line Code Analysis}
+%==============================================================================
+
+\subsection{Initialization and Physical Constants}
+
+\begin{lstlisting}
+clear;clf;
+\end{lstlisting}
+\textit{Clears workspace variables and current figure.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+n=1.e18
+\end{lstlisting}
+\begin{equation}
+n = 1 \times 10^{18} \text{ cm}^{-3}
+\end{equation}
+\textit{Sets the carrier density. This is a typical doping concentration for heavily doped semiconductors.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+m0=9.109382;
+\end{lstlisting}
+\begin{equation}
+m_0 = 9.109382 \times 10^{-31} \text{ kg}
+\end{equation}
+\textit{Bare electron mass (stored as coefficient, actual value includes $\times 10^{-31}$).}
+
+\vspace{0.5em}
+\begin{lstlisting}
+m1=0.07;
+\end{lstlisting}
+\begin{equation}
+m^* = 0.07 \, m_0
+\end{equation}
+\textit{Effective electron mass for GaAs conduction band.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+echarge=1.6021764;
+\end{lstlisting}
+\begin{equation}
+e = 1.6021764 \times 10^{-19} \text{ C}
+\end{equation}
+\textit{Elementary charge (coefficient form).}
+
+\vspace{0.5em}
+\begin{lstlisting}
+hbar=1.05457159;
+\end{lstlisting}
+\begin{equation}
+\hbar = 1.05457159 \times 10^{-34} \text{ J}\cdot\text{s}
+\end{equation}
+\textit{Reduced Planck constant (coefficient form).}
+
+\vspace{0.5em}
+\begin{lstlisting}
+kB=8.61734e-5;
+\end{lstlisting}
+\begin{equation}
+k_B = 8.61734 \times 10^{-5} \text{ eV/K}
+\end{equation}
+\textit{Boltzmann constant in eV/K for convenient energy calculations.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+rerr=1.e-3;
+\end{lstlisting}
+\begin{equation}
+\epsilon_{\text{rel}} = 10^{-3}
+\end{equation}
+\textit{Relative error tolerance for numerical calculation of chemical potential.}
+
+\subsection{Temperature Array and Loop Parameters}
+
+\begin{lstlisting}
+Temperature=[0.1,100,200,300,400];
+\end{lstlisting}
+\begin{equation}
+T \in \{0.1, 100, 200, 300, 400\} \text{ K}
+\end{equation}
+\textit{Array of temperatures spanning near-zero to elevated temperatures.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+nTemp=length(Temperature)
+\end{lstlisting}
+\begin{equation}
+N_{\text{temp}} = 5
+\end{equation}
+\textit{Number of temperature values to iterate over.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+nplotpoints=300;
+\end{lstlisting}
+\textit{Number of energy points for plotting the distribution.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+Emin=0;
+Emax=200;
+\end{lstlisting}
+\begin{equation}
+E \in [0, 200] \text{ meV}
+\end{equation}
+\textit{Energy range for the plot in millielectronvolts.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+Estep=(Emax-Emin)/nplotpoints;
+\end{lstlisting}
+\begin{equation}
+\Delta E = \frac{E_{\max} - E_{\min}}{N_{\text{points}}} = \frac{200}{300} \approx 0.667 \text{ meV}
+\end{equation}
+\textit{Energy step size for discretization.}
+
+\subsection{Main Computation Loop}
+
+\begin{lstlisting}
+for j=1:1:nTemp
+   kelvin=Temperature(j);
+\end{lstlisting}
+\textit{Iterate over each temperature value.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   kBT=1000.*kelvin*kB;
+\end{lstlisting}
+\begin{equation}
+k_B T = 1000 \times T \times k_B \text{ [meV]}
+\end{equation}
+\textit{Thermal energy in meV (factor of 1000 converts eV to meV).}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   beta=1./kBT;
+\end{lstlisting}
+\begin{equation}
+\beta = \frac{1}{k_B T} \text{ [meV}^{-1}\text{]}
+\end{equation}
+\textit{Inverse thermal energy, the fundamental temperature parameter in statistical mechanics.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   mu1=chempot(kelvin,m1,n,rerr);
+\end{lstlisting}
+\begin{equation}
+\mu = \mu(T, m^*, n) \text{ [meV]}
+\end{equation}
+\textit{Calls external function to compute chemical potential by inverting the carrier density integral numerically.}
+
+\subsection{Fermi Function Evaluation}
+
+\begin{lstlisting}
+  for k = 1:1:nplotpoints+1
+     energy=((k-1)*Estep)+Emin;
+     E(k)=energy;
+\end{lstlisting}
+\begin{equation}
+E_k = (k-1) \cdot \Delta E + E_{\min}
+\end{equation}
+\textit{Compute energy value for each grid point.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+     Prob=fermi(beta,energy,mu1);
+\end{lstlisting}
+\begin{equation}
+f(E) = \frac{1}{e^{\beta(E-\mu)} + 1}
+\end{equation}
+\textit{Evaluate Fermi-Dirac distribution at energy $E$ with chemical potential $\mu$.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+     FD(k)=Prob;
+  end;
+\end{lstlisting}
+\textit{Store the probability in array for plotting.}
+
+\subsection{Plotting}
+
+\begin{lstlisting}
+    hold on;figure(1);plot(E,log(FD));axis([0 Emax -10 0]);
+end
+\end{lstlisting}
+\begin{equation}
+\text{Plot: } \ln[f(E)] \text{ vs } E
+\end{equation}
+\textit{Logarithmic plot reveals the exponential tail of the distribution.}
+
+At high energies ($E \gg \mu$), the Fermi function approaches:
+\begin{equation}
+f(E) \approx e^{-\beta(E-\mu)} \implies \ln f(E) \approx -\beta(E-\mu)
+\end{equation}
+
+This explains why the logarithmic plot shows linear behavior in the tail region, with slope $-\beta = -1/(k_B T)$.
+
+\vspace{0.5em}
+\begin{lstlisting}
+xlabel('Energy, E (meV)');
+ylabel('ln(occupation factor)');
+ttl=sprintf('Chapt7Fig6a, m* = %4.2f m0, Tmax = %4.1f K, n = %7.2e cm-3',m1,kelvin,n);
+title(ttl);
+\end{lstlisting}
+\textit{Add axis labels and title with parameter values.}
+
+%==============================================================================
+\section{Physical Interpretation}
+%==============================================================================
+
+\subsection{Temperature Dependence}
+
+\begin{itemize}
+\item At $T \to 0$: The Fermi function becomes a step function
+\begin{equation}
+f(E) = \begin{cases} 1 & E < \mu \\ 0 & E > \mu \end{cases}
+\end{equation}
+
+\item At finite $T$: The step is ``smeared'' over an energy range $\sim k_B T$
+
+\item The slope of $\ln f(E)$ in the tail region is $-1/(k_B T)$
+\end{itemize}
+
+\subsection{Significance of Parameters}
+
+\begin{itemize}
+\item $n = 10^{18}$ cm$^{-3}$: Heavy doping, chemical potential likely positive (degenerate regime)
+\item $m^* = 0.07 m_0$: Light effective mass typical of III-V semiconductors (GaAs)
+\item Temperature range 0.1--400 K spans quantum to classical regimes
+\end{itemize}
+
+%==============================================================================
+\section{Summary}
+%==============================================================================
+
+This code visualizes the fundamental Fermi-Dirac distribution that governs electron statistics in semiconductors. The logarithmic plot clearly shows the transition from the plateau region ($f \approx 1$ for $E < \mu$) to the exponential tail ($f \propto e^{-E/k_B T}$ for $E \gg \mu$), with the transition width controlled by temperature.
+
+\end{document}
+
+```
+
+---
+
+[← Back to Chapter 7 - Fig 6A](./)

@@ -1,0 +1,297 @@
+---
+title: Chapter 8 - Fig 14B - LaTeX
+sidebar_label: LaTeX Source
+---
+
+# Chapter 8 - Fig 14B - LaTeX Document
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+  <a href="/programs/latex/Chapt8Fig14b/Chapt8Fig14b.tex" download="Chapt8Fig14b.tex"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .tex
+  </a>
+  <a href="/programs/latex/Chapt8Fig14b/Chapt8Fig14b.tex" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+## LaTeX Source
+
+```latex title="Chapt8Fig14b.tex"
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+
+\geometry{margin=1in}
+
+\lstset{
+    language=Matlab,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{orange},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10}
+}
+
+\newtheorem{axiom}{Axiom}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{\textbf{Chapt8Fig14b.m} \\ Angular Distribution of Scattering Rate \\ \large Thomas-Fermi Screening at $n = 10^{17}$ cm$^{-3}$}
+\author{Semiconductor Physics Documentation}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document analyzes \texttt{Chapt8Fig14b.m}, which plots the differential scattering rate as a function of scattering angle using Thomas-Fermi screening. Unlike Chapt8Fig14a (which integrates over angles), this code shows the angular distribution, revealing the forward-scattering peak characteristic of screened Coulomb scattering.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Theoretical Foundation}
+%==============================================================================
+
+\subsection{Differential Scattering Rate}
+
+\begin{definition}[Angular Differential Rate]
+The differential scattering rate per unit angle is:
+\begin{equation}
+\frac{d(1/\tau)}{d\theta} = \frac{2\pi m^*}{\hbar^3 k^3} n_i \left(\frac{e^2}{4\pi\varepsilon_0\varepsilon_r}\right)^2 \frac{\sin\theta}{(q^2 + q_{\text{TF}}^2)^2}
+\end{equation}
+where $q = 2k\sin(\theta/2)$.
+\end{definition}
+
+\subsection{Forward Scattering Peak}
+
+\begin{theorem}[Small-Angle Dominance]
+At small angles ($\theta \to 0$):
+\begin{equation}
+q = 2k\sin(\theta/2) \approx k\theta \to 0
+\end{equation}
+Without screening, the rate diverges as $1/q^4 \propto 1/\theta^4$.
+
+With Thomas-Fermi screening:
+\begin{equation}
+\frac{d(1/\tau)}{d\theta} \propto \frac{\sin\theta}{(k^2\theta^2 + q_{\text{TF}}^2)^2}
+\end{equation}
+The screening regularizes the divergence, producing a finite peak at small $\theta$.
+\end{theorem}
+
+\subsection{Transformation to $\eta$ Variable}
+
+Using $\eta = \sin(\theta/2)$:
+\begin{equation}
+\frac{d(1/\tau)}{d\theta} = \frac{d(1/\tau)}{d\eta} \cdot \frac{d\eta}{d\theta} = \frac{d(1/\tau)}{d\eta} \cdot \frac{\cos(\theta/2)}{2}
+\end{equation}
+
+%==============================================================================
+\section{Line-by-Line Code Analysis}
+%==============================================================================
+
+\subsection{Initialization and Constants}
+
+\begin{lstlisting}
+clear;clf;
+n=1e17;
+n=n*1e6;
+\end{lstlisting}
+\begin{equation}
+n = 10^{17} \text{ cm}^{-3} = 10^{23} \text{ m}^{-3}
+\end{equation}
+\textit{Carrier/impurity density.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+m0=9.109382e-31;
+echarge=1.6021764e-19;
+hbar=1.05457159e-34;
+epsilon0=8.8541878e-12;
+hbar=1.054592e-34;
+hbar3=hbar^3;
+\end{lstlisting}
+\textit{Physical constants (note: $\hbar$ is defined twice, second value used).}
+
+\vspace{0.5em}
+\begin{lstlisting}
+m=0.07*m0;
+epsilonr0=13.2;
+epsilon=epsilon0*epsilonr0;
+\end{lstlisting}
+\begin{equation}
+m^* = 0.07 m_0, \quad \varepsilon = \varepsilon_0 \varepsilon_r
+\end{equation}
+\textit{GaAs material parameters.}
+
+\subsection{Fermi Wavevector}
+
+\begin{lstlisting}
+kF=(3*(pi^2)*n)^(1/3)
+\end{lstlisting}
+\begin{equation}
+k_F = (3\pi^2 \times 10^{23})^{1/3} \approx 1.43 \times 10^{8} \text{ m}^{-1}
+\end{equation}
+\textit{Fermi wavevector.}
+
+\subsection{Energy Loop}
+
+\begin{lstlisting}
+E=-0.1;
+for j=1:1:2
+E=E+0.2
+   k=sqrt(2*m*E*echarge)/hbar;
+k3=k^3;
+\end{lstlisting}
+\begin{equation}
+E \in \{0.1, 0.3\} \text{ eV}, \quad k = \frac{\sqrt{2m^* E}}{\hbar}
+\end{equation}
+\textit{Two electron energies for comparison.}
+
+\subsection{Thomas-Fermi Wavevector}
+
+\begin{lstlisting}
+  qTF=sqrt(kF*m*echarge^2/(epsilon*(pi^2)*(hbar^2)));
+\end{lstlisting}
+\begin{equation}
+q_{\text{TF}} = \sqrt{\frac{k_F m^* e^2}{\varepsilon \pi^2 \hbar^2}}
+\end{equation}
+\textit{Thomas-Fermi screening wavevector.}
+
+\subsection{Angular Grid}
+
+\begin{lstlisting}
+theta=[pi/180:pi/180:pi];
+\end{lstlisting}
+\begin{equation}
+\theta \in [1°, 180°] \text{ with 1° steps}
+\end{equation}
+\textit{Coarser grid than Exercise7 (1° vs 0.1°).}
+
+\subsection{Momentum Transfer and Variables}
+
+\begin{lstlisting}
+	q=2*k*sin(theta/2);
+   eta=sin(theta/2);
+   deta=pi*cos(theta/2)./2/180;
+   eta3=eta.^3;
+\end{lstlisting}
+\begin{equation}
+q = 2k\sin(\theta/2), \quad \eta = \sin(\theta/2), \quad d\eta = \frac{\pi\cos(\theta/2)}{360}
+\end{equation}
+\textit{Momentum transfer and angular variables.}
+
+\subsection{Thomas-Fermi Dielectric Function}
+
+\begin{lstlisting}
+   TFepsilon=epsilon*(1+qTF^2./q.^2);
+\end{lstlisting}
+\begin{equation}
+\varepsilon_{\text{TF}}(q) = \varepsilon\left(1 + \frac{q_{\text{TF}}^2}{q^2}\right)
+\end{equation}
+\textit{Full dielectric function with screening.}
+
+\subsection{Differential Scattering Rate}
+
+\begin{lstlisting}
+   TFrate =2*pi*m/hbar3/k3*n*(echarge^2/4/pi)^2.*deta./TFepsilon.^2./eta3;
+\end{lstlisting}
+\begin{equation}
+\frac{d(1/\tau)}{d\theta} = \frac{2\pi m^*}{\hbar^3 k^3} n \left(\frac{e^2}{4\pi}\right)^2 \frac{d\eta}{\varepsilon_{\text{TF}}^2 \eta^3}
+\end{equation}
+\textit{Differential scattering rate formula.}
+
+\subsection{Plotting}
+
+\begin{lstlisting}
+  plot(theta*180/pi, TFrate,'b');
+  axis([0 140 0 0.1e12]);
+\end{lstlisting}
+\begin{equation}
+\text{Plot range: } \theta \in [0°, 140°], \quad \frac{1}{\tau} \in [0, 10^{11}] \text{ s}^{-1}\text{/degree}
+\end{equation}
+\textit{Blue curve shows angular distribution of scattering.}
+
+%==============================================================================
+\section{Physical Interpretation}
+%==============================================================================
+
+\subsection{Forward Scattering Peak}
+
+The plot shows:
+\begin{itemize}
+\item Peak at small angles (forward scattering dominates)
+\item Rapid decay with increasing angle
+\item Higher energy electrons have broader angular distribution
+\end{itemize}
+
+\subsection{Effect of Screening}
+
+Without screening ($q_{\text{TF}} = 0$):
+\begin{equation}
+\frac{d(1/\tau)}{d\theta} \propto \frac{1}{\sin^4(\theta/2)} \to \infty \text{ as } \theta \to 0
+\end{equation}
+
+With Thomas-Fermi screening:
+\begin{equation}
+\frac{d(1/\tau)}{d\theta} \propto \frac{1}{(\sin^2(\theta/2) + q_{\text{TF}}^2/4k^2)^2}
+\end{equation}
+
+The screening cuts off the divergence at $\theta \sim q_{\text{TF}}/k$.
+
+\subsection{Energy Dependence}
+
+For $E = 0.1$ eV vs $E = 0.3$ eV:
+\begin{itemize}
+\item Higher energy $\Rightarrow$ larger $k$
+\item Larger $k$ $\Rightarrow$ smaller peak angle (screening less effective)
+\item Overall rate lower at higher energy ($\propto 1/k^3$)
+\end{itemize}
+
+%==============================================================================
+\section{Comparison with Other Codes}
+%==============================================================================
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Code & Density & Integration & Output \\
+\midrule
+Chapt8Fig14a & $10^{17}, 10^{18}$ & Over $\theta$ & $1/\tau$ vs $E$ \\
+Chapt8Fig14b & $10^{17}$ & None & $d(1/\tau)/d\theta$ vs $\theta$ \\
+Chapt8Exercise7a/b & $10^{18}, 10^{14}$ & None & $d(1/\tau)/d\theta$ vs $\theta$ \\
+\bottomrule
+\end{tabular}
+\caption{Comparison of Chapter 8 scattering codes}
+\end{table}
+
+%==============================================================================
+\section{Summary}
+%==============================================================================
+
+This code plots the angular distribution of the ionized impurity scattering rate, showing the characteristic forward-scattering peak that is regularized by Thomas-Fermi screening. The peak width is determined by the ratio $q_{\text{TF}}/k$, and the amplitude scales inversely with $k^3$. This complements Chapt8Fig14a, which integrates over angles to give the total scattering rate.
+
+\end{document}
+
+```
+
+---
+
+[← Back to Chapter 8 - Fig 14B](./)

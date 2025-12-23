@@ -1,186 +1,139 @@
 /**
- * Application Container
- * Dependency Injection: Wires up all dependencies
- * Single Responsibility: Application composition and lifecycle
+ * @fileoverview Application container with dependency injection
+ * @module app
+ *
+ * This module wires together all dependencies using the Dependency Injection pattern.
+ * It serves as the composition root for the application.
+ *
+ * SOLID Principles Applied:
+ * - Single Responsibility: Only handles dependency wiring
+ * - Open/Closed: New services can be added without modifying existing code
+ * - Dependency Inversion: All services depend on abstractions (interfaces)
  */
 
-const { createConfig, getFileTypeConfig, getChapterName } = require('./config');
+const { parseArgs, createConfig } = require('./config');
 const { createFileSystem } = require('./utils/fileSystem');
-const { createLogger, createNullLogger } = require('./utils/logger');
-const { createProgramParser, defaultPattern } = require('./parsers/programParser');
+const { createLogger } = require('./utils/logger');
+const { createProgramParser } = require('./parsers/programParser');
 const { createFileClassifier } = require('./parsers/fileClassifier');
-const { PageGeneratorFactory, createSidebarGenerator } = require('./generators');
-const {
-  createDocumentProcessor,
-  createCleanService,
-  createWatchService,
-} = require('./services');
+const { createGeneratorFactory } = require('./generators/GeneratorFactory');
+const { createDocumentProcessor } = require('./services/DocumentProcessor');
+const { createCleanService } = require('./services/CleanService');
+const { createWatchService } = require('./services/WatchService');
 
 /**
- * Create application container with all dependencies wired up
- * @param {Object} options - Application options
- * @returns {Object} Application container
+ * Create the application with all dependencies wired together
+ * @param {Object} [cliOptions] - CLI options (if not provided, will parse from argv)
+ * @returns {Object} Application instance with run(), clean(), watch(), help() methods
+ * @example
+ * const app = createApp();
+ * app.run(); // Run generation
+ *
+ * @example
+ * const app = createApp({ source: './myfiles', recursive: true });
+ * app.run(); // Run with custom options
  */
-function createApplication(options = {}) {
-  // Configuration
-  const config = createConfig(options.config || {});
+function createApp(cliOptions = null) {
+  // Parse CLI arguments if not provided
+  const options = cliOptions || parseArgs();
 
-  // Utilities
-  const fileSystem = options.fileSystem || createFileSystem();
-  const logger = options.silent
-    ? createNullLogger()
-    : createLogger(options.logger || {});
+  // Create configuration
+  const config = createConfig(options);
 
-  // Parsers
-  const programParser = options.programParser ||
-    createProgramParser(config.PROGRAM_PATTERN || defaultPattern);
-  const fileClassifier = options.fileClassifier ||
-    createFileClassifier(config.SUPPORTED_EXTENSIONS);
+  // Create utilities
+  const fileSystem = createFileSystem(config.inboxDir);
+  const logger = createLogger({ silent: false });
 
-  // Generators
-  const generatorFactory = options.generatorFactory ||
-    new PageGeneratorFactory({
-      viewerBaseUrl: config.VIEWER_BASE_URL,
-      githubRawBase: config.GITHUB_RAW_BASE,
-      nbviewerBaseUrl: config.NBVIEWER_BASE_URL,
-    });
-  const sidebarGenerator = options.sidebarGenerator || createSidebarGenerator();
+  // Create parsers
+  const parser = createProgramParser(config.programPattern, config.supportedExtensions);
+  const classifier = createFileClassifier(config.fileTypes);
 
-  // Services
+  // Create generators
+  const generatorFactory = createGeneratorFactory(config);
+
+  // Create services
   const documentProcessor = createDocumentProcessor({
-    fileSystem,
-    programParser,
-    fileClassifier,
-    generatorFactory,
     config,
+    fileSystem,
+    logger,
+    parser,
+    classifier,
+    generatorFactory,
   });
 
   const cleanService = createCleanService({
-    fileSystem,
     config,
+    fileSystem,
     logger,
   });
 
-  const watchService = createWatchService({
-    fileSystem,
-    config,
-    documentProcessor,
-    sidebarGenerator,
-    logger,
-  });
-
+  // Return application interface
   return {
-    // Configuration
-    config,
-
-    // Utilities
-    fileSystem,
-    logger,
-
-    // Parsers
-    programParser,
-    fileClassifier,
-
-    // Generators
-    generatorFactory,
-    sidebarGenerator,
-
-    // Services
-    documentProcessor,
-    cleanService,
-    watchService,
-
     /**
-     * Run document generation
+     * Run the document generation process
      * @returns {Object} Processing statistics
      */
     run() {
-      logger.header('📚 Applied QM Documentation Generator v2.0');
-      logger.log('   Universal INBOX with Auto-Categorization\n');
-
-      const stats = documentProcessor.processAll();
-
-      if (stats.errors.length > 0) {
-        stats.errors.forEach(error => logger.fail(error));
-      }
-
-      // Update sidebar
-      if (stats.byChapter.size > 0) {
-        watchService.updateSidebar(stats.byChapter);
-      }
-
-      logger.printStats(stats);
-
-      logger.log(`\n📂 Output Structure:`);
-      logger.log(`   docs:   ${config.DOCS_OUTPUT_DIR}/chapter<N>/<programId>/`);
-      logger.log(`   static: ${config.STATIC_OUTPUT_DIR}/<type>/<programId>/\n`);
-
-      return stats;
+      return documentProcessor.process();
     },
 
     /**
-     * Run in watch mode
-     */
-    watch() {
-      logger.header('👀 Watch Mode: Monitoring INBOX for changes...');
-      const result = watchService.start();
-
-      if (!result.success) {
-        logger.fail(result.error);
-        logger.log(`   Please create: ${config.INBOX_DIR}\n`);
-        return;
-      }
-
-      // Handle process termination
-      process.on('SIGINT', () => {
-        watchService.stop();
-        process.exit(0);
-      });
-    },
-
-    /**
-     * Clean generated files
+     * Clean all generated documentation
+     * @returns {Object} Cleanup statistics
      */
     clean() {
-      logger.header('🧹 Cleaning generated documentation...');
-
-      const result = cleanService.cleanAll();
-
-      if (result.errors.length > 0) {
-        result.errors.forEach(error => logger.fail(error));
-      }
-
-      logger.log(`\n✨ Cleaned ${result.cleaned.length} folder(s)\n`);
+      return cleanService.clean();
     },
 
     /**
-     * Show help message
+     * Start watch mode for auto-regeneration
+     * @returns {boolean} True if watch started successfully
+     */
+    watch() {
+      const watchService = createWatchService({
+        config,
+        fileSystem,
+        logger,
+        processCallback: () => documentProcessor.process(),
+      });
+      return watchService.start();
+    },
+
+    /**
+     * Display help message
      */
     help() {
       console.log(`
 ╔════════════════════════════════════════════════════════════════════╗
-║      Applied QM Documentation Generator v2.0                      ║
-║      Universal INBOX with Auto-Categorization                     ║
+║      Applied QM Documentation Generator v${config.version}                      ║
+║      SOLID Architecture - Modular Design                          ║
 ╚════════════════════════════════════════════════════════════════════╝
 
-Usage: node scripts/generate-program-docs.js [command]
+Usage: node scripts/index.js [options] [command]
 
 Commands:
-  (none)        Process all files in INBOX once
-  --watch, -w   Watch INBOX for changes and auto-regenerate
+  (none)        Process all files once
+  --watch, -w   Watch for changes and auto-regenerate
   --clean, -c   Remove all generated documentation
   --help, -h    Show this message
 
-INBOX Location:
-  ${config.INBOX_DIR}
+Options:
+  --source, -s <path>   Scan a specific folder instead of INBOX
+  --recursive, -r       Recursively scan subdirectories
 
-  Drop ALL your files here (any supported type):
-    Chapt1Exercise8.m
-    Chapt1Exercise8.pdf
-    Chapt1Exercise8.tex
-    Chapt1Exercise8.html
-    Chapt2Fig3a.ipynb
-    ...
+Examples:
+  node scripts/index.js
+      → Scan INBOX folder
+
+  node scripts/index.js -s ../my-files
+      → Scan a custom folder
+
+  node scripts/index.js -s ../my-files -r
+      → Recursively scan a folder and all subfolders
+
+Current Source:
+  ${config.inboxDir}
+  Recursive: ${config.recursive ? 'Yes' : 'No'}
 
 Supported File Types:
   .m        MATLAB source code
@@ -188,7 +141,7 @@ Supported File Types:
   .pdf      PDF documents
   .html     HTML pages
   .ipynb    Jupyter Notebooks
-  .txt      Text files (README, data files, etc.)
+  .txt      Text files
 
 File Naming Pattern:
   Chapt<N><Type><#><variant>.<ext>
@@ -196,24 +149,44 @@ File Naming Pattern:
     Type = Exercise or Fig
     # = Number
     variant = optional (a, b, c, a1, b1, etc.)
-    ext = Any supported extension
 
-  Examples:
-    Chapt1Exercise8.m → Chapter 1, Exercise 8 (MATLAB)
-    Chapt2Fig3a.pdf → Chapter 2, Figure 3a (PDF)
-    Chapt4Exercise2b.tex → Chapter 4, Exercise 2b (LaTeX)
+Module Architecture:
+  config/     Configuration management
+  utils/      Utility functions (FileSystem, Logger, Helpers)
+  parsers/    File parsing (ProgramParser, FileClassifier)
+  generators/ MDX page generators (Factory pattern)
+  services/   Business logic (DocumentProcessor, Clean, Watch)
 
-Auto-Categorization:
-  The script automatically:
-  - Groups files by programId (e.g., all Chapt1Exercise8.* together)
-  - Creates separate detail pages for each file type
-  - Organizes files in static/programs/<type>/<programId>/
-  - Updates the sidebar with all available programs
+Output Structure:
+  docs/chapter<N>/<programId>/
+    ├── index.mdx
+    ├── <programId>_matlab.mdx
+    ├── <programId>_latex.mdx
+    └── ...
+
+  static/programs/<type>/<programId>/
+    └── <filename>.<ext>
 `);
+    },
+
+    /**
+     * Get the configuration
+     * @returns {Object} Configuration object
+     */
+    getConfig() {
+      return config;
+    },
+
+    /**
+     * Get CLI options
+     * @returns {Object} CLI options
+     */
+    getOptions() {
+      return options;
     },
   };
 }
 
 module.exports = {
-  createApplication,
+  createApp,
 };

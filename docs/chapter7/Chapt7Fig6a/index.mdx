@@ -7,7 +7,7 @@ sidebar_label: Chapter 7 - Fig 6A
 
 > **Chapter 7**: Band Structure
 >
-> 📊 1 file(s) available
+> 📊 📝 📕 3 file(s) available
 
 ## Available Files
 
@@ -72,14 +72,125 @@ sidebar_label: Chapter 7 - Fig 6A
   </div>
 </div>
 
-## Inline Previews
+<div style={{
+  border: '1px solid #e5e7eb',
+  borderRadius: '8px',
+  padding: '16px',
+  marginBottom: '12px',
+  backgroundColor: '#fafafa',
+}}>
+  <div style={{display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px'}}>
+    <span style={{fontSize: '24px'}}>📝</span>
+    <div>
+      <strong style={{color: '#008080'}}>LaTeX</strong>
+      <div style={{fontSize: '12px', color: '#666'}}>`Chapt7Fig6a.tex`</div>
+    </div>
+  </div>
+  <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+    <a
+      href="./Chapt7Fig6a_latex"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#008080',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      📖 View Details
+    </a>
+    <a
+      href="/programs/latex/Chapt7Fig6a/Chapt7Fig6a.tex"
+      download="Chapt7Fig6a.tex"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#10b981',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      📥 Download
+    </a>
+    <a
+      href="/programs/latex/Chapt7Fig6a/Chapt7Fig6a.tex"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#6b7280',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      🔗 Open
+    </a>
+  </div>
+</div>
 
-### MATLAB - Chapt7Fig6a.m
-
-```matlab title="Chapt7Fig6a.m"
-% Chapt7Fig6a.m% plots Fermi function for fixed carrier density and a number of temperatures% carrier density n(cm-3), temperature kelvin(K), effective mass m1, relative error rerr% uses function fermi.m and chempot.mclear;clf;	n=1.e18						%carrier density (cm-3)      m0=9.109382;				%bare electron mass( x10^31 kg)   m1=0.07;						%effective electron mass	echarge=1.6021764;		%electron charge (x10^19 C)	hbar=1.05457159;			%Planck's constant (x10^34 J s)   kB=8.61734e-5;				%Boltzmann constant (eV K^-1)      rerr=1.e-3;					%relative error in calculation of chemical potential   Temperature=[0.1,100,200,300,400];				%Temperature values(K)   nTemp=length(Temperature)							%number of different temperatures   	nplotpoints=300;			%number of data points in each plot   Emin=0;						%minimum energy (meV)   Emax=200;					%maximum energy (meV) 	Estep=(Emax-Emin)/nplotpoints;			%Step in energy (meV)    for j=1:1:nTemp   kelvin=Temperature(j);   kBT=1000.*kelvin*kB;   beta=1./kBT;   mu1=chempot(kelvin,m1,n,rerr);  for k = 1:1:nplotpoints+1     energy=((k-1)*Estep)+Emin;     E(k)=energy;     Prob=fermi(beta,energy,mu1);     FD(k)=Prob;  end;    hold on;figure(1);plot(E,log(FD));axis([0 Emax -10 0]);endxlabel('Energy, E (meV)');ylabel('ln(occupation factor)');ttl=sprintf('Chapt7Fig6a, m* = %4.2f m0, Tmax = %4.1f K, n = %7.2e cm-3',m1,kelvin,n);title(ttl);
-```
-
+<div style={{
+  border: '1px solid #e5e7eb',
+  borderRadius: '8px',
+  padding: '16px',
+  marginBottom: '12px',
+  backgroundColor: '#fafafa',
+}}>
+  <div style={{display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px'}}>
+    <span style={{fontSize: '24px'}}>📕</span>
+    <div>
+      <strong style={{color: '#dc2626'}}>PDF Document</strong>
+      <div style={{fontSize: '12px', color: '#666'}}>`Chapt7Fig6a.pdf`</div>
+    </div>
+  </div>
+  <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+    <a
+      href="./Chapt7Fig6a_pdf"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#dc2626',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      📖 View Details
+    </a>
+    <a
+      href="/programs/pdf/Chapt7Fig6a/Chapt7Fig6a.pdf"
+      download="Chapt7Fig6a.pdf"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#10b981',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      📥 Download
+    </a>
+    <a
+      href="/programs/pdf/Chapt7Fig6a/Chapt7Fig6a.pdf"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#6b7280',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      🔗 Open
+    </a>
+  </div>
+</div>
 
 ---
 

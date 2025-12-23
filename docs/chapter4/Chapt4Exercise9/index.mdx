@@ -72,15 +72,6 @@ sidebar_label: Chapter 4 - Exercise 9
   </div>
 </div>
 
-## Inline Previews
-
-### MATLAB - Chapt4Exercise9.m
-
-```matlab title="Chapt4Exercise9.m"
-%Chapt4Exercise9.m%eigenstates of a finite periodic potential%clearclf;length = 100;										%length of well (nm)N=400;												%number of sample pointsx=0:length/N:length;								%position of sample points in potentialmass=0.07;											%effective electron mass / m0num_sol=3;											%number of solutions soughtv0=1;													%potential scale (eV)v=ones(1,N+1);for i=50:40:N-50									%potential (eV)   for j=1:25      v(i+j)=0;   end   end[energy,phi]=solve_schM(length,N,v,mass,num_sol);									%call function solve_schM     for i=1:num_solsprintf(['eigenfunction (',num2str(i),') = ',num2str(energy(i)),' eV'])		%energy eigenvalues     end     figure(1);plot(x,v,'b');xlabel('Distance (nm)'),ylabel('Potential energy, (eV)');ttl=['Chapt4Exercise9, m_{eff} = ',num2str(mass),' x m_0, Length = ',num2str(length),' nm'];title(ttl);s=char('y','k','r','g','b','m','c');		%plot curves in different colorsfigure(2);for i=1:num_sol   j=1+mod(i,7);									%select color for plot   	plot(x,phi(:,i),s(j));					%plot eigenfunctions     hold on;  endxlabel('Distance (nm)'),ylabel('Wave function');title(ttl);hold off;
-```
-
-
 ---
 
 *Program ID: `Chapt4Exercise9`*

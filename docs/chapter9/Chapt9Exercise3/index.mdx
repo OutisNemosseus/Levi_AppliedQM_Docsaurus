@@ -7,7 +7,7 @@ sidebar_label: Chapter 9 - Exercise 3
 
 > **Chapter 9**: Statistical Mechanics
 >
-> 📊 1 file(s) available
+> 📊 📝 📕 3 file(s) available
 
 ## Available Files
 
@@ -72,14 +72,125 @@ sidebar_label: Chapter 9 - Exercise 3
   </div>
 </div>
 
-## Inline Previews
+<div style={{
+  border: '1px solid #e5e7eb',
+  borderRadius: '8px',
+  padding: '16px',
+  marginBottom: '12px',
+  backgroundColor: '#fafafa',
+}}>
+  <div style={{display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px'}}>
+    <span style={{fontSize: '24px'}}>📝</span>
+    <div>
+      <strong style={{color: '#008080'}}>LaTeX</strong>
+      <div style={{fontSize: '12px', color: '#666'}}>`Chapt9Exercise3.tex`</div>
+    </div>
+  </div>
+  <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+    <a
+      href="./Chapt9Exercise3_latex"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#008080',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      📖 View Details
+    </a>
+    <a
+      href="/programs/latex/Chapt9Exercise3/Chapt9Exercise3.tex"
+      download="Chapt9Exercise3.tex"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#10b981',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      📥 Download
+    </a>
+    <a
+      href="/programs/latex/Chapt9Exercise3/Chapt9Exercise3.tex"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#6b7280',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      🔗 Open
+    </a>
+  </div>
+</div>
 
-### MATLAB - Chapt9Exercise3.m
-
-```matlab title="Chapt9Exercise3.m"
-% Chapter9Exercise3tmp.m% Plot spontaneous emission and gain with Lorentzian broadening as function of photon energy.% uses function mu.m and fermi.m% carrier density n(m-3), temperature kelvin(K)% function [main]=mainclearclf      echarge=1.6021764e-19;			%electron charge (C)   hbar=1.05457159e-34;				%planck's constant (J s)   c = 2.99792458e8;					%speed of light in vacuum (m s-1)   kB=8.61734e-5;						%Boltzmann constant (eV K-1)   epsilon0=8.8541878e-12;			%permittivity of free space (F m-1)    m0=9.109382e-31;					%bare electron mass (kg)   me=0.07*m0;							%effective electron mass (kg)   mhh=0.5*m0;							%effective hhole mass (kg)   mr=1/(1/me+1/mhh);				%reduced electron mass   rerr=1e-3;							%relative error      nr=3.3;								%refractive index   Eg=1.4								%band gap energy (eV)	n=2.0e18;							%carrier density (cm-3)   ncarrier=n*1e6;					%convert carrier density to (m-3)      kelvin=300.0;						%temperature (K)   kBT=kB*kelvin;						%thermal energy (eV)   beta=1/kBT;							%inverse thermal energy (eV-1)   gamma=0.015							%Broadening (eV)      										%const=-echarge^2*hbar/(2*nr*c*m0^2*epsilon0)*((2*mr/hbar^2)^1.5);   const=2.64e4;						%constant that gives ~ 330 cm-1 gain at 2e18 cm-3      muhh=mu(mhh,ncarrier,kelvin,rerr);			%call mu chemical potential function for holes (eV)   mue =mu(me, ncarrier,kelvin,rerr);   		%call mu chemical potential function for electrons (eV)   deltamu=mue+muhh									%delta mu (eV)      deltae=0.001;										%1 meV energy step, deltae < = gamma   %Emin=0.1											%start plot from this energy below bandgap Eg (eV)   %Emax=0.3											%end plot at this energy above bandgap Eg (eV)      	for m=1:400         Energy(m)=0;         rspon(m)=0;         gain1(m)=0;               end     	%calculate spontaneous emission with no Lorentzian broadening      for j=100:1:400      	Energy(j)=(j*deltae)-0.1;					%photon energy - Eg      	Ehh=(Energy(j))/(1+mhh/me);				%energy in hole band      	Ee=(Energy(j))/(1+me/mhh);					%energy in conduction band      	fhh=fermi(beta,Ehh,muhh);					%call Fermi function for holes      	fe=fermi(beta,Ee,mue);						%call Fermi function for electrons         rspon(j)=(const)*(Energy(j)^0.5)*(fe*fhh);         gain1(j)=rspon(j)*(1-exp((Energy(j)-deltamu)*beta));   	end      %calculate spontaneous emission with Lorentzian broadening      %integrate       for j=1:400         Ephoton(j)=(Eg-0.1)+(j*deltae);         rspint=0;         E=0;         for k=1:1400            E=E+deltae;            Ehh=E/(1+mhh/me);   			Ee=E/(1+me/mhh);   			fhh=fermi(beta,Ehh,muhh);   			fe=fermi(beta,Ee,mue);            rspint=rspint+(sqrt(E))*fhh*fe*deltae*(gamma/2/pi)/((Eg+E-Ephoton(j))^2+(gamma/2)^2);         end         rsponbrd(j)=(const)*rspint;												%spontaneous emission with broadening         gain(j)=rsponbrd(j)*(1-exp(((Ephoton(j)-Eg)-deltamu)*beta));	%gain with broadening      end              figure(1)   plot(Ephoton-Eg, rsponbrd,'b');   hold on;   plot(Energy, rspon,'r');   hold off   axis([-.1,.3,0,1000]);   xlabel('Photon energy, (eV)');   ylabel('Spontaneous emission, rspon (arb.)');   ttl=['n=',num2str(n/1e18),'x10^{18} cm^{-3}, T=',num2str(kelvin),' K, m_{e}=',num2str(me/m0),', m_{hh}=',num2str(mhh/m0),', \Delta \mu=',num2str(deltamu),'eV, \gamma=',num2str(gamma),' eV'];   title([ttl]);   grid on;         figure(2)   plot(Ephoton-Eg, gain,'b');   hold on;   plot(Energy, gain1,'r');   hold off;   axis([-.1,.1,-500,500]);	xlabel('Photon energy, (eV)');   ylabel('gain, (cm^-^1)');   title([ttl]);	grid on;      
-```
-
+<div style={{
+  border: '1px solid #e5e7eb',
+  borderRadius: '8px',
+  padding: '16px',
+  marginBottom: '12px',
+  backgroundColor: '#fafafa',
+}}>
+  <div style={{display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px'}}>
+    <span style={{fontSize: '24px'}}>📕</span>
+    <div>
+      <strong style={{color: '#dc2626'}}>PDF Document</strong>
+      <div style={{fontSize: '12px', color: '#666'}}>`Chapt9Exercise3.pdf`</div>
+    </div>
+  </div>
+  <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+    <a
+      href="./Chapt9Exercise3_pdf"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#dc2626',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      📖 View Details
+    </a>
+    <a
+      href="/programs/pdf/Chapt9Exercise3/Chapt9Exercise3.pdf"
+      download="Chapt9Exercise3.pdf"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#10b981',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      📥 Download
+    </a>
+    <a
+      href="/programs/pdf/Chapt9Exercise3/Chapt9Exercise3.pdf"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#6b7280',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      🔗 Open
+    </a>
+  </div>
+</div>
 
 ---
 

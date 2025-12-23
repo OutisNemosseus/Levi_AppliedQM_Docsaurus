@@ -1,0 +1,199 @@
+---
+title: Utilities Module
+sidebar_label: Utilities
+---
+
+# Utilities Module
+
+The utilities module (`scripts/utils/`) provides core utility functions.
+
+## FileSystem (`fileSystem.js`)
+
+Abstraction layer for all file I/O operations.
+
+```javascript
+const { createFileSystem } = require('./utils/fileSystem');
+
+const fs = createFileSystem('/base/path');
+
+// Check if file/directory exists
+fs.exists('/path/to/file');
+
+// Ensure directory exists
+fs.ensureDir('/path/to/dir');
+
+// Read/write files
+const content = fs.readFile('/path/to/file.txt');
+fs.writeFile('/path/to/file.txt', 'content');
+
+// Copy files
+fs.copyFile('/src/file.txt', '/dest/file.txt');
+
+// Scan directory
+const files = fs.scanDirectory('/path', true); // recursive
+```
+
+### API Reference
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `getBasePath()` | - | string | Get base path |
+| `resolve(...parts)` | string[] | string | Resolve path |
+| `exists(path)` | string | boolean | Check existence |
+| `ensureDir(path)` | string | void | Create directory |
+| `readFile(path, encoding?)` | string, string | string\|null | Read file |
+| `writeFile(path, content)` | string, string | boolean | Write file |
+| `copyFile(src, dest)` | string, string | boolean | Copy file |
+| `removeDir(path)` | string | boolean | Remove directory |
+| `readDir(path)` | string | string[] | List directory |
+| `scanDirectory(path, recursive?)` | string, boolean | string[] | Scan for files |
+| `getExtension(filename)` | string | string | Get extension |
+| `getBaseName(filename)` | string | string | Get name without ext |
+| `join(...parts)` | string[] | string | Join paths |
+| `watch(path, callback)` | string, function | FSWatcher | Watch directory |
+
+## Logger (`logger.js`)
+
+Centralized logging with consistent formatting.
+
+```javascript
+const { createLogger, createNullLogger } = require('./utils/logger');
+
+const logger = createLogger({ silent: false });
+
+logger.info('Processing files...');
+logger.success('Chapt1Exercise8/', '📊 (1 file)');
+logger.warn('File skipped');
+logger.error('Failed to copy');
+logger.separator();
+
+// For testing - silent logger
+const silent = createNullLogger();
+```
+
+### API Reference
+
+| Method | Parameters | Description |
+|--------|------------|-------------|
+| `info(message)` | string | Log info message |
+| `success(label, detail?)` | string, string | Log success with checkmark |
+| `warn(message)` | string | Log warning |
+| `error(message)` | string | Log error |
+| `separator(length?)` | number | Print separator line |
+| `printHeader(version)` | string | Print app header |
+| `printScanInfo(path, count, recursive)` | string, number, boolean | Print scan info |
+| `printProcessing(count)` | number | Print processing info |
+| `printStats(stats)` | object | Print statistics |
+| `printByType(byType, getConfig)` | Map, function | Print type breakdown |
+| `printByChapter(byChapter)` | Map | Print chapter breakdown |
+| `printOutputStructure(docsDir, staticDir)` | string, string | Print output paths |
+
+## Helpers (`helpers.js`)
+
+General utility functions.
+
+```javascript
+const {
+  escapeForYaml,
+  debounce,
+  sortChapterKeys,
+  extractLabelFromProgramId,
+} = require('./utils/helpers');
+```
+
+### `escapeForYaml(str)`
+
+Escape string for safe YAML output.
+
+```javascript
+escapeForYaml('Hello World');     // 'Hello World'
+escapeForYaml('Title: Subtitle'); // '"Title: Subtitle"'
+```
+
+### `debounce(func, wait)`
+
+Create debounced function.
+
+```javascript
+const debouncedSave = debounce(() => save(), 1000);
+debouncedSave(); // Called after 1s of inactivity
+```
+
+### `sortChapterKeys(a, b)`
+
+Sort chapter keys with utilities at end.
+
+```javascript
+['2', '1', 'utilities', '3'].sort(sortChapterKeys);
+// => ['1', '2', '3', 'utilities']
+```
+
+### `extractLabelFromProgramId(programId)`
+
+Extract display label from program ID.
+
+```javascript
+extractLabelFromProgramId('Chapt1Exercise8');  // 'Exercise 8'
+extractLabelFromProgramId('Chapt2Fig3a');      // 'Fig 3A'
+extractLabelFromProgramId('fermi');            // 'fermi'
+```
+
+## Parsers (`parsers/`)
+
+### ProgramParser
+
+Parse program filenames to extract metadata.
+
+```javascript
+const { createProgramParser } = require('./parsers/programParser');
+
+const parser = createProgramParser();
+
+// Parse standard program name
+const info = parser.parse('Chapt1Exercise8.m');
+// => {
+//   programId: 'Chapt1Exercise8',
+//   chapter: 'chapter1',
+//   chapterNum: '1',
+//   type: 'Exercise',
+//   number: '8',
+//   variant: '',
+//   displayName: 'Chapter 1 - Exercise 8',
+//   isUtility: false
+// }
+
+// Parse utility file
+const util = parser.parse('fermi.m');
+// => {
+//   programId: 'fermi',
+//   chapter: 'utilities',
+//   isUtility: true,
+//   ...
+// }
+```
+
+### FileClassifier
+
+Classify files by extension.
+
+```javascript
+const { createFileClassifier } = require('./parsers/fileClassifier');
+
+const classifier = createFileClassifier();
+
+// Classify a file
+const config = classifier.classify('program.m');
+// => { type: 'matlab', label: 'MATLAB', emoji: '📊', ... }
+
+// Check if supported
+classifier.isSupported('file.m');   // true
+classifier.isSupported('file.xyz'); // false
+
+// Filter supported files
+const supported = classifier.filterSupported(['a.m', 'b.xyz', 'c.pdf']);
+// => ['a.m', 'c.pdf']
+
+// Group by type
+const groups = classifier.groupByType(['a.m', 'b.m', 'c.pdf']);
+// => { matlab: ['a.m', 'b.m'], pdf: ['c.pdf'] }
+```

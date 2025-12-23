@@ -72,15 +72,6 @@ sidebar_label: Chapter 6 - Exercise 10
   </div>
 </div>
 
-## Inline Previews
-
-### MATLAB - Chapt6Exercise10.m
-
-```matlab title="Chapt6Exercise10.m"
-%Chapt6Exercise10.m%numerical solution for simple harmonic oscillator%clearclf;length = 100;										%length of well (nm)n=400;												%number of sample pointsx=-length/2:length/n:length/2;				%position of sample points in potentialmass=0.07;											%effective electron mass / m0num_sol=4;											%number of solutions soughtv0=1;												   %potential scale (eV)for i=1:n+1											%potential (eV)   v(i)=v0*(x(i)^2)/((length/2)^2);   end[energy,phi]=solve_schM(length,n,v,mass,num_sol);      for i=1:num_sol									sprintf(['eigenfunction (',num2str(i),') = ',num2str(energy(i)),' eV']) %energy eigenvalues     end     figure(1); plot(x,v,'b');xlabel('Distance, x (nm)'),ylabel('Potential energy, V (eV)'); ttl=['Chapt6Exercise10, m_{eff} = ',num2str(mass),' x m0, Length = ',num2str(length),' nm']; title(ttl);s=char('y','k','r','g','b','m','c');		%plot curves in different colorsfigure(2);for i=1:num_sol   j=1+mod(i,7);   	plot(x,phi(:,i),s(j));					%plot eigenfunctions     hold on;  end xlabel('Distance, x (nm)'),ylabel('Wave function'); title(ttl);hold off;
-```
-
-
 ---
 
 *Program ID: `Chapt6Exercise10`*

@@ -72,15 +72,6 @@ sidebar_label: Chapter 6 - Exercise 4D
   </div>
 </div>
 
-## Inline Previews
-
-### MATLAB - Chapt6Exercise4d.m
-
-```matlab title="Chapt6Exercise4d.m"
-%Chapt6Exercise4d.m%superposition of states n_min to n_max of simple harmonic oscillator%wave function psi_n(xi) and wavefunction squared |psi_n(xi)|^2 at time t=0.%Each state has equal weight and the same phase%normalized distance, xi=(m*w/hbar)*x%wave function using relation psi_n=((2/n)^0.5)*((xi*psi_n-1)-((((n-1)/2)^0.5)*psi_n-2))%input quantum index from keyboardclear;clf;npoints=500;												%(number of data points in plot) - 1nlim=100;													%arbitrary limit to value of n that can be plottednmax=input('Input maximum quantum index n = ');	%input from keyboard maximum value of quantum index n																%of wave function to be plotted (n=0,1,2,3, ... )nmin=input('Input minimum quantum index n = ');	%Input from keyboard minimum value of quantum index nif nmax <= nmin; error('nmin must be less than nmax'); end;if nmax > nlim; error('nmax must be less than or equal to 100'); end;ximax=sqrt((2*nmax)+1);									%classical turning pointxiplot=(3/((nmax+1)^(1/3)))+(1.2*ximax);			%plot range of x-axisdeltaxi=2*xiplot/npoints;								%increment in xiAo=(1/pi)^(1/4);											%normalization amplitude for n=0for j=1:npoints+1;psitotal(j)=0;end			xi(1)=-xiplot;												%first value of spatial coordinate xifor j=2:1:npoints+1   xi(j)=xi(j-1)+deltaxi;   psi1(j)=Ao*exp((-xi(j)^2)/2); 					%known n=0 ground-state wave function   psi2(j)=(sqrt(2))*xi(j)*psi1(j);					%known n=1 first excited-state wave function   psi(j)=psi2(j);		end   if nmin == 1; psitotal = psi2; end;if nmin == 0; psitotal = psi1+psi2; end;   if nmax>=2      		for ni=2:1:nmaxfor j=2:1:npoints+1   xi(j)=xi(j-1)+deltaxi;								%increment to new value of xi   psi(j)=(sqrt(2/ni))*((xi(j)*psi2(j))-((sqrt((ni-1)/2))*psi1(j)));   psi1(j)=psi2(j);										%update new value of psi_(n-2)   psi2(j)=psi(j);										%update new value of psi_(n-1)end    				if ni>=nmin   				psitotal=psitotal+psi;   			end		endendpsitotal=(sqrt(1/(nmax-nmin))).*psitotal;figure(1); subplot(1,2,1),plot(xi,psitotal);xlabel('Distance, \xi'),ylabel('Wave function, \psi(\xi)');ttl=sprintf('Chapt6Exercise4d, superposition: n_{max}=%3.0f, n_{min}=%3.0f',nmax,nmin);title (ttl);subplot(1,2,2),plot(xi,abs(psitotal.^2));xlabel('Distance, \xi'),ylabel('Wave function squared, | \psi(\xi)| ^2');ttl2=sprintf('Classical turning-point = %5.3f',ximax);title (ttl2);
-```
-
-
 ---
 
 *Program ID: `Chapt6Exercise4d`*

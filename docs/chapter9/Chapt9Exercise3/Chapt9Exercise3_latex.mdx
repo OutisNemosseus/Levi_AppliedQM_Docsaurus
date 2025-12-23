@@ -1,0 +1,474 @@
+---
+title: Chapter 9 - Exercise 3 - LaTeX
+sidebar_label: LaTeX Source
+---
+
+# Chapter 9 - Exercise 3 - LaTeX Document
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+  <a href="/programs/latex/Chapt9Exercise3/Chapt9Exercise3.tex" download="Chapt9Exercise3.tex"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .tex
+  </a>
+  <a href="/programs/latex/Chapt9Exercise3/Chapt9Exercise3.tex" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+:::warning
+This file has been truncated for display. Download the full file for complete content.
+:::
+
+## LaTeX Source
+
+```latex title="Chapt9Exercise3.tex"
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+
+\geometry{margin=1in}
+
+\lstset{
+    language=Matlab,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{orange},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10}
+}
+
+\newtheorem{axiom}{Axiom}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{\textbf{Chapt9Exercise3.m} \\ Lorentzian Line Broadening in Semiconductor Lasers \\ \large Homogeneous Broadening of Optical Gain and Spontaneous Emission}
+\author{Semiconductor Physics Documentation}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document provides a comprehensive analysis of \texttt{Chapt9Exercise3.m}, which calculates the optical gain and spontaneous emission spectra with and without Lorentzian (homogeneous) broadening. The code demonstrates how finite carrier lifetimes and scattering processes broaden the idealized delta-function transitions into Lorentzian lineshapes, significantly affecting the gain spectrum near the band edge.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Theoretical Foundation}
+%==============================================================================
+
+\subsection{Fundamental Axioms of Line Broadening}
+
+\begin{axiom}[Heisenberg Uncertainty Principle]
+The energy-time uncertainty relation imposes a fundamental limit on spectral linewidth:
+\begin{equation}
+\Delta E \cdot \tau \geq \frac{\hbar}{2}
+\end{equation}
+where $\tau$ is the characteristic lifetime of the excited state. Any finite lifetime leads to energy broadening.
+\end{axiom}
+
+\begin{axiom}[Fermi's Golden Rule with Broadening]
+The transition rate between states includes a lineshape function $L(E)$:
+\begin{equation}
+W_{fi} = \frac{2\pi}{\hbar}|M_{fi}|^2 L(E_f - E_i - \hbar\omega)
+\end{equation}
+where $L(E)$ replaces the ideal delta function $\delta(E)$.
+\end{axiom}
+
+\begin{axiom}[Causality and Kramers-Kronig Relations]
+Physical response functions must satisfy causality, leading to:
+\begin{align}
+\chi'(\omega) &= \frac{1}{\pi}\mathcal{P}\int_{-\infty}^{\infty} \frac{\chi''(\omega')}{\omega' - \omega}d\omega' \\
+\chi''(\omega) &= -\frac{1}{\pi}\mathcal{P}\int_{-\infty}^{\infty} \frac{\chi'(\omega')}{\omega' - \omega}d\omega'
+\end{align}
+The Lorentzian lineshape naturally satisfies these relations.
+\end{axiom}
+
+\subsection{Lorentzian Line Shape Theory}
+
+\begin{definition}[Lorentzian Distribution]
+The normalized Lorentzian lineshape is:
+\begin{equation}
+L(E - E_0) = \frac{1}{\pi} \frac{\gamma/2}{(E - E_0)^2 + (\gamma/2)^2}
+\end{equation}
+where:
+\begin{itemize}
+\item $E_0$ is the center energy
+\item $\gamma$ is the full-width at half-maximum (FWHM)
+\item Normalization: $\int_{-\infty}^{\infty} L(E - E_0)\,dE = 1$
+\end{itemize}
+\end{definition}
+
+\begin{theorem}[Lorentzian from Exponential Decay]
+For a state with exponential decay $\psi(t) \propto e^{-t/2\tau}e^{-iE_0 t/\hbar}$, the Fourier transform yields the Lorentzian:
+\begin{equation}
+|\tilde{\psi}(E)|^2 \propto \frac{1}{(E - E_0)^2 + (\hbar/2\tau)^2}
+\end{equation}
+Thus $\gamma = \hbar/\tau$ relates the broadening to the lifetime.
+\end{theorem}
+
+\begin{proof}
+The Fourier transform of the damped oscillator is:
+\begin{align}
+\tilde{\psi}(E) &= \int_0^{\infty} e^{-t/2\tau}e^{-iE_0 t/\hbar}e^{iEt/\hbar}dt \\
+&= \int_0^{\infty} e^{-t/2\tau}e^{i(E-E_0)t/\hbar}dt \\
+&= \frac{1}{1/2\tau - i(E-E_0)/\hbar}
+\end{align}
+Taking the modulus squared:
+\begin{equation}
+|\tilde{\psi}(E)|^2 = \frac{1}{(1/2\tau)^2 + (E-E_0)^2/\hbar^2} \propto \frac{1}{(E-E_0)^2 + (\gamma/2)^2}
+\end{equation}
+\end{proof}
+
+\subsection{Broadened Optical Gain}
+
+\begin{definition}[Unbroadened Gain Spectrum]
+Without broadening, the optical gain is:
+\begin{equation}
+g_0(\hbar\omega) = C\sqrt{\hbar\omega - E_g}(f_e + f_h - 1)\Theta(\hbar\omega - E_g)
+\end{equation}
+where $\Theta$ is the Heaviside step function (gain is zero below bandgap).
+\end{definition}
+
+\begin{theorem}[Broadened Gain by Convolution]
+The broadened gain spectrum is obtained by convolving with the Lorentzian:
+\begin{equation}
+g(\hbar\omega) = \int_0^{\infty} g_0(E) L(\hbar\omega - E_g - E)\,dE
+\end{equation}
+Explicitly:
+\begin{equation}
+g(\hbar\omega) = \int_0^{\infty} C\sqrt{E}(f_e(E) + f_h(E) - 1) \cdot \frac{\gamma/2\pi}{(\hbar\omega - E_g - E)^2 + (\gamma/2)^2}\,dE
+\end{equation}
+\end{theorem}
+
+\begin{corollary}[Sub-Bandgap Absorption]
+Lorentzian broadening allows non-zero gain/absorption below the nominal bandgap ($\hbar\omega < E_g$), as the Lorentzian tail extends into this region.
+\end{corollary}
+
+\subsection{Broadened Spontaneous Emission}
+
+\begin{theorem}[Broadened Spontaneous Emission Rate]
+The broadened spontaneous emission spectrum is:
+\begin{equation}
+r_{sp}(\hbar\omega) = \int_0^{\infty} C\sqrt{E} \cdot f_e(E_e) \cdot f_h(E_h) \cdot \frac{\gamma/2\pi}{(\hbar\omega - E_g - E)^2 + (\gamma/2)^2}\,dE
+\end{equation}
+\end{theorem}
+
+\subsection{Gain-Spontaneous Emission Relationship}
+
+\begin{theorem}[Fundamental Relationship]
+The gain and spontaneous emission are related by:
+\begin{equation}
+g(\hbar\omega) = r_{sp}(\hbar\omega) \cdot \left(1 - e^{(\hbar\omega - \Delta\mu)/k_B T}\right)
+\end{equation}
+where $\Delta\mu = \mu_e + \mu_h$ is the quasi-Fermi level separation.
+\end{theorem}
+
+\begin{proof}
+Starting from the Fermi factors:
+\begin{align}
+f_e + f_h - 1 &= f_e(1 - f_h) - (1 - f_e)f_h + f_e f_h \\
+&= f_e f_h \left(\frac{1 - f_h}{f_h} - \frac{1 - f_e}{f_e} + 1\right)
+\end{align}
+Using $\frac{1-f}{f} = e^{(E-\mu)/k_B T}$:
+\begin{equation}
+f_e + f_h - 1 = f_e f_h \left(1 - e^{(E_e - \mu_e + E_h - \mu_h)/k_B T}\right)
+\end{equation}
+Since $E_e + E_h = \hbar\omega - E_g$ and energy conservation:
+\begin{equation}
+f_e + f_h - 1 = f_e f_h \left(1 - e^{(\hbar\omega - E_g - \Delta\mu)/k_B T}\right)
+\end{equation}
+\end{proof}
+
+%==============================================================================
+\section{Numerical Methods: Convolution Integration}
+%==============================================================================
+
+\subsection{Riemann Sum Approximation}
+
+The convolution integral is computed numerically using a Riemann sum:
+\begin{equation}
+\int_0^{E_{max}} f(E)\,dE \approx \sum_{k=1}^{N} f(E_k) \cdot \Delta E
+\end{equation}
+
+For the broadened spontaneous emission:
+\begin{equation}
+r_{sp}^{brd}(\hbar\omega_j) = C \sum_{k=1}^{1400} \sqrt{E_k} \cdot f_e(E_k^e) \cdot f_h(E_k^h) \cdot L(\hbar\omega_j - E_g - E_k) \cdot \Delta E
+\end{equation}
+
+\subsection{Discretization Parameters}
+
+\begin{itemize}
+\item Energy step: $\Delta E = 0.001$ eV = 1 meV
+\item Integration range: $E \in [0, 1.4]$ eV (1400 points)
+\item Photon energy range: $E_g - 0.1$ to $E_g + 0.3$ eV
+\item Critical requirement: $\Delta E \ll \gamma$ for accurate Lorentzian sampling
+\end{itemize}
+
+\subsection{Lorentzian Sampling Criterion}
+
+\begin{theorem}[Sampling Requirement]
+To accurately represent the Lorentzian, the energy step must satisfy:
+\begin{equation}
+\Delta E \leq \frac{\gamma}{5}
+\end{equation}
+With $\gamma = 0.015$ eV, we need $\Delta E \leq 3$ meV. The code uses $\Delta E = 1$ meV, satisfying this criterion.
+\end{theorem}
+
+%==============================================================================
+\section{Line-by-Line Code Analysis}
+%==============================================================================
+
+\subsection{Physical Constants and Material Parameters}
+
+\begin{lstlisting}
+clear
+clf
+   echarge=1.6021764e-19;
+   hbar=1.05457159e-34;
+   c = 2.99792458e8;
+   kB=8.61734e-5;
+   epsilon0=8.8541878e-12;
+\end{lstlisting}
+\begin{equation}
+e = 1.602 \times 10^{-19}\,\text{C}, \quad \hbar, \quad c, \quad k_B = 8.617 \times 10^{-5}\,\text{eV/K}
+\end{equation}
+\textit{Standard physical constants. Note $k_B$ is in eV/K for direct energy calculations.}
+
+\begin{lstlisting}
+   m0=9.109382e-31;
+   me=0.07*m0;
+   mhh=0.5*m0;
+   mr=1/(1/me+1/mhh);
+   rerr=1e-3;
+\end{lstlisting}
+\begin{equation}
+m_e^* = 0.07m_0, \quad m_{hh}^* = 0.5m_0, \quad m_r = \frac{m_e^* m_{hh}^*}{m_e^* + m_{hh}^*}
+\end{equation}
+\textit{GaAs effective masses. The reduced mass $m_r$ determines joint density of states.}
+
+\begin{lstlisting}
+   nr=3.3;
+   Eg=1.4
+\end{lstlisting}
+\begin{equation}
+n_r = 3.3, \quad E_g = 1.4\,\text{eV}
+\end{equation}
+\textit{GaAs refractive index and bandgap energy.}
+
+\subsection{Operating Conditions}
+
+\begin{lstlisting}
+	n=2.0e18;
+   ncarrier=n*1e6;
+\end{lstlisting}
+\begin{equation}
+n = 2 \times 10^{18}\,\text{cm}^{-3} = 2 \times 10^{24}\,\text{m}^{-3}
+\end{equation}
+\textit{Carrier density chosen to produce significant optical gain.}
+
+\begin{lstlisting}
+   kelvin=300.0;
+   kBT=kB*kelvin;
+   beta=1/kBT;
+   gamma=0.015
+\end{lstlisting}
+\begin{equation}
+T = 300\,\text{K}, \quad k_B T = 0.0259\,\text{eV}, \quad \beta = 38.7\,\text{eV}^{-1}, \quad \gamma = 15\,\text{meV}
+\end{equation}
+\textit{Room temperature operation. The broadening parameter $\gamma = 15$ meV is typical for GaAs lasers.}
+
+\subsection{Gain Constant and Chemical Potentials}
+
+\begin{lstlisting}
+   const=2.64e4;
+\end{lstlisting}
+\begin{equation}
+C = 2.64 \times 10^4\,\text{cm}^{-1}\text{eV}^{-1/2}
+\end{equation}
+\textit{Empirical constant calibrated to give $g \approx 330$ cm$^{-1}$ at $n = 2 \times 10^{18}$ cm$^{-3}$.}
+
+\begin{lstlisting}
+   muhh=mu(mhh,ncarrier,kelvin,rerr);
+   mue =mu(me, ncarrier,kelvin,rerr);
+   deltamu=mue+muhh
+\end{lstlisting}
+\begin{equation}
+\mu_h = \mu(m_{hh}^*, n, T), \quad \mu_e = \mu(m_e^*, n, T), \quad \Delta\mu = \mu_e + \mu_h
+\end{equation}
+\textit{Chemical potentials computed via Newton-Raphson iteration on Fermi integrals.}
+
+\subsection{Energy Grid Setup}
+
+\begin{lstlisting}
+   deltae=0.001;
+   for m=1:400
+      Energy(m)=0;
+      rspon(m)=0;
+      gain1(m)=0;
+   end
+\end{lstlisting}
+\begin{equation}
+\Delta E = 1\,\text{meV}, \quad \text{Arrays initialized to 400 points}
+\end{equation}
+\textit{Energy step and array preallocation.}
+
+\subsection{Unbroadened Calculation}
+
+\begin{lstlisting}
+   for j=100:1:400
+      Energy(j)=(j*deltae)-0.1;
+      Ehh=(Energy(j))/(1+mhh/me);
+      Ee=(Energy(j))/(1+me/mhh);
+\end{lstlisting}
+\begin{equation}
+E = j \cdot \Delta E - 0.1, \quad E_h = \frac{E}{1 + m_{hh}/m_e}, \quad E_e = \frac{E}{1 + m_e/m_{hh}}
+\end{equation}
+\textit{Energy partitioning: lighter carriers get more kinetic energy. Loop starts at $j=100$ to give $E = 0$ (bandgap).}
+
+\begin{lstlisting}
+      fhh=fermi(beta,Ehh,muhh);
+      fe=fermi(beta,Ee,mue);
+      rspon(j)=(const)*(Energy(j)^0.5)*(fe*fhh);
+      gain1(j)=rspon(j)*(1-exp((Energy(j)-deltamu)*beta));
+   end
+\end{lstlisting}
+\begin{equation}
+f_h = \frac{1}{1 + e^{\beta(E_h - \mu_h)}}, \quad f_e = \frac{1}{1 + e^{\beta(E_e - \mu_e)}}
+\end{equation}
+\begin{equation}
+r_{sp}^{(0)}(E) = C\sqrt{E} \cdot f_e \cdot f_h
+\end{equation}
+\begin{equation}
+g^{(0)}(E) = r_{sp}^{(0)}(E) \cdot \left(1 - e^{(E - \Delta\mu)/k_B T}\right)
+\end{equation}
+\textit{Unbroadened spontaneous emission and gain using the fundamental relationship.}
+
+\subsection{Broadened Calculation with Lorentzian Convolution}
+
+\begin{lstlisting}
+   for j=1:400
+      Ephoton(j)=(Eg-0.1)+(j*deltae);
+      rspint=0;
+      E=0;
+\end{lstlisting}
+\begin{equation}
+\hbar\omega_j = E_g - 0.1 + j \cdot \Delta E
+\end{equation}
+\textit{Photon energy array, starting 100 meV below bandgap to capture tail absorption.}
+
+\begin{lstlisting}
+      for k=1:1400
+         E=E+deltae;
+         Ehh=E/(1+mhh/me);
+         Ee=E/(1+me/mhh);
+         fhh=fermi(beta,Ehh,muhh);
+         fe=fermi(beta,Ee,mue);
+\end{lstlisting}
+\begin{equation}
+E_k = k \cdot \Delta E, \quad E_h^{(k)}, E_e^{(k)}, f_h^{(k)}, f_e^{(k)}
+\end{equation}
+\textit{Inner loop over transition energies for convolution integration.}
+
+\begin{lstlisting}
+         rspint=rspint+(sqrt(E))*fhh*fe*deltae*(gamma/2/pi)/((Eg+E-Ephoton(j))^2+(gamma/2)^2);
+      end
+\end{lstlisting}
+\begin{equation}
+r_{sp,int} \leftarrow r_{sp,int} + \sqrt{E_k} \cdot f_h^{(k)} \cdot f_e^{(k)} \cdot \Delta E \cdot \frac{\gamma/2\pi}{(E_g + E_k - \hbar\omega_j)^2 + (\gamma/2)^2}
+\end{equation}
+\textit{Riemann sum implementing the convolution integral with Lorentzian lineshape.}
+
+\begin{lstlisting}
+      rsponbrd(j)=(const)*rspint;
+      gain(j)=rsponbrd(j)*(1-exp(((Ephoton(j)-Eg)-deltamu)*beta));
+   end
+\end{lstlisting}
+\begin{equation}
+r_{sp}^{brd}(\hbar\omega_j) = C \cdot r_{sp,int}
+\end{equation}
+\begin{equation}
+g^{brd}(\hbar\omega_j) = r_{sp}^{brd}(\hbar\omega_j) \cdot \left(1 - e^{(\hbar\omega_j - E_g - \Delta\mu)/k_B T}\right)
+\end{equation}
+\textit{Broadened spontaneous emission and gain spectra.}
+
+\subsection{Plotting}
+
+\begin{lstlisting}
+   figure(1)
+   plot(Ephoton-Eg, rsponbrd,'b');
+   hold on;
+   plot(Energy, rspon,'r');
+   hold off
+   axis([-.1,.3,0,1000]);
+   xlabel('Photon energy, (eV)');
+   ylabel('Spontaneous emission, rspon (arb.)');
+\end{lstlisting}
+\textit{Figure 1: Compares broadened (blue) vs unbroadened (red) spontaneous emission. Broadening smooths the sharp band-edge onset.}
+
+\begin{lstlisting}
+   figure(2)
+   plot(Ephoton-Eg, gain,'b');
+   hold on;
+   plot(Energy, gain1,'r');
+   hold off;
+   axis([-.1,.1,-500,500]);
+   xlabel('Photon energy, (eV)');
+   ylabel('gain, (cm^-^1)');
+\end{lstlisting}
+\textit{Figure 2: Compares broadened vs unbroadened gain. Broadening reduces peak gain and extends absorption tail below bandgap.}
+
+%==============================================================================
+\section{Physical Interpretation}
+%==============================================================================
+
+\subsection{Effect of Broadening on Gain}
+
+The Lorentzian broadening has several important effects:
+\begin{enumerate}
+\item \textbf{Peak gain reduction}: The convolution smooths the sharp peak, reducing maximum gain by $\sim 20-30\%$
+\item \textbf{Spectral broadening}: The gain bandwidth increases
+\item \textbf{Sub-bandgap absorption}: The Lorentzian tail allows transitions below $E_g$
+\item \textbf{Transparency shift}: The energy where $g = 0$ shifts slightly
+\end{enumerate}
+
+\subsection{Physical Origins of Broadening}
+
+The broadening parameter $\gamma = 15$ meV arises from:
+\begin{itemize}
+\item Carrier-carrier scattering: $\tau_{cc} \sim 50$ fs
+\item Carrier-phonon scattering: $\tau_{LO} \sim 100$ fs
+\item Intraband relaxation: $\tau_{intra} \sim 100$ fs
+\end{itemize}
+The total scattering rate gives $\gamma = \hbar/\tau_{total} \approx 10-20$ meV.
+
+\subsection{Design Implications}
+
+For semiconductor laser design:
+\begin{itemize}
+\item Higher carrier density needed to achieve same peak gain
+\item Broader emission spectrum (affects single-mode operation)
+\item Absorption tail affects internal l
+```
+
+*... (truncated)*
+
+---
+
+[← Back to Chapter 9 - Exercise 3](./)

@@ -72,15 +72,6 @@ sidebar_label: Chapter 3 - Fig 14
   </div>
 </div>
 
-## Inline Previews
-
-### MATLAB - Chapt3Fig14.m
-
-```matlab title="Chapt3Fig14.m"
-%Chap3Fig14%This function plots the probability and real part of the wave function for an electron%tunneling through a rectangular barrier of energy V0 and width bx1%distance runs from -5nm to 5nm and the barrier starts at x = 0 function Tunclear;clf;hbar=1.05457159e-34;  											%Planck's constant (J s)echarge=1.6021764e-19;											%electron charge (C)m0=9.109382e-31;  												%electron mass (kg)meff=1.0;															%effective electron mass / m0						mass=m0*meff;														%effective electron mass (kg)E=0.9;           													%energy of electron(eV)V0=1.0 ;            												%potential barrier energy(eV)   bx1=0.5;          												%barrier width(nm)npoints=1000;              									%defines number of points in plotscale=npoints/10;for j=1:npoints   x(j)=-5+j/scale;												%distance, x (nm)   psi=Tunnel(x(j),hbar,echarge,mass,E,V0,bx1);			%wave function   y(j)=(abs(psi))^2;											%absolute value of wave function squared   z(j)=real(psi);												%real part of wave function   endfigure(1);plot(x,y);ttl=['Chap3Fig14, E = ',num2str(E),' eV, V0 = ',num2str(V0),' eV, L = ',num2str(bx1),' nm, m = ',num2str(meff),' x m0'] ; title(ttl)xlabel('Distance, x (nm)');ylabel('abs(wave function)^2');figure(2);plot(x,z)title(ttl)xlabel('Distance, x (nm)');ylabel('real(wave function)');%............................ Wave function calculation.............................function tun=Tunnel(z,hbar,echarge,mass,E,V0,bx1)L=bx1*1e-9;x=z*1e-9;         k=(sqrt(2*mass*E*echarge))/hbar;         					%wave vector (outside barrier)ka=(sqrt(2*mass*(V0-E)*echarge))/hbar;    				%wave vector (inside barrier)u=(k/ka);  F=(4*i*u*exp(-i*k*L))/((exp(-ka*L)*(1+i*u)^2)-(exp(ka*L)*(1-i*u)^2));C=0.5*(1+i*u)*F*exp(i*k*L)*exp(-ka*L);D=0.5*(1-i*u)*F*exp(i*k*L)*exp(ka*L);B=(-i*(1+u^2)*exp(i*k*L)*F*sinh(ka*L))/(2*u);if (z<=0)   wf1=exp(i*k*x)+B*exp(-i*k*x);   tun=wf1;end   if (0<z)&(z<=L*1e9)   wf2=C*exp(ka*x)+D*exp(-ka*x);   tun=wf2;  endif (z>L*1e9)   wf3=F*exp(i*k*x);   tun=wf3;end
-```
-
-
 ---
 
 *Program ID: `Chapt3Fig14`*

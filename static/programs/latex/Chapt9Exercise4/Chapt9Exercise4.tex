@@ -1,0 +1,503 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{cleveref}
+
+\geometry{margin=1in}
+
+\lstset{
+  language=Matlab,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  commentstyle=\color{green!60!black},
+  numbers=left,
+  numberstyle=\tiny,
+  breaklines=true,
+  frame=single
+}
+
+\newtheorem{axiom}{Axiom}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{Semiconductor Laser Rate Equations:\\Fourth-Order Runge-Kutta Solution\\[0.5em]\large Detailed Analysis of \texttt{Chapt9Exercise4.m}}
+\author{Generated Documentation}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document provides comprehensive theoretical foundations and line-by-line code analysis for \texttt{Chapt9Exercise4.m}, which solves the single-mode semiconductor laser rate equations using fourth-order Runge-Kutta integration. The code simulates carrier and photon density dynamics in response to step current injection, revealing fundamental laser phenomena including turn-on delay, relaxation oscillations, and steady-state clamping.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Theoretical Foundation}
+%==============================================================================
+
+\subsection{Axioms of Laser Rate Equation Theory}
+
+\begin{axiom}[Conservation of Carriers]
+In a semiconductor active region, the rate of change of carrier density $n$ equals the injection rate minus recombination rates:
+\begin{equation}
+\frac{dn}{dt} = R_{\text{inj}} - R_{\text{rec}}
+\end{equation}
+where carriers are neither created nor destroyed except through well-defined physical processes.
+\end{axiom}
+
+\begin{axiom}[Conservation of Photons]
+The rate of change of photon density $S$ equals the generation rate (stimulated emission) minus loss rate:
+\begin{equation}
+\frac{dS}{dt} = R_{\text{gen}} - R_{\text{loss}}
+\end{equation}
+\end{axiom}
+
+\begin{axiom}[Einstein Relations]
+Stimulated emission and absorption rates are proportional to photon density, with the coefficient determined by material gain.
+\end{axiom}
+
+\subsection{Fundamental Definitions}
+
+\begin{definition}[Carrier Injection Rate]
+For current $I$ injected into an active volume $V$:
+\begin{equation}
+R_{\text{inj}} = \frac{I}{eV} = \frac{\eta_i I}{eV}
+\end{equation}
+where $\eta_i$ is the internal quantum efficiency (assumed unity here).
+\end{definition}
+
+\begin{definition}[Carrier Recombination Rate]
+Total recombination includes non-radiative, radiative, and Auger processes:
+\begin{equation}
+R_{\text{rec}} = \frac{n}{\tau_n} = An + Bn^2 + Cn^3
+\end{equation}
+where $A$ is the non-radiative rate, $B$ is the radiative coefficient, and $C$ is the Auger coefficient.
+\end{definition}
+
+\begin{definition}[Optical Gain with Compression]
+The material gain including gain compression is:
+\begin{equation}
+g = \Gamma g_0 (n - n_0)(1 - \varepsilon S)
+\end{equation}
+where $\Gamma$ is the confinement factor, $g_0$ is the gain slope, $n_0$ is the transparency density, and $\varepsilon$ is the gain compression factor.
+\end{definition}
+
+\begin{definition}[Photon Decay Rate]
+The total photon loss rate in the cavity:
+\begin{equation}
+\kappa = \frac{v_g}{n_g}(\alpha_i + \alpha_m) = \frac{c}{n_g^2}(\alpha_i + \alpha_m)
+\end{equation}
+where $\alpha_m = \frac{1}{2L}\ln\frac{1}{R_1 R_2}$ is the mirror loss.
+\end{definition}
+
+\subsection{Core Theorems}
+
+\begin{theorem}[Single-Mode Rate Equations]
+The coupled rate equations for carrier density $n$ and photon density $S$ are:
+\begin{align}
+\frac{dn}{dt} &= \frac{I}{eV} - \frac{n}{\tau_n} - g \cdot S \label{eq:carrier_rate}\\
+\frac{dS}{dt} &= (g - \kappa)S + \beta R_{sp} \label{eq:photon_rate}
+\end{align}
+where $\beta$ is the spontaneous emission coupling factor.
+\end{theorem}
+
+\begin{proof}
+From Axiom 1, the carrier equation follows from:
+\begin{itemize}
+\item Injection: $I/(eV)$
+\item Spontaneous recombination: $n/\tau_n = An + Bn^2 + Cn^3$
+\item Stimulated emission: $gS$ (removes carriers to create photons)
+\end{itemize}
+
+From Axiom 2, the photon equation includes:
+\begin{itemize}
+\item Net stimulated emission: $(g-\kappa)S$ where gain $g$ provides amplification
+\item Spontaneous emission into the mode: $\beta R_{sp} = \beta B n^2$
+\end{itemize}
+\end{proof}
+
+\begin{theorem}[Threshold Condition]
+Lasing threshold occurs when gain equals loss:
+\begin{equation}
+g_{th} = \kappa = \frac{v_g}{n_g}(\alpha_i + \alpha_m)
+\end{equation}
+The threshold carrier density is:
+\begin{equation}
+n_{th} = n_0 + \frac{\kappa}{\Gamma g_0 v_g/n_g}
+\end{equation}
+\end{theorem}
+
+\begin{theorem}[Threshold Current]
+The threshold current satisfies the steady-state condition:
+\begin{equation}
+I_{th} = eV \cdot \frac{n_{th}}{\tau_n} = eV(An_{th} + Bn_{th}^2 + Cn_{th}^3)
+\end{equation}
+\end{theorem}
+
+\begin{theorem}[Relaxation Oscillation Frequency]
+Above threshold, small perturbations oscillate at frequency:
+\begin{equation}
+\omega_R = \sqrt{\frac{gS_0}{\tau_p} - \frac{1}{4\tau_n^2}} \approx \sqrt{\frac{\Gamma g_0 v_g S_0}{n_g}}
+\end{equation}
+where $S_0$ is the steady-state photon density and $\tau_p = 1/\kappa$ is the photon lifetime.
+\end{theorem}
+
+\subsection{Fourth-Order Runge-Kutta Method}
+
+\begin{theorem}[Classical RK4 Algorithm]
+For the system $\mathbf{y}' = \mathbf{f}(t, \mathbf{y})$, the fourth-order Runge-Kutta update is:
+\begin{align}
+\mathbf{k}_1 &= \mathbf{f}(t_n, \mathbf{y}_n) \\
+\mathbf{k}_2 &= \mathbf{f}(t_n + h/2, \mathbf{y}_n + h\mathbf{k}_1/2) \\
+\mathbf{k}_3 &= \mathbf{f}(t_n + h/2, \mathbf{y}_n + h\mathbf{k}_2/2) \\
+\mathbf{k}_4 &= \mathbf{f}(t_n + h, \mathbf{y}_n + h\mathbf{k}_3) \\
+\mathbf{y}_{n+1} &= \mathbf{y}_n + \frac{h}{6}(\mathbf{k}_1 + 2\mathbf{k}_2 + 2\mathbf{k}_3 + \mathbf{k}_4)
+\end{align}
+This achieves $O(h^5)$ local truncation error and $O(h^4)$ global error.
+\end{theorem}
+
+%==============================================================================
+\section{Line-by-Line Code Analysis}
+%==============================================================================
+
+\subsection{Header and Physical Constants}
+
+\begin{lstlisting}
+%  Chapt9Exercise4.m
+%  solves single-mode laser diode rate equations
+%  calls runge4.m which is a 4th order Runge-Kutta integrator
+%  plots carrier density and photon density as function of time.
+\end{lstlisting}
+Documentation header describing the rate equation solver.
+
+\begin{lstlisting}
+%  gain=g=gamma*gslope*(n-n0)*(1-epsi*s)
+%  carrier density, n, current, I, and photon density, s:
+%  fcn=n'=(I/ev)-(n/tau_n)-(g*s)
+%  fcs=s'=(g-K)*s+beta*Rsp
+\end{lstlisting}
+\textbf{Equations implemented:}
+\begin{align}
+g &= \Gamma g_0 (n - n_0)(1 - \varepsilon S) \\
+\frac{dn}{dt} &= \frac{I}{eV} - \frac{n}{\tau_n} - gS \\
+\frac{dS}{dt} &= (g - \kappa)S + \beta R_{sp}
+\end{align}
+
+\begin{lstlisting}
+clear;
+clf;
+
+%declare constants
+hconstjs=6.6262e-34;      %Planck's constant (J s)
+echargec=1.6021e-19;      %electron charge (C)
+vlightcm=2.997925e10;     %velocity of light (cm s-1)
+\end{lstlisting}
+\textbf{Physical constants:}
+\begin{align}
+h &= 6.6262 \times 10^{-34} \text{ J$\cdot$s} \\
+e &= 1.6021 \times 10^{-19} \text{ C} \\
+c &= 2.997925 \times 10^{10} \text{ cm/s}
+\end{align}
+
+\begin{lstlisting}
+nsteps=10000;             %number of time-steps
+\end{lstlisting}
+Total integration steps: 10,000 for 10 ns simulation (1 ps per step).
+
+\subsection{Device Parameters}
+
+\begin{lstlisting}
+ngroup     = 4;           %refractive index
+
+clength    = 3.00E-02;    %cavity length (cm)
+thick      = 1.40E-05;    %thickness of active region (cm)
+width      = 8.00E-05;    %width of active region (cm)
+\end{lstlisting}
+\textbf{Cavity geometry:}
+\begin{align}
+n_g &= 4 \quad \text{(group index)} \\
+L &= 300 \text{ }\mu\text{m} \\
+d &= 140 \text{ nm (active layer)} \\
+w &= 800 \text{ nm (ridge width)}
+\end{align}
+Active volume: $V = L \cdot w \cdot d = 3.36 \times 10^{-11}$ cm$^3$.
+
+\begin{lstlisting}
+tincrement = 1.00E-12;    %time increment (s)
+initialn   = 0.00E+18;    %initial carrier density (cm-3)
+\end{lstlisting}
+Time step $\Delta t = 1$ ps, starting from empty cavity.
+
+\begin{lstlisting}
+Anr        = 2.00E+08;    %non-radiative rate (s-1)
+Bcons      = 1.00E-10;    %radiative coefficient (cm3 s-1)
+Ccons      = 1.00E-29;    %Auger coefficient (cm6 s-1)
+\end{lstlisting}
+\textbf{Recombination parameters:}
+\begin{align}
+A &= 2 \times 10^8 \text{ s}^{-1} \quad \text{(SRH recombination)} \\
+B &= 10^{-10} \text{ cm}^3/\text{s} \quad \text{(radiative)} \\
+C &= 10^{-29} \text{ cm}^6/\text{s} \quad \text{(Auger)}
+\end{align}
+Carrier lifetime at $n = 10^{18}$ cm$^{-3}$:
+\begin{equation}
+\tau_n = \frac{1}{A + Bn + Cn^2} \approx 3.3 \text{ ns}
+\end{equation}
+
+\begin{lstlisting}
+n0density  = 1.00E+18;    %transparency density (cm-3)
+gslope     = 2.50E-16;    %gain-slope coefficient (cm2 s-1)
+epsi       = 5.00E-18;    %gain compression (cm3)
+beta       = 1.00E-04;    %spontaneous emission factor
+gamma_cons = 0.25;        %optical confinement factor
+wavelength = 1.31;        %emission wavelength (um)
+\end{lstlisting}
+\textbf{Gain parameters:}
+\begin{align}
+n_0 &= 10^{18} \text{ cm}^{-3} \\
+g_0 &= 2.5 \times 10^{-16} \text{ cm}^2 \\
+\varepsilon &= 5 \times 10^{-18} \text{ cm}^3 \\
+\beta &= 10^{-4} \\
+\Gamma &= 0.25 \\
+\lambda &= 1.31 \text{ }\mu\text{m}
+\end{align}
+
+\begin{lstlisting}
+mirrone    = 0.32;        %reflectivity mirror 1
+mirrtwo    = 0.32;        %reflectivity mirror 2
+alfa_i     = 40;          %internal loss (cm-1)
+\end{lstlisting}
+\textbf{Optical losses:} For cleaved facets $R_1 = R_2 = 0.32$, internal loss $\alpha_i = 40$ cm$^{-1}$.
+
+\begin{lstlisting}
+pstart1    = 2.5;         %start of first current step (ns)
+pstart2    = 3.5;         %start of second current step (ns)
+
+rioff1     = 0;           %off value of current (mA)
+rion1      = 20;          %first step current (mA)
+rion2      = 20;          %second step current (mA)
+\end{lstlisting}
+\textbf{Current pulse profile:} Step from 0 to 20 mA at $t = 2.5$ ns, maintained at 20 mA.
+
+\subsection{Initialization and Loss Calculations}
+
+\begin{lstlisting}
+sdensity = 0.0;
+ndensity = initialn * 1.0e-21;
+
+alfa_m   = log( 1.0/(mirrone * mirrtwo) ) / ( 2.0 * clength );
+alfasum  = alfa_m + alfa_i;
+\end{lstlisting}
+\textbf{Mirror loss calculation:}
+\begin{equation}
+\alpha_m = \frac{1}{2L}\ln\frac{1}{R_1 R_2} = \frac{\ln(1/0.1024)}{0.06} = 38.0 \text{ cm}^{-1}
+\end{equation}
+Total loss: $\alpha_{tot} = 40 + 38 = 78$ cm$^{-1}$.
+
+\subsection{Unit Rescaling}
+
+\begin{lstlisting}
+%rescale: time(ns), current(mA), length(nm)
+echarge    = echargec*1.0e9*1.0e3;      % rescaled charge
+vlight     = vlightcm/1.0e9/1.0e-7;     % nm/ns
+
+tincrement = tincrement * 1.0e9;
+gslope     = gslope * 1.0e14;
+n0density  = n0density * 1.0e-21;
+\end{lstlisting}
+\textbf{Unit conversions for numerical stability:}
+\begin{itemize}
+\item Time: s $\to$ ns
+\item Length: cm $\to$ nm
+\item Density: cm$^{-3}$ $\to$ nm$^{-3}$ (factor $10^{-21}$)
+\item Current: A $\to$ mA
+\end{itemize}
+
+\begin{lstlisting}
+clength    = clength / 1.0e-7;
+width      = width / 1.0e-7;
+thick      = thick / 1.0e-7;
+
+Anr        = Anr / 1.0e9;
+Bcons      = Bcons / (1.0e9*1.0e-21);
+Ccons      = Ccons / (1.0e9*1.0e-42);
+\end{lstlisting}
+Length in nm, recombination coefficients rescaled for ns timescale.
+
+\begin{lstlisting}
+epsi       = epsi / 1.0e-21;
+gslope     = gslope * vlight / ngroup;
+alfasum    = alfasum * 1.0e-7;
+kappa      = alfasum * vlight / ngroup;
+volume     = clength * width * thick;
+\end{lstlisting}
+\textbf{Key derived quantities:}
+\begin{equation}
+\kappa = \frac{\alpha_{tot} \cdot v_g}{n_g} = \frac{78 \times 10^{-7} \times 3 \times 10^{17}}{4} \text{ ns}^{-1}
+\end{equation}
+Photon lifetime: $\tau_p = 1/\kappa \approx 1.7$ ps.
+
+\subsection{Light Output Scaling}
+
+\begin{lstlisting}
+tmp   = hconstjs * (vlightcm * 1.0e-2)/(wavelength * 1.0e-6);  % photon energy
+tmp   = tmp * alfa_m * vlightcm;                               % rate factor
+tmp   = tmp * 1000.0*volume/ngroup;                            % mW scaling
+lightout = tmp*(1.0-mirrone)/(2.0-mirrone-mirrtwo);            % mirror 1
+\end{lstlisting}
+\textbf{Power output formula:} The output power from mirror 1:
+\begin{equation}
+P_1 = \frac{hc}{\lambda} \cdot \alpha_m v_g S V \cdot \frac{1-R_1}{(1-R_1)+(1-R_2)}
+\end{equation}
+
+\subsection{Data Array for RK4}
+
+\begin{lstlisting}
+data(1)=gamma_cons;
+data(2)=gslope;
+data(3)=n0density;
+data(4)=epsi;
+data(5)=kappa;
+data(6)=Bcons;
+data(7)=Anr;
+data(8)=Ccons;
+data(9)=volume;
+data(10)=beta;
+\end{lstlisting}
+Parameters passed to the Runge-Kutta integrator function.
+
+\subsection{Main Integration Loop}
+
+\begin{lstlisting}
+for i = 1 : 1 : nsteps
+   time(i) = ( double(i-1) +1.0 ) * tincrement;
+   current(i) = rioff1;
+   
+   if time(i) > pstart1
+      current(i) = rion1;
+   end
+   
+   if time(i) > pstart2
+      current(i) = rion2;
+   end
+\end{lstlisting}
+\textbf{Current pulse generation:}
+\begin{equation}
+I(t) = \begin{cases}
+0 & t < 2.5 \text{ ns} \\
+20 \text{ mA} & t \geq 2.5 \text{ ns}
+\end{cases}
+\end{equation}
+
+\begin{lstlisting}
+   [sdensity, ndensity]=runge4(current(i), sdensity, ndensity, tincrement, data);
+   carrier(i) = ndensity * 1.0e21/1.0e18;
+   photon(i) = (lightout*sdensity);
+end;
+\end{lstlisting}
+\textbf{RK4 integration step:} The function \texttt{runge4} implements:
+\begin{align}
+\frac{dn}{dt} &= \frac{I}{eV} - (A + Bn + Cn^2)n - \Gamma g_0 (n-n_0)(1-\varepsilon S) S \\
+\frac{dS}{dt} &= [\Gamma g_0 (n-n_0)(1-\varepsilon S) - \kappa]S + \beta B n^2
+\end{align}
+
+\subsection{Output Analysis}
+
+\begin{lstlisting}
+photon_number = photon(nsteps-1)*volume/lightout  %photons at end
+carrier_number = carrier(nsteps-1)*volume         %carriers at end
+\end{lstlisting}
+Final state analysis: total photon and carrier numbers in the cavity.
+
+%==============================================================================
+\section{Numerical Methods}
+%==============================================================================
+
+\subsection{Runge-Kutta Implementation}
+
+The \texttt{runge4} function solves the coupled system with state vector $\mathbf{y} = (S, n)^T$:
+
+\begin{equation}
+\mathbf{f}(\mathbf{y}) = \begin{pmatrix}
+(g - \kappa)S + \beta Bn^2 \\
+I/(eV) - (A + Bn + Cn^2)n - gS
+\end{pmatrix}
+\end{equation}
+
+The RK4 update for each time step:
+\begin{align}
+\mathbf{k}_1 &= \mathbf{f}(S_n, n_n) \\
+\mathbf{k}_2 &= \mathbf{f}(S_n + \frac{h}{2}k_1^{(S)}, n_n + \frac{h}{2}k_1^{(n)}) \\
+\mathbf{k}_3 &= \mathbf{f}(S_n + \frac{h}{2}k_2^{(S)}, n_n + \frac{h}{2}k_2^{(n)}) \\
+\mathbf{k}_4 &= \mathbf{f}(S_n + hk_3^{(S)}, n_n + hk_3^{(n)}) \\
+\begin{pmatrix} S_{n+1} \\ n_{n+1} \end{pmatrix} &= \begin{pmatrix} S_n \\ n_n \end{pmatrix} + \frac{h}{6}(\mathbf{k}_1 + 2\mathbf{k}_2 + 2\mathbf{k}_3 + \mathbf{k}_4)
+\end{align}
+
+\subsection{Stability Considerations}
+
+The stiff nature of laser rate equations requires:
+\begin{equation}
+\Delta t < \min\left(\tau_p, \frac{1}{\omega_R}\right)
+\end{equation}
+With $\tau_p \approx 1.7$ ps and $\omega_R \sim 10$ GHz, the 1 ps time step is adequate.
+
+%==============================================================================
+\section{Physical Interpretation}
+%==============================================================================
+
+\subsection{Turn-On Dynamics}
+
+The simulation reveals several distinct phases:
+
+\textbf{1. Pre-injection ($t < 2.5$ ns):} Both $n$ and $S$ remain at zero.
+
+\textbf{2. Carrier buildup ($2.5 < t < t_{th}$ ns):} After current injection, carriers accumulate:
+\begin{equation}
+n(t) \approx \frac{I\tau_n}{eV}\left(1 - e^{-t/\tau_n}\right)
+\end{equation}
+
+\textbf{3. Threshold crossing:} When $n = n_{th}$, gain equals loss and photon density begins exponential growth.
+
+\textbf{4. Relaxation oscillations:} The carrier-photon coupling produces damped oscillations at frequency:
+\begin{equation}
+f_R = \frac{1}{2\pi}\sqrt{\frac{\Gamma g_0 v_g S_0}{n_g}} \approx 2-5 \text{ GHz}
+\end{equation}
+
+\textbf{5. Steady state:} Carrier density clamps near $n_{th}$, photon density reaches equilibrium.
+
+\subsection{Gain Compression Effects}
+
+The factor $(1 - \varepsilon S)$ models spectral hole burning:
+\begin{equation}
+g_{eff} = \Gamma g_0 (n - n_0) \cdot \frac{1}{1 + \varepsilon S}
+\end{equation}
+This limits maximum gain and affects modulation bandwidth.
+
+%==============================================================================
+\section{Summary}
+%==============================================================================
+
+This code implements a complete single-mode laser rate equation solver featuring:
+\begin{itemize}
+\item Fourth-order Runge-Kutta integration for high accuracy
+\item Realistic device parameters (InGaAsP 1310 nm laser)
+\item ABC recombination model
+\item Gain compression for nonlinear saturation
+\item Spontaneous emission coupling to lasing mode
+\item Power output calculation from cavity photon density
+\end{itemize}
+
+The simulation captures key laser dynamics: turn-on delay, relaxation oscillations at GHz frequencies, and steady-state operation above threshold.
+
+\end{document}

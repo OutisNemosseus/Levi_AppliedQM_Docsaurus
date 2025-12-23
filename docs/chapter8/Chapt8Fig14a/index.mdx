@@ -7,7 +7,7 @@ sidebar_label: Chapter 8 - Fig 14A
 
 > **Chapter 8**: Perturbation Theory
 >
-> 📊 1 file(s) available
+> 📊 📝 📕 3 file(s) available
 
 ## Available Files
 
@@ -72,14 +72,125 @@ sidebar_label: Chapter 8 - Fig 14A
   </div>
 </div>
 
-## Inline Previews
+<div style={{
+  border: '1px solid #e5e7eb',
+  borderRadius: '8px',
+  padding: '16px',
+  marginBottom: '12px',
+  backgroundColor: '#fafafa',
+}}>
+  <div style={{display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px'}}>
+    <span style={{fontSize: '24px'}}>📝</span>
+    <div>
+      <strong style={{color: '#008080'}}>LaTeX</strong>
+      <div style={{fontSize: '12px', color: '#666'}}>`Chapt8Fig14a.tex`</div>
+    </div>
+  </div>
+  <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+    <a
+      href="./Chapt8Fig14a_latex"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#008080',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      📖 View Details
+    </a>
+    <a
+      href="/programs/latex/Chapt8Fig14a/Chapt8Fig14a.tex"
+      download="Chapt8Fig14a.tex"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#10b981',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      📥 Download
+    </a>
+    <a
+      href="/programs/latex/Chapt8Fig14a/Chapt8Fig14a.tex"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#6b7280',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      🔗 Open
+    </a>
+  </div>
+</div>
 
-### MATLAB - Chapt8Fig14a.m
-
-```matlab title="Chapt8Fig14a.m"
-%Chapt8Fig14a.m%elastic ionized impurity scattering rate using TF screeing%m=electron mass, n=number of charge impuritiesfunction TFelasticScatteringclear;clf;  m0=9.109382e-31;				%bare electron mass (kg)echarge=1.6021764e-19;		%electron charge (C)hbar=1.05457159e-34;			%Planck's constant (J s)epsilon0=8.8541878e-12;		%permittivity of free-space (F m-1) ezero=13.2;						%low-frequency relative dielectric constantm1=0.070;						%effective electron massemax=300.0d-3;					%maximum particle energy (eV)n=1.0d16;						%carrier density, n (cm-3)npoints = 200;					%number of points in energy plot  for k=1:2   n=n*10;						%plot two curves n=10^17 cm-3 and n=10^18 cm-3 kF1=(3*(pi^2)*n)^(1/3);	%Fermi wave vector (cm-1) kF1=kF1*1.e2;					%convert to units of m-1    kF2=kF1^2;    kF3=kF1^3; qTF2=kF1*m0*m1*(echarge^2)/(epsilon0*ezero*(pi^2)*(hbar^2));	% Thomas-Fermi screening number squared eF=((hbar*kF1)^2)/(2.0*m0*m1*echarge);								% Fermi energy in eV const=(pi*n*1.0e6*(echarge^4)*m0*m1); const=const/(((4.*pi*epsilon0)^2)*(ezero^2)*(hbar^3));  emin=eF;						%initial particle energy demax=(emax-emin)/200.0;	%increment in particle energy (eV) dth=pi/180.0;					%increment in scattering angle theta ei=emin; for i=1:npoints				% the main loop   ei=ei+demax;   ak=(sqrt(2.*m0*m1*ei*echarge))/hbar;      ak3=ak^3;   aint1=0.0;   theta=0.0;  for j=1:180     theta=theta+dth;     aint1=aint1+(dth*gchi1(theta,ak,qTF2));		%call function aint1  end	y1(i)=const*aint1/ak3;   x1(i)=ei*1.d3; end figure(1);hold on;plot(x1,y1,'r');axis([0,emax*1.d3,0,16e12]);end;xlabel('Energy, E (meV)');ylabel('Elastic scattering rate, 1/tau (s-1)');ttl=sprintf('Chapt8Fig14a, nmax=%4.1e cm-3, m*=%5.2f, epsilon0r=%5.1f',n,m1,ezero);title(ttl);hold off;function gchi1 = gchi1(theta,k,qTF2) x=2.0*k*sin(theta/2.0); x2=x^2;	 g=(tan(theta/2.0))*((sin(theta/2.))^2)*((1.0+(qTF2/x2))^2); gchi1=1.0/g;return
-```
-
+<div style={{
+  border: '1px solid #e5e7eb',
+  borderRadius: '8px',
+  padding: '16px',
+  marginBottom: '12px',
+  backgroundColor: '#fafafa',
+}}>
+  <div style={{display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px'}}>
+    <span style={{fontSize: '24px'}}>📕</span>
+    <div>
+      <strong style={{color: '#dc2626'}}>PDF Document</strong>
+      <div style={{fontSize: '12px', color: '#666'}}>`Chapt8Fig14a.pdf`</div>
+    </div>
+  </div>
+  <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+    <a
+      href="./Chapt8Fig14a_pdf"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#dc2626',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      📖 View Details
+    </a>
+    <a
+      href="/programs/pdf/Chapt8Fig14a/Chapt8Fig14a.pdf"
+      download="Chapt8Fig14a.pdf"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#10b981',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      📥 Download
+    </a>
+    <a
+      href="/programs/pdf/Chapt8Fig14a/Chapt8Fig14a.pdf"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        padding: '6px 12px',
+        backgroundColor: '#6b7280',
+        color: 'white',
+        borderRadius: '4px',
+        textDecoration: 'none',
+        fontSize: '13px',
+      }}
+    >
+      🔗 Open
+    </a>
+  </div>
+</div>
 
 ---
 
