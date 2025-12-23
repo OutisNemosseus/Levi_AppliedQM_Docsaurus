@@ -10,6 +10,7 @@ const CONFIG = {
   DOCS_OUTPUT_DIR: path.join(__dirname, '../docs'),
 
   // 静态文件夹：按类型分类存放
+  // 结构: static/programs/<fileType>/<programId>/<filename>
   STATIC_OUTPUT_DIR: path.join(__dirname, '../static/programs'),
 
   // 从文件名提取程序信息的正则表达式
@@ -17,11 +18,18 @@ const CONFIG = {
   // Chapt2Fig3a → chapter=2, type=Fig, number=3, variant=a
   PROGRAM_PATTERN: /^Chapt(\d+)(Exercise|Fig)(\d+)([a-z]\d*)?$/i,
 
-  // 支持的文件扩展名
-  SUPPORTED_EXTENSIONS: ['.m', '.txt'],
+  // 支持的文件扩展名（现在包含 PDF, HTML, LaTeX, Jupyter）
+  SUPPORTED_EXTENSIONS: ['.m', '.tex', '.ipynb', '.pdf', '.html', '.txt'],
 
   // 网站基础 URL - 如果有在线查看器可以设置
   VIEWER_BASE_URL: null,
+
+  // nbviewer 基础 URL (用于 notebook 预览)
+  NBVIEWER_BASE_URL: 'https://nbviewer.org/urls',
+
+  // GitHub raw URL (如果你的 repo 是公开的，用于 Colab/nbviewer)
+  // 格式: 'raw.githubusercontent.com/username/repo/branch'
+  GITHUB_RAW_BASE: null,
 };
 
 // ============ 文件类型配置 ============
@@ -33,6 +41,42 @@ const FILE_TYPES = {
     color: '#0076a8',
     canReadText: true,
     codeLanguage: 'matlab',
+  },
+  '.tex': {
+    type: 'latex',
+    label: 'LaTeX',
+    emoji: '📝',
+    color: '#008080',
+    canReadText: true,
+    codeLanguage: 'latex',
+    maxPreviewLength: 15000,
+  },
+  '.ipynb': {
+    type: 'ipynb',
+    label: 'Jupyter Notebook',
+    emoji: '📓',
+    color: '#f37626',
+    canReadText: false,
+    useIframe: false,
+  },
+  '.pdf': {
+    type: 'pdf',
+    label: 'PDF Document',
+    emoji: '📕',
+    color: '#dc2626',
+    canReadText: false,
+    useIframe: true,
+    iframeHeight: '900px',
+  },
+  '.html': {
+    type: 'html',
+    label: 'HTML Page',
+    emoji: '🌐',
+    color: '#e34c26',
+    canReadText: true,
+    codeLanguage: 'html',
+    useIframe: true,
+    iframeHeight: '800px',
   },
   '.txt': {
     type: 'text',
@@ -117,10 +161,15 @@ function debounce(func, wait) {
 
 /**
  * 生成程序入口页面 (index.mdx)
+ * Sidebar 永远指向这里，列出所有可用的文件类型
  */
 function generateIndexPage(programInfo, filesList) {
   const { programId, displayName, chapterNum } = programInfo;
   const chapterName = getChapterName(chapterNum);
+
+  // 按文件类型排序：matlab > latex > pdf > html > ipynb > text
+  const typeOrder = ['matlab', 'latex', 'pdf', 'html', 'ipynb', 'text'];
+  filesList.sort((a, b) => typeOrder.indexOf(a.fileType) - typeOrder.indexOf(b.fileType));
 
   // 构建文件卡片
   const fileCards = filesList.map(({ filename, fileType, staticPath, config }) => {
@@ -290,6 +339,231 @@ ${fileContent || '% Unable to read file'}
 }
 
 /**
+ * 生成 LaTeX 详情页
+ */
+function generateLatexPage(programInfo, filename, staticPath, fileContent, config) {
+  const { displayName } = programInfo;
+
+  let content = fileContent || '% Unable to read file';
+  let truncated = false;
+  if (config.maxPreviewLength && content.length > config.maxPreviewLength) {
+    content = content.substring(0, config.maxPreviewLength);
+    truncated = true;
+  }
+
+  return `---
+title: ${escapeForYaml(`${displayName} - LaTeX`)}
+sidebar_label: LaTeX Source
+---
+
+# ${displayName} - LaTeX Document
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+  <a href="${staticPath}" download="${filename}"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .tex
+  </a>
+  <a href="${staticPath}" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+${truncated ? `:::warning
+This file has been truncated for display. Download the full file for complete content.
+:::
+
+` : ''}## LaTeX Source
+
+\`\`\`latex title="${filename}"
+${content}
+\`\`\`${truncated ? '\n\n*... (truncated)*' : ''}
+
+---
+
+[← Back to ${displayName}](./)
+`;
+}
+
+/**
+ * 生成 PDF 详情页
+ */
+function generatePdfPage(programInfo, filename, staticPath, config) {
+  const { displayName } = programInfo;
+
+  return `---
+title: ${escapeForYaml(`${displayName} - PDF`)}
+sidebar_label: PDF Document
+---
+
+# ${displayName} - PDF Document
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+  <a href="${staticPath}" download="${filename}"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download PDF
+  </a>
+  <a href="${staticPath}" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#dc2626', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open in New Tab
+  </a>
+</div>
+
+## PDF Preview
+
+:::tip
+If the preview doesn't load, use the **Open in New Tab** button above.
+:::
+
+<iframe
+  src="${staticPath}"
+  width="100%"
+  height="${config.iframeHeight || '900px'}"
+  style={{
+    border: '2px solid #e5e7eb',
+    borderRadius: '8px',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+  }}
+  title="${displayName} PDF"
+/>
+
+---
+
+[← Back to ${displayName}](./)
+`;
+}
+
+/**
+ * 生成 HTML 详情页
+ */
+function generateHtmlPage(programInfo, filename, staticPath, fileContent, config) {
+  const { displayName } = programInfo;
+
+  // 同时提供 iframe 预览和源代码
+  let codeSection = '';
+  if (fileContent) {
+    let content = fileContent;
+    if (content.length > 20000) {
+      content = content.substring(0, 20000) + '\n\n<!-- ... truncated ... -->';
+    }
+    codeSection = `
+
+## HTML Source
+
+<details>
+<summary>Click to view source code</summary>
+
+\`\`\`html title="${filename}"
+${content}
+\`\`\`
+
+</details>`;
+  }
+
+  return `---
+title: ${escapeForYaml(`${displayName} - HTML`)}
+sidebar_label: HTML Page
+---
+
+# ${displayName} - HTML Page
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+  <a href="${staticPath}" download="${filename}"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download HTML
+  </a>
+  <a href="${staticPath}" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#e34c26', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open in New Tab
+  </a>
+</div>
+
+## Live Preview
+
+<iframe
+  src="${staticPath}"
+  width="100%"
+  height="${config.iframeHeight || '800px'}"
+  style={{
+    border: '2px solid #e5e7eb',
+    borderRadius: '8px',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    backgroundColor: 'white',
+  }}
+  title="${displayName} HTML"
+/>
+${codeSection}
+
+---
+
+[← Back to ${displayName}](./)
+`;
+}
+
+/**
+ * 生成 Jupyter Notebook 详情页
+ */
+function generateNotebookPage(programInfo, filename, staticPath, config) {
+  const { programId, displayName } = programInfo;
+
+  let externalLinks = '';
+  if (CONFIG.GITHUB_RAW_BASE) {
+    const nbviewerUrl = `${CONFIG.NBVIEWER_BASE_URL}/${CONFIG.GITHUB_RAW_BASE}/static/programs/ipynb/${programId}/${filename}`;
+    const colabUrl = `https://colab.research.google.com/github/${CONFIG.GITHUB_RAW_BASE.replace('raw.githubusercontent.com/', '')}/blob/main/static/programs/ipynb/${programId}/${filename}`;
+
+    externalLinks = `
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+  <a href="${nbviewerUrl}" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#f97316', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📖 View on nbviewer
+  </a>
+  <a href="${colabUrl}" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#facc15', color: '#1f2937', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔬 Open in Colab
+  </a>
+</div>`;
+  }
+
+  return `---
+title: ${escapeForYaml(`${displayName} - Notebook`)}
+sidebar_label: Jupyter Notebook
+---
+
+# ${displayName} - Jupyter Notebook
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+  <a href="${staticPath}" download="${filename}"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .ipynb
+  </a>
+</div>
+${externalLinks}
+
+:::info How to View This Notebook
+
+Jupyter Notebooks require a runtime environment to render properly:
+
+1. **Download and open locally** with Jupyter Lab, Jupyter Notebook, or VS Code
+2. **Upload to Google Colab** at [colab.research.google.com](https://colab.research.google.com/)
+3. **Use nbviewer** at [nbviewer.org](https://nbviewer.org/) by uploading the file
+
+:::
+
+## File Information
+
+| Property | Value |
+|----------|-------|
+| Filename | \`${filename}\` |
+| Format | Jupyter Notebook (.ipynb) |
+| Program ID | \`${programId}\` |
+
+---
+
+[← Back to ${displayName}](./)
+`;
+}
+
+/**
  * 生成文本文件详情页
  */
 function generateTextPage(programInfo, filename, staticPath, fileContent, config) {
@@ -332,6 +606,14 @@ function generateDetailPage(programInfo, filename, staticPath, fileContent, conf
   switch (config.type) {
     case 'matlab':
       return generateMatlabPage(programInfo, filename, staticPath, fileContent, config);
+    case 'latex':
+      return generateLatexPage(programInfo, filename, staticPath, fileContent, config);
+    case 'pdf':
+      return generatePdfPage(programInfo, filename, staticPath, config);
+    case 'html':
+      return generateHtmlPage(programInfo, filename, staticPath, fileContent, config);
+    case 'ipynb':
+      return generateNotebookPage(programInfo, filename, staticPath, config);
     case 'text':
       return generateTextPage(programInfo, filename, staticPath, fileContent, config);
     default:
@@ -342,15 +624,15 @@ function generateDetailPage(programInfo, filename, staticPath, fileContent, conf
 // ============ 主处理逻辑 ============
 
 function processAllPrograms() {
-  console.log('\n📚 Applied QM Documentation Generator v1.0');
-  console.log('   For Levi\'s Applied Quantum Mechanics\n');
+  console.log('\n📚 Applied QM Documentation Generator v2.0');
+  console.log('   Universal INBOX with Auto-Categorization\n');
 
   const stats = {
     processed: 0,
     skipped: 0,
     byChapter: new Map(),
     byType: new Map(),
-    programFiles: new Map(),
+    programFiles: new Map(), // programId -> { programInfo, files: [] }
   };
 
   // 检查 INBOX 目录
@@ -418,7 +700,7 @@ function processAllPrograms() {
   console.log(`📁 Processing ${stats.programFiles.size} program(s)...\n`);
 
   stats.programFiles.forEach(({ programInfo, files }, programId) => {
-    const { chapter } = programInfo;
+    const { chapter, chapterNum } = programInfo;
 
     // 创建 docs 目录
     const programDocsDir = path.join(CONFIG.DOCS_OUTPUT_DIR, chapter, programId);
@@ -428,7 +710,8 @@ function processAllPrograms() {
 
     // 处理每个文件
     files.forEach(({ filename, config }) => {
-      // Static 目录
+      // Static 目录：按类型分类
+      // 结构: static/programs/<type>/<programId>/<filename>
       const programStaticDir = path.join(CONFIG.STATIC_OUTPUT_DIR, config.type, programId);
       ensureDir(programStaticDir);
 
@@ -444,10 +727,10 @@ function processAllPrograms() {
         return;
       }
 
-      // 静态路径
+      // 静态路径 (网页访问用)
       const staticPath = `/programs/${config.type}/${programId}/${filename}`;
 
-      // 读取文件内容
+      // 读取文件内容（仅文本类型）
       let fileContent = '';
       if (config.canReadText) {
         try {
@@ -481,7 +764,7 @@ function processAllPrograms() {
       });
     });
 
-    // 生成 index.mdx
+    // 生成 index.mdx (入口页面)
     if (filesList.length > 0) {
       const indexContent = generateIndexPage(programInfo, filesList);
       const indexPath = path.join(programDocsDir, 'index.mdx');
@@ -559,7 +842,7 @@ function updateSidebar(byChapter) {
 
   const sidebar = `/**
  * Auto-generated sidebar configuration
- * Generated by: generate-program-docs.js v1.0
+ * Generated by: generate-program-docs.js v2.0
  * Last updated: ${new Date().toISOString()}
  *
  * DO NOT EDIT MANUALLY - Changes will be overwritten on next generation
@@ -629,6 +912,7 @@ function cleanGenerated() {
 function watchMode() {
   console.log(`\n👀 Watch Mode: Monitoring INBOX for changes...\n`);
 
+  // 初次运行
   processAllPrograms();
 
   const debouncedProcess = debounce(() => {
@@ -637,6 +921,7 @@ function watchMode() {
     console.log('👀 Watching for changes...\n');
   }, 1000);
 
+  // 监视 INBOX
   if (!fs.existsSync(CONFIG.INBOX_DIR)) {
     console.log(`❌ Cannot watch: INBOX folder not found`);
     console.log(`   Please create: ${CONFIG.INBOX_DIR}\n`);
@@ -669,8 +954,8 @@ function watchMode() {
 function showHelp() {
   console.log(`
 ╔════════════════════════════════════════════════════════════════════╗
-║      Applied QM Documentation Generator v1.0                      ║
-║      For Levi's Applied Quantum Mechanics MATLAB Programs         ║
+║      Applied QM Documentation Generator v2.0                      ║
+║      Universal INBOX with Auto-Categorization                     ║
 ╚════════════════════════════════════════════════════════════════════╝
 
 Usage: node scripts/generate-program-docs.js [command]
@@ -679,31 +964,72 @@ Commands:
   (none)        Process all files in INBOX once
   --watch, -w   Watch INBOX for changes and auto-regenerate
   --clean, -c   Remove all generated documentation
-  --help, -h    Show this help message
+  --help, -h    Show this message
 
 INBOX Location:
   ${CONFIG.INBOX_DIR}
 
-  Drop ALL your files here:
+  Drop ALL your files here (any supported type):
     Chapt1Exercise8.m
-    Chapt1Fig10.m
-    Chapt2Fig24.m
+    Chapt1Exercise8.pdf
+    Chapt1Exercise8.tex
+    Chapt1Exercise8.html
+    Chapt2Fig3a.ipynb
     ...
 
 Supported File Types:
   .m        MATLAB source code
+  .tex      LaTeX documents
+  .pdf      PDF documents
+  .html     HTML pages
+  .ipynb    Jupyter Notebooks
   .txt      Text files (README, data files, etc.)
 
 File Naming Pattern:
-  Chapt<N><Type><#><variant>
+  Chapt<N><Type><#><variant>.<ext>
     N = Chapter number (1-9)
     Type = Exercise or Fig
     # = Number
-    variant = optional (a, b, c, a1, etc.)
+    variant = optional (a, b, c, a1, b1, etc.)
+    ext = Any supported extension
 
   Examples:
-    Chapt1Exercise8.m → Chapter 1, Exercise 8
-    Chapt2Fig3a.m → Chapter 2, Figure 3a
+    Chapt1Exercise8.m → Chapter 1, Exercise 8 (MATLAB)
+    Chapt2Fig3a.pdf → Chapter 2, Figure 3a (PDF)
+    Chapt4Exercise2b.tex → Chapter 4, Exercise 2b (LaTeX)
+
+Auto-Categorization:
+  The script automatically:
+  - Groups files by programId (e.g., all Chapt1Exercise8.* together)
+  - Creates separate detail pages for each file type
+  - Organizes files in static/programs/<type>/<programId>/
+  - Updates the sidebar with all available programs
+
+Output Structure:
+  docs-site/docs/chapter<N>/<programId>/
+    ├── index.mdx           ← Sidebar entry (lists all files)
+    ├── <programId>_matlab.mdx
+    ├── <programId>_latex.mdx
+    ├── <programId>_pdf.mdx
+    ├── <programId>_html.mdx
+    └── <programId>_ipynb.mdx
+
+  docs-site/static/programs/
+    ├── matlab/<programId>/<filename>.m
+    ├── latex/<programId>/<filename>.tex
+    ├── pdf/<programId>/<filename>.pdf
+    ├── html/<programId>/<filename>.html
+    └── ipynb/<programId>/<filename>.ipynb
+
+Example Workflow:
+  1. Add files to INBOX:
+     - Chapt5Exercise5.m
+     - Chapt5Exercise5.pdf
+     - Chapt5Exercise5.tex
+
+  2. Run: node scripts/generate-program-docs.js
+
+  3. Result: One program entry with 3 file types available
 `);
 }
 
