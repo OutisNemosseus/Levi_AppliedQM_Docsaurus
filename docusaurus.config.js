@@ -8,13 +8,10 @@ const config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://OutisNemosseus.github.io',
-  // Set the /<baseUrl>/ pathname under which your site is served
-  baseUrl: '/Levi_AppliedQM_Docsaurus/',
-
-  // GitHub pages deployment config.
-  organizationName: 'OutisNemosseus',
-  projectName: 'Levi_AppliedQM_Docsaurus',
+  // Update this with your Render.com URL after deployment
+  url: 'https://levi-applied-qm-docs.onrender.com',
+  // Render.com hosts at root
+  baseUrl: '/',
 
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',

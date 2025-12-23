@@ -58,10 +58,16 @@ This command generates static content into the `build` directory.
 
 ### Deployment
 
-The site is configured for GitHub Pages deployment. To deploy:
+The site is configured for Render.com deployment:
 
+1. Connect your GitHub repository to Render.com
+2. The `render.yaml` file contains all deployment configuration
+3. Render will automatically build and deploy on every push to master
+
+**Manual deployment** (if needed):
 ```bash
-npm run deploy
+npm run build
+# Upload the build/ folder to your hosting provider
 ```
 
 ## Adding New Programs
