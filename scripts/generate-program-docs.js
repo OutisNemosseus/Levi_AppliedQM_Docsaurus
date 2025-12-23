@@ -240,20 +240,6 @@ function generateIndexPage(programInfo, filesList) {
   // 文件类型统计
   const typeStats = filesList.map(f => f.config.emoji).join(' ');
 
-  // Inline previews so readers can see code on the landing page
-  const codePreviews = filesList
-    .filter(f => f.config.canReadText && f.previewContent)
-    .map(({ filename, config, previewContent, truncated }) => {
-      const lang = config.codeLanguage || 'text';
-      return `### ${config.label} - ${filename}
-
-\`\`\`${lang} title="${filename}"
-${previewContent}
-\`\`\`
-${truncated ? '*... (preview truncated; download for full content).*' : ''}`;
-    })
-    .join('\n\n');
-
   let viewerSection = '';
   if (CONFIG.VIEWER_BASE_URL) {
     const viewerUrl = `${CONFIG.VIEWER_BASE_URL}/${programId}`;
@@ -299,10 +285,6 @@ ${viewerSection}
 
 ${fileCards}
 
-${codePreviews ? `## Inline Previews
-
-${codePreviews}
-` : ''}
 ---
 
 *Program ID: \`${programId}\`*
@@ -759,14 +741,6 @@ function processAllPrograms() {
       }
 
       // 生成详情页
-
-      let previewContent = fileContent;
-      let truncated = false;
-      if (previewContent && config.maxPreviewLength && previewContent.length > config.maxPreviewLength) {
-        previewContent = previewContent.substring(0, config.maxPreviewLength);
-        truncated = true;
-      }
-
       const detailContent = generateDetailPage(programInfo, filename, staticPath, fileContent, config);
 
       if (detailContent) {
@@ -787,9 +761,6 @@ function processAllPrograms() {
         fileType: config.type,
         staticPath,
         config,
-        fileContent,
-        previewContent,
-        truncated,
       });
     });
 
