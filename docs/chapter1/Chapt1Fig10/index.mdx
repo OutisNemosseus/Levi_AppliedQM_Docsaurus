@@ -70,6 +70,14 @@ sidebar_label: Chapter 1 - Fig 10
       🔗 Open
     </a>
   </div>
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#0076a8'}}>📜 View Source Code</summary>
+
+```matlab title="Chapt1Fig10.m"
+%Chapt1Fig10.m%classical sho diatomic linear chain dispersion;clear;clf;kappa=1;											%spring constantm1=1;												%mass of particle 1m2=0.5;											%mass of particle 2ymax=(2*kappa*(m1+m2)/(m1*m2))^0.5;		%maximum frequencyx=[-pi:.01:pi];								%wave vector [start:increment:stop]   a=1;b=2*kappa*(m1+m2)/(m1*m2);c=2*kappa*kappa*(1-cos(x(:)))/(m1*m2);y21=(abs((-b+((b.*b-4.*a.*c).^.5))/(2*a))).^0.5; 	%the acoustic branchy22=(abs((-b-((b.*b-4.*a.*c).^.5))/(2*a))).^0.5;	%the optical branchfigure(1);hold on;plot(x,y21,'b');								%the acoustic branchplot(x,y22,'r');								%the optical branchaxis([-pi,pi,0,1.1*ymax]);temp2=['Chapt1Fig10, \kappa = ',num2str(kappa),', m_1 = ',num2str(m1),', m_2 = ',num2str(m2)];title(temp2);xlabel(['Wave vector, q']);ylabel(['Frequency,  \omega (q)']);hold off;
+```
+
+</details>
 </div>
 
 ---

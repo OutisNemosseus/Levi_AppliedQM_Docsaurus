@@ -70,6 +70,14 @@ sidebar_label: Chapter 2 - Fig 2
       🔗 Open
     </a>
   </div>
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#0076a8'}}>📜 View Source Code</summary>
+
+```matlab title="Chapt2Fig2.m"
+%Chapt2Fig2.m%interference of two waves%y is intensity%amplitude is amp1 and amp2clear;clf;amp1=1.;						%amplitude of wave 1amp2=1.;						%amplitude of wave 2xmax=6.0;step=xmax/200;x=[0:step:xmax];			%[start:increment:stop];   y=(amp1^2)+(amp2^2)+(2*amp1*amp2*cos(pi*x(:)));  %intensityfigure(1);plot(x,y,'b');temp2=['Chapt2Fig2, Amp1 = ',num2str(amp1),', Amp2 = ',num2str(amp2)];title(temp2);xlabel(['Phase, \phi(\pi)']);ylabel(['Intensity']);
+```
+
+</details>
 </div>
 
 ---

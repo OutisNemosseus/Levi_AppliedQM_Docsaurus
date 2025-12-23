@@ -37,9 +37,39 @@ class IndexGenerator extends BaseGenerator {
       (a, b) => typeOrder.indexOf(a.config.type) - typeOrder.indexOf(b.config.type)
     );
 
-    // Build file cards
-    const fileCards = sortedFiles.map(({ filename, config, staticPath }) => {
+    // Build file cards with embedded code
+    const fileCards = sortedFiles.map(({ filename, config, staticPath, content }) => {
       const detailPageLink = `./${programId}_${config.type}`;
+
+      // Build code block if content is available
+      let codeSection = '';
+      if (config.canReadText && content) {
+        const lang = config.codeLanguage || 'text';
+        codeSection = `
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '${config.color}'}}>📜 View Source Code</summary>
+
+\`\`\`${lang} title="${filename}"
+${content}
+\`\`\`
+
+</details>`;
+      } else if (config.useIframe) {
+        // PDF/HTML iframe preview
+        const iframeHeight = config.iframeHeight || '600px';
+        codeSection = `
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '${config.color}'}}>📄 View Document</summary>
+
+<iframe
+  src="${staticPath}"
+  width="100%"
+  height="${iframeHeight}"
+  style={{border: '1px solid #e5e7eb', borderRadius: '4px', marginTop: '8px'}}
+/>
+
+</details>`;
+      }
 
       return `
 <div style={{
@@ -99,7 +129,7 @@ class IndexGenerator extends BaseGenerator {
     >
       🔗 Open
     </a>
-  </div>
+  </div>${codeSection}
 </div>`;
     }).join('\n');
 

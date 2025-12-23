@@ -70,6 +70,14 @@ sidebar_label: Chapter 7 - Fig 6B
       🔗 Open
     </a>
   </div>
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#0076a8'}}>📜 View Source Code</summary>
+
+```matlab title="Chapt7Fig6b.m"
+% Chapt7Fig6b.m% plots Fermi function for fixed carrier density and a number of temperatures% carrier density n(cm-3), temperature kelvin(K), effective mass m1, relative error rerr% uses function fermi.m and chempot.mclear;clf;	n=1.e17						%carrier density (cm-3)      m0=9.109382;				%bare electron mass (x10^31 kg)   m1=0.07;						%effective electron mass	echarge=1.6021764;		%electron charge (x10^19 C)	hbar=1.05457159;			%Planck's constant (x10^34 J s)   kB=8.61734e-5;				%Boltzmann constant (eV K^-1)      rerr=1.e-3;					%relative error in calculation of chemical potential   Temperature=[0.1,100,200,300,400];				%Temperature values(K)   nTemp=length(Temperature)							%number of different temperatures   	nplotpoints=300;			%number of data points in each plot   Emin=0;						%minimum energy (meV)   Emax=200;					%maximum energy (meV) 	Estep=(Emax-Emin)/nplotpoints;			%Step in energy (meV)    for j=1:1:nTemp   kelvin=Temperature(j);   kBT=1000.*kelvin*kB;   beta=1./kBT;   mu1=chempot(kelvin,m1,n,rerr);  for k = 1:1:nplotpoints+1     energy=((k-1)*Estep)+Emin;     E(k)=energy;     Prob=fermi(beta,energy,mu1);     FD(k)=Prob;  end;    hold on;figure(1);plot(E,log(FD));axis([0 Emax -10 0]);endxlabel('Energy, E (meV)');ylabel('ln(occupation factor)');ttl=sprintf('Chapt7Fig6b, m* = %4.2f m0, Tmax = %4.1f K, n = %7.2e cm-3',m1,kelvin,n);title(ttl);
+```
+
+</details>
 </div>
 
 <div style={{
@@ -130,6 +138,389 @@ sidebar_label: Chapter 7 - Fig 6B
       🔗 Open
     </a>
   </div>
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#008080'}}>📜 View Source Code</summary>
+
+```latex title="Chapt7Fig6b.tex"
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{graphicx}
+
+\geometry{margin=1in}
+
+\lstset{
+    language=Matlab,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{orange},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10}
+}
+
+\newtheorem{axiom}{Axiom}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{\textbf{Chapt7Fig6b.m} \\ Fermi-Dirac Distribution at Lower Carrier Density \\ \large Non-Degenerate Semiconductor Regime}
+\author{Semiconductor Physics Documentation}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document analyzes \texttt{Chapt7Fig6b.m}, which plots the Fermi-Dirac distribution function at a carrier density of $n = 10^{17}$ cm$^{-3}$, one order of magnitude lower than \texttt{Chapt7Fig6a.m}. This lower density places the system closer to the non-degenerate (Maxwell-Boltzmann) regime, providing insight into the classical-quantum transition.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Theoretical Foundation}
+%==============================================================================
+
+\subsection{Fermi-Dirac Statistics Review}
+
+\begin{theorem}[Fermi-Dirac Distribution]
+The probability of occupation of a quantum state with energy $E$ is:
+\begin{equation}
+f(E) = \frac{1}{e^{(E-\mu)/k_B T} + 1}
+\end{equation}
+where $\mu$ is the chemical potential (Fermi level) and $T$ is the temperature.
+\end{theorem}
+
+\subsection{Degeneracy Parameter}
+
+\begin{definition}[Degeneracy Parameter]
+The degeneracy of an electron gas is characterized by:
+\begin{equation}
+\eta = \frac{\mu}{k_B T}
+\end{equation}
+\begin{itemize}
+\item $\eta \gg 1$: Degenerate regime (quantum statistics essential)
+\item $\eta \ll -1$: Non-degenerate regime (classical approximation valid)
+\item $|\eta| \lesssim 1$: Transition regime
+\end{itemize}
+\end{definition}
+
+\subsection{Non-Degenerate Limit: Maxwell-Boltzmann Approximation}
+
+\begin{theorem}[Maxwell-Boltzmann Limit]
+When $E - \mu \gg k_B T$ for all occupied states, the Fermi-Dirac distribution reduces to:
+\begin{equation}
+f(E) \approx e^{-(E-\mu)/k_B T}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+When $(E-\mu)/k_B T \gg 1$, we have $e^{(E-\mu)/k_B T} \gg 1$, so:
+\begin{equation}
+f(E) = \frac{1}{e^{(E-\mu)/k_B T} + 1} \approx \frac{1}{e^{(E-\mu)/k_B T}} = e^{-(E-\mu)/k_B T}
+\end{equation}
+\end{proof}
+
+\subsection{Chemical Potential Dependence on Carrier Density}
+
+\begin{theorem}[Non-Degenerate Carrier Density]
+In the non-degenerate limit, the carrier density is:
+\begin{equation}
+n = N_c \exp\left(\frac{\mu}{k_B T}\right)
+\end{equation}
+where $N_c = 2\left(\frac{m^* k_B T}{2\pi\hbar^2}\right)^{3/2}$ is the effective density of states.
+\end{theorem}
+
+\begin{corollary}[Chemical Potential in Non-Degenerate Regime]
+\begin{equation}
+\mu = k_B T \ln\left(\frac{n}{N_c}\right)
+\end{equation}
+When $n < N_c$, the chemical potential is negative (below the band edge).
+\end{corollary}
+
+\subsection{Effective Density of States for GaAs}
+
+For GaAs with $m^* = 0.07 m_0$:
+\begin{equation}
+N_c = 2\left(\frac{0.07 m_0 k_B T}{2\pi\hbar^2}\right)^{3/2}
+\end{equation}
+
+At $T = 300$ K:
+\begin{equation}
+N_c \approx 4.7 \times 10^{17} \text{ cm}^{-3}
+\end{equation}
+
+Since $n = 10^{17}$ cm$^{-3} < N_c$, the system is near the non-degenerate regime at room temperature.
+
+%==============================================================================
+\section{Line-by-Line Code Analysis}
+%==============================================================================
+
+\subsection{Key Parameter Difference}
+
+\begin{lstlisting}
+n=1.e17
+\end{lstlisting}
+\begin{equation}
+n = 1 \times 10^{17} \text{ cm}^{-3}
+\end{equation}
+\textit{This is the critical difference from Chapt7Fig6a.m. The carrier density is 10 times lower, pushing the system toward the non-degenerate regime.}
+
+\subsection{Physical Constants (Identical to Chapt7Fig6a)}
+
+\begin{lstlisting}
+m0=9.109382;
+\end{lstlisting}
+\begin{equation}
+m_0 = 9.109382 \times 10^{-31} \text{ kg}
+\end{equation}
+\textit{Bare electron mass.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+m1=0.07;
+\end{lstlisting}
+\begin{equation}
+m^* = 0.07 \, m_0
+\end{equation}
+\textit{Effective mass for GaAs conduction band electrons.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+echarge=1.6021764;
+\end{lstlisting}
+\begin{equation}
+e = 1.6021764 \times 10^{-19} \text{ C}
+\end{equation}
+\textit{Elementary charge.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+hbar=1.05457159;
+\end{lstlisting}
+\begin{equation}
+\hbar = 1.05457159 \times 10^{-34} \text{ J}\cdot\text{s}
+\end{equation}
+\textit{Reduced Planck constant.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+kB=8.61734e-5;
+\end{lstlisting}
+\begin{equation}
+k_B = 8.61734 \times 10^{-5} \text{ eV/K}
+\end{equation}
+\textit{Boltzmann constant in convenient units.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+rerr=1.e-3;
+\end{lstlisting}
+\begin{equation}
+\epsilon_{\text{rel}} = 10^{-3}
+\end{equation}
+\textit{Relative error tolerance for chemical potential calculation.}
+
+\subsection{Temperature Array}
+
+\begin{lstlisting}
+Temperature=[0.1,100,200,300,400];
+\end{lstlisting}
+\begin{equation}
+T \in \{0.1, 100, 200, 300, 400\} \text{ K}
+\end{equation}
+\textit{Same temperature range as Chapt7Fig6a for direct comparison.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+nTemp=length(Temperature)
+\end{lstlisting}
+\begin{equation}
+N_{\text{temp}} = 5
+\end{equation}
+\textit{Number of temperature curves to plot.}
+
+\subsection{Energy Grid Setup}
+
+\begin{lstlisting}
+nplotpoints=300;
+Emin=0;
+Emax=200;
+Estep=(Emax-Emin)/nplotpoints;
+\end{lstlisting}
+\begin{equation}
+E_k = k \cdot \frac{200 \text{ meV}}{300} \quad \text{for } k = 0, 1, \ldots, 300
+\end{equation}
+\textit{Energy discretization from 0 to 200 meV.}
+
+\subsection{Main Computation Loop}
+
+\begin{lstlisting}
+for j=1:1:nTemp
+   kelvin=Temperature(j);
+   kBT=1000.*kelvin*kB;
+   beta=1./kBT;
+\end{lstlisting}
+\begin{equation}
+\beta = \frac{1}{k_B T} \quad [\text{meV}^{-1}]
+\end{equation}
+\textit{Compute inverse thermal energy for each temperature.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   mu1=chempot(kelvin,m1,n,rerr);
+\end{lstlisting}
+\begin{equation}
+\mu = \mu(T, m^* = 0.07m_0, n = 10^{17} \text{ cm}^{-3})
+\end{equation}
+\textit{At lower carrier density, $\mu$ will be smaller (possibly negative at high $T$).}
+
+\subsection{Fermi Function Evaluation Loop}
+
+\begin{lstlisting}
+  for k = 1:1:nplotpoints+1
+     energy=((k-1)*Estep)+Emin;
+     E(k)=energy;
+     Prob=fermi(beta,energy,mu1);
+     FD(k)=Prob;
+  end;
+\end{lstlisting}
+\begin{equation}
+f(E_k) = \frac{1}{\exp[\beta(E_k - \mu)] + 1}
+\end{equation}
+\textit{Evaluate Fermi-Dirac distribution at each energy point.}
+
+\subsection{Plotting}
+
+\begin{lstlisting}
+    hold on;figure(1);plot(E,log(FD));axis([0 Emax -10 0]);
+end
+xlabel('Energy, E (meV)');
+ylabel('ln(occupation factor)');
+ttl=sprintf('Chapt7Fig6b, m* = %4.2f m0, Tmax = %4.1f K, n = %7.2e cm-3',m1,kelvin,n);
+title(ttl);
+\end{lstlisting}
+\begin{equation}
+\ln f(E) \text{ vs } E
+\end{equation}
+\textit{Logarithmic plot showing the exponential tail behavior more prominently.}
+
+%==============================================================================
+\section{Physical Interpretation and Comparison}
+%==============================================================================
+
+\subsection{Effect of Lower Carrier Density}
+
+Comparing $n = 10^{17}$ cm$^{-3}$ (this code) with $n = 10^{18}$ cm$^{-3}$ (Chapt7Fig6a):
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcc}
+\toprule
+Property & $n = 10^{17}$ cm$^{-3}$ & $n = 10^{18}$ cm$^{-3}$ \\
+\midrule
+Chemical potential $\mu$ & Lower & Higher \\
+Degeneracy $\eta = \mu/k_B T$ & Smaller & Larger \\
+Regime & Non-degenerate & Degenerate \\
+\bottomrule
+\end{tabular}
+\caption{Comparison of regimes}
+\end{table}
+
+\subsection{Chemical Potential Estimates}
+
+At $T = 300$ K with $N_c \approx 4.7 \times 10^{17}$ cm$^{-3}$:
+
+For $n = 10^{17}$ cm$^{-3}$:
+\begin{equation}
+\mu \approx k_B T \ln\left(\frac{10^{17}}{4.7 \times 10^{17}}\right) \approx k_B T \ln(0.21) \approx -1.56 \, k_B T \approx -40 \text{ meV}
+\end{equation}
+
+For $n = 10^{18}$ cm$^{-3}$:
+\begin{equation}
+\mu \approx k_B T \ln\left(\frac{10^{18}}{4.7 \times 10^{17}}\right) \approx k_B T \ln(2.13) \approx 0.76 \, k_B T \approx 20 \text{ meV}
+\end{equation}
+
+\subsection{Implications for the Plot}
+
+With lower carrier density:
+\begin{itemize}
+\item The chemical potential is lower (possibly negative at high $T$)
+\item The Fermi function drops off more steeply at low energies
+\item The system more closely follows Maxwell-Boltzmann statistics
+\item The logarithmic plot shows nearly linear behavior over a wider range
+\end{itemize}
+
+\subsection{Temperature Dependence}
+
+At very low temperature ($T = 0.1$ K):
+\begin{equation}
+k_B T \approx 8.6 \times 10^{-6} \text{ eV} = 8.6 \times 10^{-3} \text{ meV}
+\end{equation}
+
+Even at low carrier density, the thermal energy is so small that the distribution still shows sharp step-like behavior, with all electrons in states below the Fermi energy.
+
+At $T = 400$ K:
+\begin{equation}
+k_B T \approx 34.5 \text{ meV}
+\end{equation}
+
+The distribution is significantly broadened, and with $\mu < 0$, the occupation probability at $E = 0$ is already less than 0.5.
+
+%==============================================================================
+\section{Numerical Considerations}
+%==============================================================================
+
+\subsection{The chempot Function}
+
+The function \texttt{chempot(kelvin, m1, n, rerr)} solves:
+\begin{equation}
+n = \frac{1}{2\pi^2}\left(\frac{2m^*}{\hbar^2}\right)^{3/2} \int_0^\infty \frac{\sqrt{E}}{e^{(E-\mu)/k_B T} + 1} dE
+\end{equation}
+
+This is typically done using:
+\begin{enumerate}
+\item Initial guess based on non-degenerate approximation: $\mu_0 = k_B T \ln(n/N_c)$
+\item Newton-Raphson iteration to refine
+\item Convergence criterion: $|\mu_{i+1} - \mu_i| < \epsilon_{\text{rel}} \cdot |\mu_i|$
+\end{enumerate}
+
+\subsection{The fermi Function}
+
+The function \texttt{fermi(beta, E, mu)} computes:
+\begin{equation}
+f = \frac{1}{e^{\beta(E-\mu)} + 1}
+\end{equation}
+
+Numerical care is needed for large arguments:
+\begin{itemize}
+\item If $\beta(E-\mu) > 700$: $f \approx 0$
+\item If $\beta(E-\mu) < -700$: $f \approx 1$
+\end{itemize}
+
+%==============================================================================
+\section{Summary}
+%==============================================================================
+
+This code demonstrates the Fermi-Dirac distribution in the non-degenerate regime, where the carrier density is comparable to or less than the effective density of states. The key physical insight is that reducing the carrier density by a factor of 10 shifts the chemical potential significantly lower, bringing the system closer to classical (Maxwell-Boltzmann) behavior while still retaining quantum effects at low temperatures.
+
+\end{document}
+
+```
+
+</details>
 </div>
 
 <div style={{
@@ -190,6 +581,17 @@ sidebar_label: Chapter 7 - Fig 6B
       🔗 Open
     </a>
   </div>
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#dc2626'}}>📄 View Document</summary>
+
+<iframe
+  src="/programs/pdf/Chapt7Fig6b/Chapt7Fig6b.pdf"
+  width="100%"
+  height="900px"
+  style={{border: '1px solid #e5e7eb', borderRadius: '4px', marginTop: '8px'}}
+/>
+
+</details>
 </div>
 
 ---

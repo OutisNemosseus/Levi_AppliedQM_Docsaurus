@@ -70,6 +70,14 @@ sidebar_label: Chapter 2 - Fig 4
       🔗 Open
     </a>
   </div>
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#0076a8'}}>📜 View Source Code</summary>
+
+```matlab title="Chapt2Fig4.m"
+%Chapt2Fig4%blackbody radiation using Planck;clear;clf;hbar=1.05457159e-34;			%Planck's constant (J s)c=2.99792458e8;				%speed of light in vacuum (m s-1)kb=1.3806503e-23;				%Boltzmann constant (J K-1)aconst=2*pi*8*pi*hbar/(c*c*c);aconst2=8*pi/(c*c*c);T1=4800;							%first temperature (K)T2=5800;							%second temperature (K)T3=6800;							%third temperature (K)kbT1=kb*T1;kbT2=kb*T2;kbT3=kb*T3;%Radiation flux as a function of wavelength (J m-1 s-1)x=[1:1:200];					%[start:increment:stop];nu=x*1e13;														%frequency (Hz)BB1=(aconst.*nu.^3)./(exp(2*pi*hbar*nu./kbT1)-1);	%Planck spectrum, temperature T1BB11=aconst2*kbT1.*nu.^2;									%Rayleigh-Jeans, temperature T1BB2=(aconst.*nu.^3)./(exp(2*pi*hbar*nu./kbT2)-1);	%Planck spectrum, temperature T2BB22=aconst2*kbT2.*nu.^2;									%Rayleigh-Jeans, temperature T2BB3=(aconst.*nu.^3)./(exp(2*pi*hbar*nu./kbT3)-1);	%Planck spectrum, temperature T3BB33=aconst2*kbT3.*nu.^2;									%Rayleigh-Jeans, temperature T3figure(1);clf;hold on;plot(x*1e13,BB1,'r',x*1e13,BB11,'r',x*1e13,BB2,'y',x*1e13,BB22,'y',x*1e13,BB3,'b',x*1e13,BB33,'b');title(['Chapt2Fig4, T_1 = ',num2str(T1),' K,  T_2 = ',num2str(T2),' K, T_3 = ',num2str(T3),' K']);axis([0,2e15,0,3e-15]);xlabel('Frequency, \nu (Hz)');ylabel('Intensity, (Js/m^3)');hold off;
+```
+
+</details>
 </div>
 
 ---

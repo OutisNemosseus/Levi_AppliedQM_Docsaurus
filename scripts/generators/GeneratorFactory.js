@@ -134,10 +134,11 @@ class GeneratorFactory {
   /**
    * Generate sidebar configuration
    * @param {Map} byChapter - Programs grouped by chapter
+   * @param {Map} programFiles - Map of programId -> { programInfo, files }
    * @returns {string} Generated sidebar content
    */
-  generateSidebar(byChapter) {
-    return this.sidebarGenerator.generate(byChapter);
+  generateSidebar(byChapter, programFiles) {
+    return this.sidebarGenerator.generate(byChapter, programFiles);
   }
 }
 

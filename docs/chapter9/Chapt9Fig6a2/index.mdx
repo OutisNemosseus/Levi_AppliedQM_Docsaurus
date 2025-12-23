@@ -70,6 +70,14 @@ sidebar_label: Chapter 9 - Fig 6A2
       🔗 Open
     </a>
   </div>
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#0076a8'}}>📜 View Source Code</summary>
+
+```matlab title="Chapt9Fig6a2.m"
+%Chapt9Fig6a2%Fabry-Perot optical resonatorclear;clf;err=0.00001;c=3e8;							%speed of light in vacuumnr=3.3;							%effective refractive index in cavitylambda0=1310e-9;				%center emission wavelengthLc=300e-6;						%Cavity lengthr1=0.4							%Reflectivity of mirror1r2=0.8							%Reflectivity of mirror2r=r1*r2;							%Optical loss per photon round-tripF=pi*r^0.5/(1-r)				%Optical FinesseFconst=(2*F/pi)^2;Imax=1/((1-r)^2);				%Peak intensity inside cavity normalized to I0f0=c*1e-12/lambda0;			%center frequency in THzdeltaf=c*1e-12/(2*Lc*nr)	%THzdeltawavelength=lambda0^2/(2*Lc*nr)  %m;for i=[1:1:1000]      Frequency(i)=(f0+i*0.001);   Fwavelength(i)=c/Frequency(i);   x=sin(pi*Frequency(i)/deltaf);   x2=x*x;   Intensity(i)=Imax/(1+(Fconst*(x2)));   endfigure(1); plot(Frequency,Intensity); axis([f0,f0+1,0,4]);  hold on; xlabel('Frequency, \nu(THz)'),ylabel('Intensity'); ttl=sprintf('Chapt9Fig6a2, r1=%4.2f, r2=%4.2f, nr=%4.2f, f0=%7.2e THz, Lc=%7.2e m',r1,r2,nr,f0,Lc) title(ttl); figure(2); plot(Fwavelength*10^-12,Intensity);xlabel('Wavelength, \lambda (m)'),ylabel('Intensity');title(ttl);
+```
+
+</details>
 </div>
 
 <div style={{
@@ -130,6 +138,360 @@ sidebar_label: Chapter 9 - Fig 6A2
       🔗 Open
     </a>
   </div>
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#008080'}}>📜 View Source Code</summary>
+
+```latex title="Chapt9Fig6a2.tex"
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{cleveref}
+
+\geometry{margin=1in}
+
+\lstset{
+  language=Matlab,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  commentstyle=\color{green!60!black},
+  numbers=left,
+  numberstyle=\tiny,
+  breaklines=true,
+  frame=single
+}
+
+\newtheorem{axiom}{Axiom}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{Fabry-P\'{e}rot Optical Resonator:\\High Reflectivity Coated Mirrors\\[0.5em]\large Detailed Analysis of \texttt{Chapt9Fig6a2.m}}
+\author{Generated Documentation}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document provides comprehensive theoretical foundations and line-by-line code analysis for \texttt{Chapt9Fig6a2.m}, which calculates the intensity spectrum of a Fabry-P\'{e}rot optical resonator with asymmetric high-reflectivity mirrors ($R_1 = 0.4$, $R_2 = 0.8$). The code demonstrates enhanced finesse and sharper resonance peaks compared to uncoated facets, illustrating the importance of mirror coatings in laser design.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Theoretical Foundation}
+%==============================================================================
+
+\subsection{Axioms of High-Finesse Cavities}
+
+\begin{axiom}[Multiple Reflection Interference]
+In a high-reflectivity cavity, many round trips contribute significantly to the interference pattern, leading to narrow resonances.
+\end{axiom}
+
+\begin{axiom}[Asymmetric Cavity Output]
+For asymmetric mirrors ($R_1 \neq R_2$), output power is preferentially emitted from the lower-reflectivity facet.
+\end{axiom}
+
+\begin{axiom}[Photon Lifetime Enhancement]
+Higher reflectivity increases the average number of round trips before photon escape:
+\begin{equation}
+N_{rt} \approx \frac{1}{1 - R_1 R_2}
+\end{equation}
+\end{axiom}
+
+\subsection{Fundamental Definitions}
+
+\begin{definition}[Asymmetric Finesse]
+For mirrors with different reflectivities:
+\begin{equation}
+\mathcal{F} = \frac{\pi(R_1 R_2)^{1/4}}{1 - \sqrt{R_1 R_2}}
+\end{equation}
+\end{definition}
+
+\begin{definition}[Differential Output]
+The fraction of power from each mirror:
+\begin{equation}
+\frac{P_1}{P_{total}} = \frac{1-R_1}{(1-R_1)+(1-R_2)}, \quad \frac{P_2}{P_{total}} = \frac{1-R_2}{(1-R_1)+(1-R_2)}
+\end{equation}
+\end{definition}
+
+\begin{definition}[Quality Factor]
+Relation to finesse:
+\begin{equation}
+Q = \frac{\nu_0}{\delta\nu} = \frac{2n_r L}{\lambda} \cdot \mathcal{F} = m \cdot \mathcal{F}
+\end{equation}
+where $m$ is the mode number.
+\end{definition}
+
+\subsection{Core Theorems}
+
+\begin{theorem}[Finesse Enhancement]
+Increasing reflectivity from $R = 0.3$ to $R = 0.56$ (geometric mean of 0.4 and 0.8):
+\begin{equation}
+\frac{\mathcal{F}_{high}}{\mathcal{F}_{low}} = \frac{(1-R_{low})\sqrt{R_{high}}}{(1-R_{high})\sqrt{R_{low}}}
+\end{equation}
+\end{theorem}
+
+\begin{theorem}[Cavity Loss Reduction]
+The mirror loss for asymmetric cavity:
+\begin{equation}
+\alpha_m = \frac{1}{2L}\ln\frac{1}{R_1 R_2} = \frac{1}{2L}\ln\frac{1}{0.32} = \frac{1.14}{2L}
+\end{equation}
+Compare to Fresnel: $\ln(1/0.082)/2L = 2.5/2L$---reduction by factor of 2.2.
+\end{theorem}
+
+\begin{theorem}[Threshold Reduction]
+The threshold gain requirement:
+\begin{equation}
+g_{th} = \alpha_i + \frac{1}{2L}\ln\frac{1}{R_1 R_2}
+\end{equation}
+Increasing $R$ directly reduces $g_{th}$ and hence $I_{th}$.
+\end{theorem}
+
+%==============================================================================
+\section{Line-by-Line Code Analysis}
+%==============================================================================
+
+\subsection{Initialization and Parameters}
+
+\begin{lstlisting}
+%Chapt9Fig6a2
+%Fabry-Perot optical resonator
+clear;
+clf;
+err=0.00001;
+c=3e8;                    %speed of light in vacuum
+nr=3.3;                   %effective refractive index
+lambda0=1310e-9;          %center emission wavelength
+Lc=300e-6;                %Cavity length
+\end{lstlisting}
+Same cavity geometry as Fig6a1: $L = 300$ $\mu$m, $n_r = 3.3$, $\lambda_0 = 1310$ nm.
+
+\begin{lstlisting}
+r1=0.4                    %Reflectivity of mirror1
+r2=0.8                    %Reflectivity of mirror2
+r=r1*r2;                  %Optical loss per round-trip
+\end{lstlisting}
+\textbf{High-reflectivity coated mirrors:}
+\begin{align}
+R_1 &= 0.4 \quad \text{(output coupler)} \\
+R_2 &= 0.8 \quad \text{(high reflector)} \\
+R &= R_1 R_2 = 0.32
+\end{align}
+The asymmetric design: HR coating on rear facet, partial reflector on output facet.
+
+\subsection{Finesse Calculation}
+
+\begin{lstlisting}
+F=pi*r^0.5/(1-r)          %Optical Finesse
+Fconst=(2*F/pi)^2;
+Imax=1/((1-r)^2);         %Peak intensity normalized to I0
+\end{lstlisting}
+\textbf{Finesse:}
+\begin{equation}
+\mathcal{F} = \frac{\pi\sqrt{R}}{1-R} = \frac{\pi\sqrt{0.32}}{0.68} = \frac{1.78}{0.68} = 2.61
+\end{equation}
+Improvement: $\mathcal{F}_{high}/\mathcal{F}_{low} = 2.61/0.98 = 2.7\times$.
+
+\textbf{Coefficient of finesse:}
+\begin{equation}
+F_{const} = \left(\frac{2\mathcal{F}}{\pi}\right)^2 = \frac{4R}{(1-R)^2} = \frac{1.28}{0.462} = 2.77
+\end{equation}
+
+\textbf{Peak intensity enhancement:}
+\begin{equation}
+I_{max} = \frac{1}{(1-R)^2} = \frac{1}{0.462} = 2.16
+\end{equation}
+Enhancement doubled compared to Fresnel case.
+
+\subsection{Spectral Parameters}
+
+\begin{lstlisting}
+f0=c*1e-12/lambda0;       %center frequency in THz
+deltaf=c*1e-12/(2*Lc*nr)  %FSR in THz
+deltawavelength=lambda0^2/(2*Lc*nr)  %FSR in m
+\end{lstlisting}
+\textbf{Free spectral range:} Same as Fig6a1 since geometry unchanged:
+\begin{align}
+\Delta f_{FSR} &= 0.152 \text{ THz} = 152 \text{ GHz} \\
+\Delta\lambda_{FSR} &= 0.87 \text{ nm}
+\end{align}
+
+\textbf{Mode linewidth} (new, narrower):
+\begin{equation}
+\delta\nu = \frac{\Delta\nu_{FSR}}{\mathcal{F}} = \frac{152}{2.61} = 58 \text{ GHz}
+\end{equation}
+
+\subsection{Airy Function Computation}
+
+\begin{lstlisting}
+for i=[1:1:1000]
+   
+   Frequency(i)=(f0+i*0.001);
+   Fwavelength(i)=c/Frequency(i);
+   x=sin(pi*Frequency(i)/deltaf);
+   x2=x*x;
+   Intensity(i)=Imax/(1+(Fconst*(x2)));
+   
+end
+\end{lstlisting}
+\textbf{Identical algorithm} to Fig6a1, but with different $F_{const}$ and $I_{max}$:
+\begin{equation}
+I(\nu) = \frac{2.16}{1 + 2.77\sin^2\left(\frac{\pi\nu}{\Delta\nu_{FSR}}\right)}
+\end{equation}
+
+At anti-resonance ($\sin^2 = 1$):
+\begin{equation}
+I_{min} = \frac{2.16}{1 + 2.77} = 0.57
+\end{equation}
+Contrast ratio: $I_{max}/I_{min} = 2.16/0.57 = 3.8$.
+
+\subsection{Plotting}
+
+\begin{lstlisting}
+figure(1);
+plot(Frequency,Intensity);
+axis([f0,f0+1,0,4]); 
+hold on;
+xlabel('Frequency, \nu(THz)'),ylabel('Intensity');
+ttl=sprintf('Chapt9Fig6a2, r1=%4.2f, r2=%4.2f, nr=%4.2f, f0=%7.2e THz, Lc=%7.2e m',r1,r2,nr,f0,Lc)
+title(ttl);
+
+figure(2);
+plot(Fwavelength*10^-12,Intensity);
+xlabel('Wavelength, \lambda (m)'),ylabel('Intensity');
+title(ttl);
+\end{lstlisting}
+Both frequency and wavelength domain plots with parameter annotation.
+
+%==============================================================================
+\section{Comparison: Low vs High Reflectivity}
+%==============================================================================
+
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Parameter} & \textbf{Fig6a1 (Fresnel)} & \textbf{Fig6a2 (Coated)} \\
+\hline
+$R_1$ & 0.286 & 0.40 \\
+$R_2$ & 0.286 & 0.80 \\
+$R = R_1 R_2$ & 0.082 & 0.32 \\
+\hline
+Finesse $\mathcal{F}$ & 0.98 & 2.61 \\
+$F_{const}$ & 0.39 & 2.77 \\
+$I_{max}$ & 1.19 & 2.16 \\
+\hline
+Linewidth $\delta\nu$ & 155 GHz & 58 GHz \\
+Q factor ($m=1500$) & 1,470 & 3,915 \\
+\hline
+Mirror loss $\alpha_m$ & 83 cm$^{-1}$ & 38 cm$^{-1}$ \\
+\hline
+\end{tabular}
+\end{center}
+
+%==============================================================================
+\section{Physical Interpretation}
+%==============================================================================
+
+\subsection{Improved Mode Selectivity}
+
+With higher finesse:
+\begin{itemize}
+\item Resonance peaks are sharper ($\delta\nu$ reduced by 2.7$\times$)
+\item Better discrimination between adjacent modes
+\item Improved single-mode operation potential
+\end{itemize}
+
+\subsection{Threshold Reduction}
+
+The mirror loss reduction from 83 to 38 cm$^{-1}$ means:
+\begin{equation}
+\Delta g_{th} = 45 \text{ cm}^{-1}
+\end{equation}
+For typical gain slope $g_0 \sim 2000$ cm$^{-1}$/(10$^{18}$ cm$^{-3}$), this saves:
+\begin{equation}
+\Delta n_{th} = \frac{45}{2000} \times 10^{18} = 2.25 \times 10^{16} \text{ cm}^{-3}
+\end{equation}
+
+\subsection{Asymmetric Design Rationale}
+
+The choice $R_1 = 0.4 < R_2 = 0.8$:
+\begin{itemize}
+\item Most power exits through facet 1 (lower $R$)
+\item Rear facet (high $R$) acts as ``back reflector''
+\item Photon makes more round trips before escaping
+\item Common in single-sided output devices
+\end{itemize}
+
+Power distribution:
+\begin{equation}
+\frac{P_1}{P_2} = \frac{1-R_1}{1-R_2} = \frac{0.6}{0.2} = 3:1
+\end{equation}
+75\% of output from facet 1.
+
+\subsection{Still Moderate Finesse}
+
+Even with coatings, $\mathcal{F} = 2.6$ is still relatively low:
+\begin{itemize}
+\item Mode linewidth 58 GHz still significant
+\item Adjacent modes at 152 GHz spacing show overlap
+\item For true single-mode operation, need $\mathcal{F} > 10$ or additional mode selection
+\end{itemize}
+
+%==============================================================================
+\section{Numerical Methods}
+%==============================================================================
+
+\subsection{Resolution Adequacy}
+
+With 1 GHz sampling and 58 GHz linewidth:
+\begin{equation}
+\frac{\delta\nu}{\Delta\nu_{sample}} = 58
+\end{equation}
+Still adequate resolution (58 points across FWHM).
+
+\subsection{Contrast Visibility}
+
+The visibility of the interference pattern:
+\begin{equation}
+V = \frac{I_{max} - I_{min}}{I_{max} + I_{min}} = \frac{2.16 - 0.57}{2.16 + 0.57} = 0.58
+\end{equation}
+Improved from $V = 0.09$ in the Fresnel case.
+
+%==============================================================================
+\section{Summary}
+%==============================================================================
+
+This code simulates a Fabry-P\'{e}rot resonator with asymmetric coated mirrors:
+\begin{itemize}
+\item Output coupler: $R_1 = 0.4$
+\item High reflector: $R_2 = 0.8$
+\item Same 300 $\mu$m cavity as Fig6a1
+\end{itemize}
+
+Key improvements over uncoated cavity:
+\begin{itemize}
+\item Finesse increased 2.7$\times$ (0.98 $\to$ 2.61)
+\item Linewidth reduced 2.7$\times$ (155 $\to$ 58 GHz)
+\item Peak enhancement nearly doubled (1.19 $\to$ 2.16)
+\item Mirror loss reduced 2.2$\times$ (83 $\to$ 38 cm$^{-1}$)
+\end{itemize}
+
+This represents a practical laser design with preferential output from one facet, though even higher reflectivities would further improve performance.
+
+\end{document}
+
+```
+
+</details>
 </div>
 
 <div style={{
@@ -190,6 +552,17 @@ sidebar_label: Chapter 9 - Fig 6A2
       🔗 Open
     </a>
   </div>
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#dc2626'}}>📄 View Document</summary>
+
+<iframe
+  src="/programs/pdf/Chapt9Fig6a2/Chapt9Fig6a2.pdf"
+  width="100%"
+  height="900px"
+  style={{border: '1px solid #e5e7eb', borderRadius: '4px', marginTop: '8px'}}
+/>
+
+</details>
 </div>
 
 ---

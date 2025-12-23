@@ -70,6 +70,14 @@ sidebar_label: Chapter 8 - Fig 15
       🔗 Open
     </a>
   </div>
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#0076a8'}}>📜 View Source Code</summary>
+
+```matlab title="Chapt8Fig15.m"
+%Chapt8Fig15%Plot Thomas Fermi scattering rate as function of angleclear;clf;n=1e18;									%electron carrier density (cm-3)n=n*1e6;									%convert to (m-3)m0=9.109382e-31;						%bare electron mass (kg)eharge=1.6021764e-19;				%electron charge (C)epsilon0=8.8541878e-12;				%Permittivity of free space (F m-1)hbar=1.05457159e-34;					%Planck's constant (J s)hbar3=hbar^3;m=0.07*m0;								%effective electron massepsilonr0=13.2;						%relative low frequency dielectric constantepsilon=epsilon0*epsilonr0;kF=(3*(pi^2)*n)^(1/3)				%Fermi wave vector (m-1)E=-0.1*eharge;for j=1:1:2E=E+0.2*eharge							%Electron energy (eV)   k=sqrt(2*m*E)/hbar;					%Electron wave vector (m-1)k3=k^3;%RPA model constants   rs0=((3/(4*pi*n))^(1/3))*(m*(eharge^2)/(4*pi*epsilon0*(hbar^2)));   xi=((32*(pi^2)/9)^(1/3))/(pi^2);%Thomas-Fermi model constants  qTF=sqrt(kF*m*eharge^2/(epsilon*(pi^2)*(hbar^2)));%plot scattering rate as function of scattered angletheta=[pi/180:pi/180:pi];	q=2*k*sin(theta/2);				%scattered wave vector (m-1)   eta=sin(theta/2);					%eta calculated using theta in radians   deta=pi*cos(theta/2)./2/180;	%differential value of eta in degrees   eta3=eta.^3;      %Thomas-Fermi model   TFepsilon=epsilon*(1+qTF^2./q.^2);      NoScreenRate=2*pi*m/hbar3/k3*n*(eharge^2/4/pi)^2.*deta./epsilon.^2./eta3;   TFrate =2*pi*m/hbar3/k3*n*(eharge^2/4/pi)^2.*deta./TFepsilon.^2./eta3;     %plot(theta*180/pi, RPArate);  %hold on;  hold on;  figure(1);  plot(theta*180/pi, TFrate,'r');  axis([0 180 0 0.3e12]);  xlabel('angle, theta (degree)');  ylabel('scattering rate, 1/tau (s-1 degree-1)');  %plot(theta*180/pi, NoScreenRate);  hold on;  plot(theta*180/pi, NoScreenRate,'b');  xlabel('angle, theta (degree)');  ylabel('Elastic scattering rate, 1/tau (s-1 degree-1)'); end ttl=sprintf('Chapt8Fig15, n=%4.1e cm-3, m*=%5.2f, epsilon0r=%5.1f',(n/1e6),(m/m0),epsilonr0);title(ttl); hold off;
+```
+
+</details>
 </div>
 
 <div style={{
@@ -130,6 +138,318 @@ sidebar_label: Chapter 8 - Fig 15
       🔗 Open
     </a>
   </div>
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#008080'}}>📜 View Source Code</summary>
+
+```latex title="Chapt8Fig15.tex"
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+
+\geometry{margin=1in}
+
+\lstset{
+    language=Matlab,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{orange},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10}
+}
+
+\newtheorem{axiom}{Axiom}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{\textbf{Chapt8Fig15.m} \\ Screened vs Unscreened Coulomb Scattering \\ \large Demonstrating the Effect of Thomas-Fermi Screening}
+\author{Semiconductor Physics Documentation}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document analyzes \texttt{Chapt8Fig15.m}, which compares the angular distribution of scattering rates with and without Thomas-Fermi screening. This comparison vividly demonstrates how screening regularizes the divergent bare Coulomb scattering at small angles.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Theoretical Foundation}
+%==============================================================================
+
+\subsection{Bare Coulomb Scattering}
+
+\begin{theorem}[Rutherford Scattering Rate]
+For bare Coulomb scattering (no screening):
+\begin{equation}
+\frac{d(1/\tau)}{d\theta} = \frac{2\pi m^*}{\hbar^3 k^3} n_i \left(\frac{e^2}{4\pi\varepsilon_0\varepsilon_r}\right)^2 \frac{\sin\theta}{q^4}
+\end{equation}
+where $q = 2k\sin(\theta/2)$.
+\end{theorem}
+
+\begin{corollary}[Small-Angle Divergence]
+As $\theta \to 0$:
+\begin{equation}
+\frac{d(1/\tau)}{d\theta} \propto \frac{\theta}{(k\theta)^4} = \frac{1}{k^4\theta^3} \to \infty
+\end{equation}
+This divergence is unphysical and leads to an infinite total scattering rate.
+\end{corollary}
+
+\subsection{Screened Coulomb Scattering}
+
+\begin{theorem}[Thomas-Fermi Screened Rate]
+With Thomas-Fermi screening:
+\begin{equation}
+\frac{d(1/\tau)}{d\theta} = \frac{2\pi m^*}{\hbar^3 k^3} n_i \left(\frac{e^2}{4\pi\varepsilon_0}\right)^2 \frac{\sin\theta}{\varepsilon_{\text{TF}}^2(q) \cdot q^4}
+\end{equation}
+where:
+\begin{equation}
+\varepsilon_{\text{TF}}(q) = \varepsilon_r\left(1 + \frac{q_{\text{TF}}^2}{q^2}\right)
+\end{equation}
+\end{theorem}
+
+\begin{corollary}[Regularization]
+As $\theta \to 0$ with screening:
+\begin{equation}
+\frac{d(1/\tau)}{d\theta} \propto \frac{\theta}{(q_{\text{TF}}^2)^2} = \text{finite}
+\end{equation}
+The screening wavevector $q_{\text{TF}}$ provides a natural cutoff.
+\end{corollary}
+
+\subsection{Physical Origin of Screening}
+
+\begin{definition}[Debye-H\"uckel/Thomas-Fermi Picture]
+Mobile electrons redistribute around a charged impurity:
+\begin{equation}
+\delta n(r) \propto e^{-q_{\text{TF}} r}
+\end{equation}
+This creates a screening cloud that reduces the effective range of the Coulomb potential.
+\end{definition}
+
+The screened potential in real space:
+\begin{equation}
+V(r) = \frac{Ze^2}{4\pi\varepsilon_0\varepsilon_r r} e^{-q_{\text{TF}} r}
+\end{equation}
+
+This Yukawa-type potential has a finite range $\sim 1/q_{\text{TF}}$.
+
+%==============================================================================
+\section{Line-by-Line Code Analysis}
+%==============================================================================
+
+\subsection{Initialization}
+
+\begin{lstlisting}
+clear;clf;
+n=1e18;
+n=n*1e6;
+\end{lstlisting}
+\begin{equation}
+n = 10^{18} \text{ cm}^{-3} = 10^{24} \text{ m}^{-3}
+\end{equation}
+\textit{High carrier density for strong screening.}
+
+\subsection{Physical Constants}
+
+\begin{lstlisting}
+m0=9.109382e-31;
+eharge=1.6021764e-19;
+epsilon0=8.8541878e-12;
+hbar=1.05457159e-34;
+hbar3=hbar^3;
+\end{lstlisting}
+\textit{Note: Variable name is ``eharge'' (typo for ``echarge'').}
+
+\vspace{0.5em}
+\begin{lstlisting}
+m=0.07*m0;
+epsilonr0=13.2;
+epsilon=epsilon0*epsilonr0;
+\end{lstlisting}
+\begin{equation}
+m^* = 0.07 m_0, \quad \varepsilon = 13.2 \varepsilon_0
+\end{equation}
+\textit{GaAs parameters.}
+
+\subsection{Fermi Wavevector}
+
+\begin{lstlisting}
+kF=(3*(pi^2)*n)^(1/3)
+\end{lstlisting}
+\begin{equation}
+k_F = (3\pi^2 \times 10^{24})^{1/3} \approx 3.09 \times 10^8 \text{ m}^{-1}
+\end{equation}
+\textit{Fermi wavevector for degenerate electron gas.}
+
+\subsection{Energy Loop}
+
+\begin{lstlisting}
+E=-0.1*eharge;
+for j=1:1:2
+E=E+0.2*eharge
+   k=sqrt(2*m*E)/hbar;
+k3=k^3;
+\end{lstlisting}
+\begin{equation}
+E \in \{0.1, 0.3\} \text{ eV}
+\end{equation}
+\textit{Two electron energies (note: E is in Joules since multiplied by ``eharge'').}
+
+\subsection{RPA Constants (Unused in Final Calculation)}
+
+\begin{lstlisting}
+   rs0=((3/(4*pi*n))^(1/3))*(m*(eharge^2)/(4*pi*epsilon0*(hbar^2)));
+   xi=((32*(pi^2)/9)^(1/3))/(pi^2);
+\end{lstlisting}
+\textit{These RPA constants are calculated but not used in the plotted rates.}
+
+\subsection{Thomas-Fermi Wavevector}
+
+\begin{lstlisting}
+  qTF=sqrt(kF*m*eharge^2/(epsilon*(pi^2)*(hbar^2)));
+\end{lstlisting}
+\begin{equation}
+q_{\text{TF}} = \sqrt{\frac{k_F m^* e^2}{\varepsilon \pi^2 \hbar^2}}
+\end{equation}
+\textit{Thomas-Fermi screening wavevector.}
+
+\subsection{Angular Grid}
+
+\begin{lstlisting}
+theta=[pi/180:pi/180:pi];
+	q=2*k*sin(theta/2);
+   eta=sin(theta/2);
+   deta=pi*cos(theta/2)./2/180;
+   eta3=eta.^3;
+\end{lstlisting}
+\begin{equation}
+\theta \in [1°, 180°], \quad q = 2k\sin(\theta/2)
+\end{equation}
+\textit{Standard angular discretization.}
+
+\subsection{Thomas-Fermi Dielectric Function}
+
+\begin{lstlisting}
+   TFepsilon=epsilon*(1+qTF^2./q.^2);
+\end{lstlisting}
+\begin{equation}
+\varepsilon_{\text{TF}}(q) = \varepsilon\left(1 + \frac{q_{\text{TF}}^2}{q^2}\right)
+\end{equation}
+\textit{Screened dielectric function.}
+
+\subsection{Unscreened (Bare Coulomb) Rate}
+
+\begin{lstlisting}
+   NoScreenRate=2*pi*m/hbar3/k3*n*(eharge^2/4/pi)^2.*deta./epsilon.^2./eta3;
+\end{lstlisting}
+\begin{equation}
+\left(\frac{1}{\tau}\right)_{\text{bare}} = \frac{2\pi m^*}{\hbar^3 k^3} n \left(\frac{e^2}{4\pi}\right)^2 \frac{d\eta}{\varepsilon^2 \eta^3}
+\end{equation}
+\textit{Bare Coulomb scattering rate (no screening, only background dielectric constant).}
+
+\subsection{Thomas-Fermi Screened Rate}
+
+\begin{lstlisting}
+   TFrate =2*pi*m/hbar3/k3*n*(eharge^2/4/pi)^2.*deta./TFepsilon.^2./eta3;
+\end{lstlisting}
+\begin{equation}
+\left(\frac{1}{\tau}\right)_{\text{TF}} = \frac{2\pi m^*}{\hbar^3 k^3} n \left(\frac{e^2}{4\pi}\right)^2 \frac{d\eta}{\varepsilon_{\text{TF}}^2 \eta^3}
+\end{equation}
+\textit{Thomas-Fermi screened scattering rate.}
+
+\subsection{Plotting Both Curves}
+
+\begin{lstlisting}
+  plot(theta*180/pi, TFrate,'r');
+  axis([0 180 0 0.3e12]);
+  ...
+  plot(theta*180/pi, NoScreenRate,'b');
+\end{lstlisting}
+\textit{Red: Thomas-Fermi screened; Blue: Bare Coulomb (unscreened).}
+
+%==============================================================================
+\section{Physical Interpretation}
+%==============================================================================
+
+\subsection{Comparison of Curves}
+
+\begin{itemize}
+\item \textbf{Blue curve (unscreened)}: Diverges at small angles
+\item \textbf{Red curve (TF screened)}: Finite at all angles
+\item At large angles ($\theta \gtrsim 90°$): Both curves similar
+\item At small angles ($\theta \lesssim 30°$): Dramatic difference
+\end{itemize}
+
+\subsection{Crossover Angle}
+
+The screening becomes important when $q \sim q_{\text{TF}}$:
+\begin{equation}
+2k\sin(\theta_c/2) \approx q_{\text{TF}}
+\end{equation}
+\begin{equation}
+\theta_c \approx 2\arcsin\left(\frac{q_{\text{TF}}}{2k}\right)
+\end{equation}
+
+For small angles:
+\begin{equation}
+\theta_c \approx \frac{q_{\text{TF}}}{k}
+\end{equation}
+
+\subsection{Total Scattering Rate}
+
+Without screening:
+\begin{equation}
+\frac{1}{\tau_{\text{bare}}} = \int_0^\pi \frac{d(1/\tau)}{d\theta} d\theta = \infty
+\end{equation}
+
+With Thomas-Fermi screening:
+\begin{equation}
+\frac{1}{\tau_{\text{TF}}} = \int_0^\pi \frac{d(1/\tau)}{d\theta} d\theta = \text{finite}
+\end{equation}
+
+\subsection{Practical Implications}
+
+\begin{itemize}
+\item Bare Coulomb formula (Rutherford) cannot be used for transport calculations
+\item Screening is essential for finite mobility in doped semiconductors
+\item Higher doping $\Rightarrow$ stronger screening $\Rightarrow$ can partially compensate for more scatterers
+\end{itemize}
+
+%==============================================================================
+\section{Summary}
+%==============================================================================
+
+This code provides a direct visual comparison between screened and unscreened Coulomb scattering, demonstrating:
+
+\begin{enumerate}
+\item The bare Coulomb potential leads to divergent scattering at small angles
+\item Thomas-Fermi screening regularizes this divergence
+\item The crossover occurs at angle $\theta_c \sim q_{\text{TF}}/k$
+\item At large angles, screening effects are minimal
+\end{enumerate}
+
+This is a fundamental result in semiconductor transport theory, explaining why heavily doped semiconductors can still have finite (though reduced) mobility.
+
+\end{document}
+
+```
+
+</details>
 </div>
 
 <div style={{
@@ -190,6 +510,17 @@ sidebar_label: Chapter 8 - Fig 15
       🔗 Open
     </a>
   </div>
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#dc2626'}}>📄 View Document</summary>
+
+<iframe
+  src="/programs/pdf/Chapt8Fig15/Chapt8Fig15.pdf"
+  width="100%"
+  height="900px"
+  style={{border: '1px solid #e5e7eb', borderRadius: '4px', marginTop: '8px'}}
+/>
+
+</details>
 </div>
 
 ---

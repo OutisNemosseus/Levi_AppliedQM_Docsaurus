@@ -70,6 +70,14 @@ sidebar_label: Chapter 8 - Exercise 7A
       🔗 Open
     </a>
   </div>
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#0076a8'}}>📜 View Source Code</summary>
+
+```matlab title="Chapt8Exercise7a.m"
+%Chapt8Exercise7a%Plot Thomas Fermi scattering rate as function of angle and compare with RPAclear;clf;n=1e18;									%electron carrier density (cm-3)n=n*1e6;									%convert to (m-3)m0=9.109382e-31;						%bare electron mass (kg)echarge=1.6021764e-19;				%electron charge (C)epsilon0=8.85419e-12;				%Permittivity of free space (F m-1)hbar=1.05457159e-34;					%Planck's constant (J s)hbar3=hbar^3;m=0.07*m0;								%effective electron massepsilonr0=13.2;						%relative low frequency dielectric constantepsilon=epsilon0*epsilonr0;kF=(3*(pi^2)*n)^(1/3)				%Fermi wave vector (m-1)E=-0.1*echarge;for j=1:1:2E=E+0.2*echarge;						%Electron energy (eV)   k=sqrt(2*m*E)/hbar;					%Electron wave vector (m-1)k3=k^3;%RPA model constants   rs0=((3/(4*pi*n))^(1/3))*(m*(echarge^2)/(4*pi*epsilon0*(hbar^2)));   xi=((32*(pi^2)/9)^(1/3))/(pi^2);%Thomas-Fermi model constants  qTF=sqrt(kF*m*echarge^2/(epsilon*(pi^2)*(hbar^2)));%plot scattering rate as function of scattered angletheta=[pi/1800:pi/1800:pi];	q=2*k*sin(theta/2);				%scattered wave vector (m-1)   eta=sin(theta/2);					%eta calculated using theta in radians   deta=pi*cos(theta/2)./2/180;	%differential value of eta in degrees   eta3=eta.^3;      %RPA model   x=q/kF;   absx=abs(x+2)./abs(x-2);   RPAepsilonr=epsilonr0+((rs0./x.^3)*xi.*(x+((1-((x.^2)/4)).*log(absx))));   %Thomas-Fermi model   TFepsilon=epsilon*(1+qTF^2./q.^2);      RPArate=2*pi*m/hbar3/k3*n*(echarge^2/4/pi/epsilon0)^2.*deta./RPAepsilonr.^2./eta3;   TFrate =2*pi*m/hbar3/k3*n*(echarge^2/4/pi)^2.*deta./TFepsilon.^2./eta3;     % plot(theta*180/pi, RPArate);  hold on;  figure(1);  plot(theta*180/pi, TFrate,'r');  xlabel('angle, theta (degree)');  ylabel('scattering rate, 1/tau (s-1 degree-1)');    plot(theta*180/pi, RPArate,'b');  xlabel('Angle, theta (degree)');  ylabel('Elastic scattering rate, 1/tau (s-1 degree-1)'); end ttl=sprintf('Chapt8Exercise7a, n=%4.1e cm-3, m*=%5.2f, epsilon0r=%5.1f',(n/1e6),(m/m0),epsilonr0);title(ttl); hold off;
+```
+
+</details>
 </div>
 
 <div style={{
@@ -130,6 +138,456 @@ sidebar_label: Chapter 8 - Exercise 7A
       🔗 Open
     </a>
   </div>
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#008080'}}>📜 View Source Code</summary>
+
+```latex title="Chapt8Exercise7a.tex"
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{graphicx}
+
+\geometry{margin=1in}
+
+\lstset{
+    language=Matlab,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{orange},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10}
+}
+
+\newtheorem{axiom}{Axiom}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{\textbf{Chapt8Exercise7a.m} \\ Thomas-Fermi vs RPA Screening \\ \large Ionized Impurity Scattering in Semiconductors}
+\author{Semiconductor Physics Documentation}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document provides a complete theoretical framework and code analysis for \texttt{Chapt8Exercise7a.m}, which compares ionized impurity scattering rates calculated using Thomas-Fermi (TF) screening with the more accurate Random Phase Approximation (RPA). The carrier density is $n = 10^{18}$ cm$^{-3}$, representing a heavily doped semiconductor.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Theoretical Foundation}
+%==============================================================================
+
+\subsection{Fundamental Axioms of Scattering Theory}
+
+\begin{axiom}[Fermi's Golden Rule]
+The transition rate from initial state $|i\rangle$ to final state $|f\rangle$ due to a perturbation $V$ is:
+\begin{equation}
+W_{i\to f} = \frac{2\pi}{\hbar}|\langle f|V|i\rangle|^2 \delta(E_f - E_i)
+\end{equation}
+\end{axiom}
+
+\begin{axiom}[Born Approximation]
+For weak scattering potentials, the scattering amplitude is proportional to the Fourier transform of the potential:
+\begin{equation}
+f(\theta) \propto \int V(\mathbf{r}) e^{i\mathbf{q}\cdot\mathbf{r}} d^3r
+\end{equation}
+where $\mathbf{q} = \mathbf{k}' - \mathbf{k}$ is the momentum transfer.
+\end{axiom}
+
+\begin{axiom}[Linear Response Theory]
+The response of an electron gas to an external perturbation is characterized by the dielectric function $\varepsilon(\mathbf{q}, \omega)$.
+\end{axiom}
+
+\subsection{Coulomb Scattering by Ionized Impurities}
+
+\begin{definition}[Bare Coulomb Potential]
+An ionized impurity of charge $Ze$ creates a potential:
+\begin{equation}
+V_{\text{bare}}(r) = \frac{Ze^2}{4\pi\varepsilon_0\varepsilon_r r}
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Fourier Transform of Coulomb Potential]
+\begin{equation}
+V_{\text{bare}}(q) = \frac{Ze^2}{\varepsilon_0\varepsilon_r q^2}
+\end{equation}
+\end{theorem}
+
+\subsection{Screening in an Electron Gas}
+
+\begin{definition}[Screened Potential]
+In the presence of mobile carriers, the effective potential is:
+\begin{equation}
+V_{\text{scr}}(q) = \frac{V_{\text{bare}}(q)}{\varepsilon(q)}
+\end{equation}
+where $\varepsilon(q)$ is the static dielectric function.
+\end{definition}
+
+\subsection{Thomas-Fermi Screening}
+
+\begin{theorem}[Thomas-Fermi Dielectric Function]
+In the Thomas-Fermi approximation:
+\begin{equation}
+\varepsilon_{\text{TF}}(q) = \varepsilon_r\left(1 + \frac{q_{\text{TF}}^2}{q^2}\right)
+\end{equation}
+where the Thomas-Fermi screening wavevector is:
+\begin{equation}
+q_{\text{TF}} = \sqrt{\frac{k_F m^* e^2}{\pi^2 \hbar^2 \varepsilon_0 \varepsilon_r}}
+\end{equation}
+\end{theorem}
+
+\begin{definition}[Fermi Wavevector]
+For a 3D electron gas with density $n$:
+\begin{equation}
+k_F = (3\pi^2 n)^{1/3}
+\end{equation}
+\end{definition}
+
+\subsection{Random Phase Approximation (RPA)}
+
+\begin{theorem}[Lindhard Dielectric Function]
+The RPA (Lindhard) dielectric function is:
+\begin{equation}
+\varepsilon_{\text{RPA}}(q) = \varepsilon_r + \frac{r_s}{\xi}\left[\frac{1}{x} + \frac{1 - x^2/4}{2x^2}\ln\left|\frac{x+2}{x-2}\right|\right]
+\end{equation}
+where $x = q/k_F$ is the dimensionless wavevector.
+\end{theorem}
+
+\begin{definition}[Wigner-Seitz Radius]
+The dimensionless density parameter is:
+\begin{equation}
+r_s = \left(\frac{3}{4\pi n}\right)^{1/3} \frac{m^* e^2}{4\pi\varepsilon_0\hbar^2}
+\end{equation}
+\end{definition}
+
+\subsection{Scattering Rate Formula}
+
+\begin{theorem}[Differential Scattering Rate]
+The angular-dependent scattering rate is:
+\begin{equation}
+\frac{1}{\tau(\theta)} = \frac{2\pi m^*}{\hbar^3 k^3} n_i \left(\frac{e^2}{4\pi\varepsilon_0}\right)^2 \frac{1}{\varepsilon(q)^2} \cdot \frac{d\eta}{\eta^3}
+\end{equation}
+where:
+\begin{itemize}
+\item $\eta = \sin(\theta/2)$
+\item $q = 2k\sin(\theta/2)$ is the momentum transfer
+\item $n_i$ is the impurity density
+\end{itemize}
+\end{theorem}
+
+%==============================================================================
+\section{Line-by-Line Code Analysis}
+%==============================================================================
+
+\subsection{Physical Constants}
+
+\begin{lstlisting}
+clear;clf;
+n=1e18;
+\end{lstlisting}
+\begin{equation}
+n = 10^{18} \text{ cm}^{-3}
+\end{equation}
+\textit{Carrier density (heavily doped regime).}
+
+\vspace{0.5em}
+\begin{lstlisting}
+n=n*1e6;
+\end{lstlisting}
+\begin{equation}
+n = 10^{24} \text{ m}^{-3}
+\end{equation}
+\textit{Convert to SI units.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+m0=9.109382e-31;
+\end{lstlisting}
+\begin{equation}
+m_0 = 9.109382 \times 10^{-31} \text{ kg}
+\end{equation}
+\textit{Bare electron mass.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+echarge=1.6021764e-19;
+\end{lstlisting}
+\begin{equation}
+e = 1.6021764 \times 10^{-19} \text{ C}
+\end{equation}
+\textit{Elementary charge.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+epsilon0=8.85419e-12;
+\end{lstlisting}
+\begin{equation}
+\varepsilon_0 = 8.85419 \times 10^{-12} \text{ F/m}
+\end{equation}
+\textit{Permittivity of free space.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+hbar=1.05457159e-34;
+hbar3=hbar^3;
+\end{lstlisting}
+\begin{equation}
+\hbar = 1.05457159 \times 10^{-34} \text{ J}\cdot\text{s}, \quad \hbar^3 = 1.174 \times 10^{-102} \text{ J}^3\text{s}^3
+\end{equation}
+\textit{Reduced Planck constant and its cube.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+m=0.07*m0;
+\end{lstlisting}
+\begin{equation}
+m^* = 0.07 \, m_0 = 6.377 \times 10^{-32} \text{ kg}
+\end{equation}
+\textit{Effective electron mass for GaAs.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+epsilonr0=13.2;
+epsilon=epsilon0*epsilonr0;
+\end{lstlisting}
+\begin{equation}
+\varepsilon_r = 13.2, \quad \varepsilon = \varepsilon_0 \varepsilon_r = 1.169 \times 10^{-10} \text{ F/m}
+\end{equation}
+\textit{GaAs low-frequency dielectric constant.}
+
+\subsection{Fermi Wavevector Calculation}
+
+\begin{lstlisting}
+kF=(3*(pi^2)*n)^(1/3)
+\end{lstlisting}
+\begin{equation}
+k_F = (3\pi^2 n)^{1/3} = (3\pi^2 \times 10^{24})^{1/3} \approx 3.09 \times 10^{8} \text{ m}^{-1}
+\end{equation}
+\textit{Fermi wavevector for the degenerate electron gas.}
+
+\subsection{Energy Loop}
+
+\begin{lstlisting}
+E=-0.1*echarge;
+for j=1:1:2
+E=E+0.2*echarge;
+\end{lstlisting}
+\begin{equation}
+E \in \{0.1, 0.3\} \text{ eV}
+\end{equation}
+\textit{Loop over two electron energies: 0.1 eV and 0.3 eV.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   k=sqrt(2*m*E)/hbar;
+\end{lstlisting}
+\begin{equation}
+k = \frac{\sqrt{2m^* E}}{\hbar}
+\end{equation}
+\textit{Electron wavevector from the dispersion relation $E = \hbar^2 k^2/(2m^*)$.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+k3=k^3;
+\end{lstlisting}
+\begin{equation}
+k^3 = k^3 \text{ [m}^{-3}\text{]}
+\end{equation}
+\textit{Cube of wavevector for rate formula.}
+
+\subsection{RPA Model Constants}
+
+\begin{lstlisting}
+   rs0=((3/(4*pi*n))^(1/3))*(m*(echarge^2)/(4*pi*epsilon0*(hbar^2)));
+\end{lstlisting}
+\begin{equation}
+r_s = \left(\frac{3}{4\pi n}\right)^{1/3} \cdot \frac{m^* e^2}{4\pi\varepsilon_0\hbar^2}
+\end{equation}
+\textit{Wigner-Seitz radius (dimensionless density parameter).}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   xi=((32*(pi^2)/9)^(1/3))/(pi^2);
+\end{lstlisting}
+\begin{equation}
+\xi = \frac{(32\pi^2/9)^{1/3}}{\pi^2}
+\end{equation}
+\textit{Numerical constant in Lindhard function.}
+
+\subsection{Thomas-Fermi Screening Wavevector}
+
+\begin{lstlisting}
+  qTF=sqrt(kF*m*echarge^2/(epsilon*(pi^2)*(hbar^2)));
+\end{lstlisting}
+\begin{equation}
+q_{\text{TF}} = \sqrt{\frac{k_F m^* e^2}{\varepsilon \pi^2 \hbar^2}}
+\end{equation}
+\textit{Thomas-Fermi screening wavevector.}
+
+\subsection{Angular Grid}
+
+\begin{lstlisting}
+theta=[pi/1800:pi/1800:pi];
+\end{lstlisting}
+\begin{equation}
+\theta \in [0.1^\circ, 180^\circ] \text{ with step } 0.1^\circ
+\end{equation}
+\textit{Scattering angle array (in radians).}
+
+\vspace{0.5em}
+\begin{lstlisting}
+	q=2*k*sin(theta/2);
+\end{lstlisting}
+\begin{equation}
+q = 2k\sin(\theta/2)
+\end{equation}
+\textit{Momentum transfer magnitude for elastic scattering.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   eta=sin(theta/2);
+   deta=pi*cos(theta/2)./2/180;
+   eta3=eta.^3;
+\end{lstlisting}
+\begin{equation}
+\eta = \sin(\theta/2), \quad d\eta = \frac{\pi}{360}\cos(\theta/2), \quad \eta^3
+\end{equation}
+\textit{Angular transformation variable and its differential.}
+
+\subsection{RPA Dielectric Function}
+
+\begin{lstlisting}
+   x=q/kF;
+   absx=abs(x+2)./abs(x-2);
+   RPAepsilonr=epsilonr0+((rs0./x.^3)*xi.*(x+((1-((x.^2)/4)).*log(absx))));
+\end{lstlisting}
+\begin{equation}
+\varepsilon_{\text{RPA}}(x) = \varepsilon_r + \frac{r_s \xi}{x^3}\left[x + \left(1 - \frac{x^2}{4}\right)\ln\left|\frac{x+2}{x-2}\right|\right]
+\end{equation}
+\textit{Lindhard (RPA) dielectric function where $x = q/k_F$.}
+
+\subsection{Thomas-Fermi Dielectric Function}
+
+\begin{lstlisting}
+   TFepsilon=epsilon*(1+qTF^2./q.^2);
+\end{lstlisting}
+\begin{equation}
+\varepsilon_{\text{TF}}(q) = \varepsilon\left(1 + \frac{q_{\text{TF}}^2}{q^2}\right)
+\end{equation}
+\textit{Thomas-Fermi dielectric function.}
+
+\subsection{Scattering Rates}
+
+\begin{lstlisting}
+   RPArate=2*pi*m/hbar3/k3*n*(echarge^2/4/pi/epsilon0)^2.*deta./RPAepsilonr.^2./eta3;
+\end{lstlisting}
+\begin{equation}
+\frac{1}{\tau_{\text{RPA}}} = \frac{2\pi m^*}{\hbar^3 k^3} n \left(\frac{e^2}{4\pi\varepsilon_0}\right)^2 \frac{d\eta}{\varepsilon_{\text{RPA}}^2 \eta^3}
+\end{equation}
+\textit{RPA scattering rate.}
+
+\vspace{0.5em}
+\begin{lstlisting}
+   TFrate =2*pi*m/hbar3/k3*n*(echarge^2/4/pi)^2.*deta./TFepsilon.^2./eta3;
+\end{lstlisting}
+\begin{equation}
+\frac{1}{\tau_{\text{TF}}} = \frac{2\pi m^*}{\hbar^3 k^3} n \left(\frac{e^2}{4\pi}\right)^2 \frac{d\eta}{\varepsilon_{\text{TF}}^2 \eta^3}
+\end{equation}
+\textit{Thomas-Fermi scattering rate.}
+
+\subsection{Plotting}
+
+\begin{lstlisting}
+  plot(theta*180/pi, TFrate,'r');
+  ...
+  plot(theta*180/pi, RPArate,'b');
+\end{lstlisting}
+\textit{Plot both rates vs angle: TF in red, RPA in blue.}
+
+%==============================================================================
+\section{Numerical Method Details}
+%==============================================================================
+
+\subsection{Discretization Scheme}
+
+The angular integration is discretized uniformly:
+\begin{equation}
+\theta_j = \frac{\pi j}{1800}, \quad j = 1, 2, \ldots, 1800
+\end{equation}
+
+This gives 0.1° resolution, sufficient to capture the sharp forward-scattering peak.
+
+\subsection{Lindhard Function Evaluation}
+
+The logarithmic term in the Lindhard function requires care:
+\begin{equation}
+\ln\left|\frac{x+2}{x-2}\right|
+\end{equation}
+
+\begin{itemize}
+\item For $x < 2$ (small-angle scattering): Regular evaluation
+\item At $x = 2$ (backscattering at $\theta = 180°$): Singularity (pole)
+\item For $x > 2$: Argument becomes negative inside, hence absolute value
+\end{itemize}
+
+%==============================================================================
+\section{Physical Interpretation}
+%==============================================================================
+
+\subsection{TF vs RPA Comparison}
+
+\begin{itemize}
+\item \textbf{Thomas-Fermi}: Local approximation, accurate for $q \ll k_F$
+\item \textbf{RPA}: Includes non-local response, accurate for all $q$
+\end{itemize}
+
+At high carrier density ($n = 10^{18}$ cm$^{-3}$), both models should agree reasonably well because:
+\begin{equation}
+q_{\text{TF}} \sim k_F \quad \text{(strong screening)}
+\end{equation}
+
+\subsection{Angular Dependence}
+
+The scattering rate diverges at small angles:
+\begin{equation}
+\frac{1}{\tau} \propto \frac{1}{\sin^3(\theta/2)}
+\end{equation}
+
+This is regularized by screening (the $q_{\text{TF}}^2$ or RPA terms in the denominator).
+
+%==============================================================================
+\section{Summary}
+%==============================================================================
+
+This code compares two models for ionized impurity scattering:
+\begin{enumerate}
+\item Thomas-Fermi: Simple analytical model assuming local screening
+\item RPA (Lindhard): More accurate model including the full wavevector-dependent response
+\end{enumerate}
+
+At $n = 10^{18}$ cm$^{-3}$, the system is degenerate and strongly screened, so both models give similar results with the characteristic forward-scattering peak regularized by screening.
+
+\end{document}
+
+```
+
+</details>
 </div>
 
 <div style={{
@@ -190,6 +648,17 @@ sidebar_label: Chapter 8 - Exercise 7A
       🔗 Open
     </a>
   </div>
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#dc2626'}}>📄 View Document</summary>
+
+<iframe
+  src="/programs/pdf/Chapt8Exercise7a/Chapt8Exercise7a.pdf"
+  width="100%"
+  height="900px"
+  style={{border: '1px solid #e5e7eb', borderRadius: '4px', marginTop: '8px'}}
+/>
+
+</details>
 </div>
 
 ---

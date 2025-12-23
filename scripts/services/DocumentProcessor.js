@@ -253,7 +253,7 @@ class DocumentProcessor {
       }
     }
 
-    return { filename, staticPath, config };
+    return { filename, staticPath, config, content };
   }
 
   /**
@@ -276,7 +276,7 @@ class DocumentProcessor {
    * @private
    */
   generateSidebar(stats) {
-    const sidebarContent = this.generatorFactory.generateSidebar(stats.byChapter);
+    const sidebarContent = this.generatorFactory.generateSidebar(stats.byChapter, stats.programFiles);
 
     if (this.fileSystem.writeFile(this.config.sidebarPath, sidebarContent)) {
       this.logger.info('✅ Sidebar configuration updated');

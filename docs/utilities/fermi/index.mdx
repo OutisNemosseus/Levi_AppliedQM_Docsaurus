@@ -70,6 +70,14 @@ sidebar_label: fermi
       🔗 Open
     </a>
   </div>
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#0076a8'}}>📜 View Source Code</summary>
+
+```matlab title="fermi.m"
+ function [fermi]=fermi(beta,energy,mu1)%	fermi is the Fermi-Dirac function%	x=(energy-mu1)*beta;   if(x > 180.0);				%check overflow      x=180.;      end;    if(x < -180.);			%check underflow       x=-180.;       end;	fermi=1./((exp(x))+1.);	return;
+```
+
+</details>
 </div>
 
 ---

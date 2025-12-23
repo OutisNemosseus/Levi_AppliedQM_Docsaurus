@@ -21,12 +21,13 @@ class SidebarGenerator {
   /**
    * Generate sidebar configuration content
    * @param {Map<string, Set<string>>} byChapter - Map of chapter -> Set of program IDs
+   * @param {Map<string, Object>} programFiles - Map of programId -> { programInfo, files }
    * @returns {string} JavaScript module content for sidebars.js
    */
-  generate(byChapter) {
+  generate(byChapter, programFiles) {
     const categories = Array.from(byChapter.keys())
       .sort(sortChapterKeys)
-      .map(chapterNum => this.generateCategory(chapterNum, byChapter.get(chapterNum)));
+      .map(chapterNum => this.generateCategory(chapterNum, byChapter.get(chapterNum), programFiles));
 
     return `/**
  * Auto-generated sidebar configuration
@@ -105,12 +106,34 @@ module.exports = sidebars;
    * Generate a chapter category for the sidebar
    * @param {string} chapterNum - Chapter number or 'utilities'
    * @param {Set<string>} programs - Set of program IDs
+   * @param {Map<string, Object>} programFiles - Map of programId -> { programInfo, files }
    * @returns {Object} Sidebar category object
    */
-  generateCategory(chapterNum, programs) {
-    const items = Array.from(programs)
-      .sort()
-      .map(programId => this.generateItem(chapterNum, programId));
+  generateCategory(chapterNum, programs, programFiles) {
+    const items = [];
+
+    // Sort programs and generate items for each file
+    const sortedPrograms = Array.from(programs).sort();
+
+    for (const programId of sortedPrograms) {
+      const programData = programFiles.get(programId);
+      if (!programData) continue;
+
+      const { files } = programData;
+
+      // Sort files by type: matlab first, then latex, then pdf, then others
+      const typeOrder = ['matlab', 'latex', 'pdf', 'html', 'ipynb', 'text'];
+      const sortedFiles = [...files].sort((a, b) => {
+        const aIdx = typeOrder.indexOf(a.config.type);
+        const bIdx = typeOrder.indexOf(b.config.type);
+        return aIdx - bIdx;
+      });
+
+      // Generate sidebar item for each file
+      for (const file of sortedFiles) {
+        items.push(this.generateFileItem(chapterNum, programId, file));
+      }
+    }
 
     const label = chapterNum === 'utilities'
       ? `🔧 ${getChapterName(chapterNum)}`
@@ -125,20 +148,56 @@ module.exports = sidebars;
   }
 
   /**
-   * Generate a single program item for the sidebar
+   * Generate a single file item for the sidebar
    * @param {string} chapterNum - Chapter number or 'utilities'
    * @param {string} programId - Program ID
+   * @param {Object} file - File info with filename and config
    * @returns {Object} Sidebar doc item object
    */
-  generateItem(chapterNum, programId) {
+  generateFileItem(chapterNum, programId, file) {
     const folder = chapterNum === 'utilities' ? 'utilities' : `chapter${chapterNum}`;
-    const label = extractLabelFromProgramId(programId);
+    const { config } = file;
+
+    // Extract short label: e.g., "Chapt7Fig6a" -> "Fig6a"
+    const shortLabel = this.extractShortLabel(programId, chapterNum);
+
+    // Create label like "Fig6a-matlab" or "Fig6a-pdf"
+    const label = `${shortLabel}-${config.type}`;
 
     return {
       type: 'doc',
-      id: `${folder}/${programId}/index`,
+      id: `${folder}/${programId}/${programId}_${config.type}`,
       label,
     };
+  }
+
+  /**
+   * Extract short label from program ID
+   * @param {string} programId - Full program ID like "Chapt7Fig6a"
+   * @param {string} chapterNum - Chapter number
+   * @returns {string} Short label like "Fig6a" or "Ex8"
+   */
+  extractShortLabel(programId, chapterNum) {
+    // Remove "Chapt" prefix and chapter number
+    let label = programId;
+
+    // Try to extract the meaningful part (Fig, Exercise, etc.)
+    const match = programId.match(/Chapt\d+(Fig|Exercise|Ex)(.+)/i);
+    if (match) {
+      const type = match[1];
+      const id = match[2];
+      // Shorten "Exercise" to "Ex"
+      const shortType = type.toLowerCase() === 'exercise' ? 'Ex' : type;
+      return `${shortType}${id}`;
+    }
+
+    // For utility files, just use the program ID
+    if (chapterNum === 'utilities') {
+      return programId;
+    }
+
+    // Fallback: remove "Chapt" and number prefix
+    return programId.replace(/^Chapt\d+/, '') || programId;
   }
 }
 

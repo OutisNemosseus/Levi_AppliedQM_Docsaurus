@@ -70,6 +70,14 @@ sidebar_label: Chapter 6 - Exercise 4C
       🔗 Open
     </a>
   </div>
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '#0076a8'}}>📜 View Source Code</summary>
+
+```matlab title="Chapt6Exercise4c.m"
+%Chapt6Exercise4c.m%simple harmonic oscillator wave function psi_n(xi)and wave function squared |psi_n(xi)|^2%xi=(m*w/hbar)*x%using relation psi_n=((2/n)^0.5)*((xi*psi_n-1)-((((n-1)/2)^0.5)*psi_n-2))%input quantum index n=0,1,2,3, ... from keyboardclear;clf;npoints=500;									%(number of data points in plot) - 1nlim=100;										%arbitrary limit to value of n that can be plottedn=input('Input quantum index n = ');	%input from keyboard value of quantum index n													%of wave function to be plotted (n=0,1,2,3, ...)if n < 0;    error('minimum value of n must be greater or equal to 0');     end;if n > nlim; error('maximum value of n must be less than or equal to 100'); end;ximax=sqrt((2*n)+1);							%classical turning pointxiplot=(3/((n+1)^(1/3)))+(1.2*ximax);	%plot range of x-axisdeltaxi=2*xiplot/npoints;					%increment in xiAo=(1/pi)^(1/4);								%normalization amplitude for n=0An=1.1*Ao/((n+1)^0.1);						%fix vertical scalexi(1)=-xiplot;									%first value of xifor j=2:1:npoints+1   xi(j)=xi(j-1)+deltaxi;   psi1(j)=Ao*exp((-xi(j)^2)/2); 		%known n=0 ground-state wave function   psi2(j)=(sqrt(2))*xi(j)*psi1(j);		%known n=1 first excited-state wave function   psi(j)=psi2(j);end   	if n < 1; psi=psi1; end;   if n>=2      for ni=2:1:nfor j=2:1:npoints+1   xi(j)=xi(j-1)+deltaxi;					%increment to new value of xi   psi(j)=(sqrt(2/ni))*((xi(j)*psi2(j))-((sqrt((ni-1)/2))*psi1(j)));   psi1(j)=psi2(j);							%update new value of psi_(n-2)   psi2(j)=psi(j);							%update new value of psi_(n-1)end    		endendfigure(1); subplot(1,2,1),plot(xi,psi);axis([-xiplot,xiplot,-An,An]),xlabel('Distance, \xi (m)'),ylabel('Wave function, \psi( \xi)');ttl = ('Chapt6Exercise4c, \xi = (m\omega/hbar)x');ttltmp = sprintf(', n =%3.0f',n);title ([ttl,ttltmp]);subplot(1,2,2),plot(xi,abs(psi.^2));axis([-xiplot,xiplot,0,An^2]),xlabel('Distance, \xi (m)'),ylabel('Wave function squared, | \psi( \xi)| ^2');ttl2=sprintf('Classical turning-point = +/- %5.3f',ximax);title (ttl2);
+```
+
+</details>
 </div>
 
 ---
