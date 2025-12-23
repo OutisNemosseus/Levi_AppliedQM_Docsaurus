@@ -1,0 +1,1 @@
+%Chapt8Exercise1bclearclf;err=0.00001;for n=1:5   for x=0:1000      gamma=1.0+x*0.004+err;      y1=((n/gamma)-1.0)*pi;      y2=((n/gamma)+1.0)*pi;      a=sqrt(1/gamma)*((sin(y1)/y1)-(sin(y2)/y2));      a2(x+1)=a*a;   end   plot(1:0.004:5,a2), axis([1,5,0,1]), hold on   xlabel('\gamma'),ylabel('Probability');   title(['Chapt8Exercise1b']);endhold off;   

@@ -1,0 +1,28 @@
+---
+title: Chapter 2 - Fig 3B - MATLAB
+sidebar_label: MATLAB Code
+---
+
+# Chapter 2 - Fig 3B - MATLAB Code
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+
+  <a href="/programs/matlab/Chapt2Fig3b/Chapt2Fig3b.m" download="Chapt2Fig3b.m"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .m
+  </a>
+  <a href="/programs/matlab/Chapt2Fig3b/Chapt2Fig3b.m" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+## Source Code
+
+```matlab title="Chapt2Fig3b.m"
+%Chapt2Fig3b.m%200 THz electric field modulated by Gaussian envelope;clear;clf;tau0=14.14e-15;							%time constant (s)tau02=tau0^2;w0=2*pi*200.e12;							%200 THz optical frequency (rad s-1)npoints=500;								%number of points plottedwmax=2.e15;									%maximum frequency (rad s-1)wstep=wmax/npoints						%time step (s)w=[0:wstep:wmax];							%time [start:increment:stop]   y=(1/2)*exp((-(w-w0).^2)*tau02/2);  %divide spectral intensity by tau02figure(1);plot(w,y,'b');								%electric field intensity as function of frequencyaxis([0,wmax,0,0.5]);temp2=sprintf('Chapt2Fig3b, w0=%5.3e rad s-1, tau0=%5.3e s',w0,tau0);title(temp2);xlabel(['Frequency, w (rad s-1)']);ylabel(['Spectral intensity / tau0^2']);
+```
+
+---
+
+[← Back to Chapter 2 - Fig 3B](./)

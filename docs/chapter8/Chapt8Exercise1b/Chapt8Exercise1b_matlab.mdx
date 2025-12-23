@@ -1,0 +1,28 @@
+---
+title: Chapter 8 - Exercise 1B - MATLAB
+sidebar_label: MATLAB Code
+---
+
+# Chapter 8 - Exercise 1B - MATLAB Code
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+
+  <a href="/programs/matlab/Chapt8Exercise1b/Chapt8Exercise1b.m" download="Chapt8Exercise1b.m"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .m
+  </a>
+  <a href="/programs/matlab/Chapt8Exercise1b/Chapt8Exercise1b.m" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+## Source Code
+
+```matlab title="Chapt8Exercise1b.m"
+%Chapt8Exercise1bclearclf;err=0.00001;for n=1:5   for x=0:1000      gamma=1.0+x*0.004+err;      y1=((n/gamma)-1.0)*pi;      y2=((n/gamma)+1.0)*pi;      a=sqrt(1/gamma)*((sin(y1)/y1)-(sin(y2)/y2));      a2(x+1)=a*a;   end   plot(1:0.004:5,a2), axis([1,5,0,1]), hold on   xlabel('\gamma'),ylabel('Probability');   title(['Chapt8Exercise1b']);endhold off;   
+```
+
+---
+
+[← Back to Chapter 8 - Exercise 1B](./)

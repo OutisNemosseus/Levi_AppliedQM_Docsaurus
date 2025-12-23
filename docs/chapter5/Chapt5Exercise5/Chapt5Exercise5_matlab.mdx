@@ -1,0 +1,28 @@
+---
+title: Chapter 5 - Exercise 5 - MATLAB
+sidebar_label: MATLAB Code
+---
+
+# Chapter 5 - Exercise 5 - MATLAB Code
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+
+  <a href="/programs/matlab/Chapt5Exercise5/Chapt5Exercise5.m" download="Chapt5Exercise5.m"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .m
+  </a>
+  <a href="/programs/matlab/Chapt5Exercise5/Chapt5Exercise5.m" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+## Source Code
+
+```matlab title="Chapt5Exercise5.m"
+%Chapt5Exercise5.m%plot wave function psi(x)=1/sqrt(2*L) for |x| < L and %Fourier transform psi(k)=(1/sqrt(pi*L))*(1/k(j))*sin(k(j)*L)clear;clf;npoints=500;													%(number of data points in plot) - 1L=1.;																%length scale (m)xmax=2*L;														%maximum value of x in plotxmin=-2*L;														%minimum vlaue of x in plotdeltax=(xmax-xmin)/npoints;								%step in xx=xmin-deltax;x=[xmin:deltax:xmax];										%x arraykmax=3*(2*pi/L);												%maximum value of k in plotkmin=-3*(2*pi/L);												%minimum vlaue of x in plotdeltak=(kmax-kmin)/npoints;								%step in xk=kmin-deltak;k=[kmin:deltak:kmax];										%k arrayfor j=1:npoints+1   if abs(x(j))<=L      psi(j)=1/sqrt(2*L);									%wave function, psi(x)   else      psi(j)=0;   end   psi2(j)=psi(j)^2;											%wave function squared, |psi(x)|^2      psik(j)=(1/sqrt(pi*L))*(1/k(j))*sin(k(j)*L);		%wave fucntion psi(k)   psik2(j)=psik(j)^2;										%wave function squared, |psi(k)|^2end   figure(1); subplot(1,2,1),plot(x,psi);axis([xmin,xmax,0,1.2/sqrt(2*L)]),xlabel('Distance, x (m)'),ylabel('Wave function, \psi(x)');ttl = sprintf('Chapt5Exercise5, L=%3.1f ',L);title (ttl);subplot(1,2,2),plot(x,psi2);axis([xmin,xmax,0,1.2/sqrt(2*L)]),xlabel('Distance, x (m)'),ylabel('Wave function squared, | \psi(x)| ^2');figure(2); subplot(1,2,1),plot(k,psik);axis([kmin,kmax,-0.6*sqrt(L/pi),1.1*sqrt(L/pi)]),xlabel('Wave vector, k (m^-^1)'),ylabel('Wave function, \psi(k)');title (ttl);subplot(1,2,2),plot(k,psik2);axis([kmin,kmax,0,1.1*(L/pi)]),xlabel('Wave vector, k (m^-^1)'),ylabel('Wave function squared, | \psi(k)| ^2');
+```
+
+---
+
+[← Back to Chapter 5 - Exercise 5](./)

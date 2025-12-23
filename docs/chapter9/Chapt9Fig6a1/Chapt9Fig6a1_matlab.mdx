@@ -1,0 +1,28 @@
+---
+title: Chapter 9 - Fig 6A1 - MATLAB
+sidebar_label: MATLAB Code
+---
+
+# Chapter 9 - Fig 6A1 - MATLAB Code
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+
+  <a href="/programs/matlab/Chapt9Fig6a1/Chapt9Fig6a1.m" download="Chapt9Fig6a1.m"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .m
+  </a>
+  <a href="/programs/matlab/Chapt9Fig6a1/Chapt9Fig6a1.m" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+## Source Code
+
+```matlab title="Chapt9Fig6a1.m"
+%Chapt9Fig6a1%Fabry-Perot optical resonatorclear;clf;err=0.00001;c=3e8;							%speed of light in vacuumnr=3.3;							%effective refractive index in cavitylambda0=1310e-9;				%center emission wavelengthLc=300e-6;						%cavity lengthr1=((1-nr)/(1+nr))^2;		%reflectivity of mirror1r2=((1-nr)/(1+nr))^2;		%reflectivity of mirror2r=r1*r2;							%optical loss per photon round-tripF=pi*r^0.5/(1-r);				%optical FinesseFconst=(2*F/pi)^2;Imax=1/((1-r)^2);				%peak intensity inside cavity normalized to I0f0=c*1e-12/lambda0;			%center frequency in THzdeltaf=c*1e-12/(2*Lc*nr);	%THzdeltawavelength=lambda0^2/(2*Lc*nr);  %m;for i=[1:1:1000]   Frequency(i)=(f0+i*0.001);   Fwavelength(i)=c/Frequency(i);   x=sin(pi*Frequency(i)/deltaf);   x2=x*x;   Intensity(i)=Imax/(1+(Fconst*(x2)));endfigure(1); plot(Frequency,Intensity); axis([f0,f0+1,0,4]);  xlabel('Frequency, \nu(THz)'),ylabel('Intensity'); ttl=sprintf('Chapt9Fig6a1, r1=%4.2f, r2=%4.2f, nr=%4.2f, f0=%7.2e THz, Lc=%7.2e m',r1,r2,nr,f0,Lc) title(ttl);  figure(2); plot(Fwavelength*10^-12,Intensity); xlabel('Wavelength, \lambda (m)'),ylabel('Intensity'); title(ttl);
+```
+
+---
+
+[← Back to Chapter 9 - Fig 6A1](./)

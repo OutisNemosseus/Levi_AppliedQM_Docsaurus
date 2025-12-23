@@ -1,0 +1,28 @@
+---
+title: Chapter 2 - Fig 2 - MATLAB
+sidebar_label: MATLAB Code
+---
+
+# Chapter 2 - Fig 2 - MATLAB Code
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+
+  <a href="/programs/matlab/Chapt2Fig2/Chapt2Fig2.m" download="Chapt2Fig2.m"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .m
+  </a>
+  <a href="/programs/matlab/Chapt2Fig2/Chapt2Fig2.m" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+## Source Code
+
+```matlab title="Chapt2Fig2.m"
+%Chapt2Fig2.m%interference of two waves%y is intensity%amplitude is amp1 and amp2clear;clf;amp1=1.;						%amplitude of wave 1amp2=1.;						%amplitude of wave 2xmax=6.0;step=xmax/200;x=[0:step:xmax];			%[start:increment:stop];   y=(amp1^2)+(amp2^2)+(2*amp1*amp2*cos(pi*x(:)));  %intensityfigure(1);plot(x,y,'b');temp2=['Chapt2Fig2, Amp1 = ',num2str(amp1),', Amp2 = ',num2str(amp2)];title(temp2);xlabel(['Phase, \phi(\pi)']);ylabel(['Intensity']);
+```
+
+---
+
+[← Back to Chapter 2 - Fig 2](./)

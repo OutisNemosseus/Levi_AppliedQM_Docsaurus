@@ -1,0 +1,28 @@
+---
+title: Chapter 7 - Fig 4B - MATLAB
+sidebar_label: MATLAB Code
+---
+
+# Chapter 7 - Fig 4B - MATLAB Code
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+
+  <a href="/programs/matlab/Chapt7Fig4b/Chapt7Fig4b.m" download="Chapt7Fig4b.m"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .m
+  </a>
+  <a href="/programs/matlab/Chapt7Fig4b/Chapt7Fig4b.m" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+## Source Code
+
+```matlab title="Chapt7Fig4b.m"
+% Chapt7Fig4b.m% plots chemical potential as function of temperature for% carrier density n(cm-3), temperature kelvin(K), effective mass m1, relative error rerr% uses function fermi.mclear;clf;	nmin=1.e17					%min. carrier density (cm-3)	nstepmax=3					%number of curves for different x10 carrier density   m0=9.109382;				%bare electron mass (x10^31 kg)    m1=0.50;						%effective electron mass 	echarge=1.6021764;		%electron charge (x10^19 C)	hbar=1.05457159;			%Planck's constant (x10^34 J s)   kB=8.61734e-5;				%Boltzmann constant (eV K^-1)      rerr=1.e-3;					%relative error	nplotpoints=100;			%number of data points in each plot   minKelvin=1;				%minimum temperature (K)   maxKelvin=400;				%maximum temperature (K)   		if minKelvin < 1            error('check minKelvin >=1 K')         end;         if minKelvin > maxKelvin   			error('check minKelvin < maxKelvin')			end;	stepKelvin=(maxKelvin-minKelvin)/nplotpoints;			%Step in temperature (K)   kF1=(3.0*(pi^2.0)*(nmin*10^(nstepmax-1)))^(1/3);		%Maximum value of Fermi wave vector   ymax=1.1*(1.e-11*((hbar*kF1)^2)/(2.0*m0*m1*echarge));	%Maximum value on y-axis      beta=1/(1000.*maxKelvin*kB);x=((nmin*1.e6)/2.)*(((2.e-15*pi*beta*(hbar^2))/(echarge*m0*m1))^1.5);	ymin=1.1*(1./beta)*log(x);										%Minimum value on y-axis      const=1.e16*((20.*echarge*m1*m0)^.5)*echarge*m1*m0/((pi^2)*(hbar^3));   for nstep=1:1:nstepmax   	n=nmin*(10^(nstep-1))										%carrier density in plot (cm-3)      kF1=(3.0*(pi^2.0)*n)^(1/3);								%Fermi wave vector   	eF=1.e-11*((hbar*kF1)^2)/(2.0*m0*m1*echarge);		%Fermi energy (meV)		mumax=eF;														%The maxiumum value of the chemical potential  for k = 1:1:nplotpoints+1      kelvin(k)=((k-1)*stepKelvin)+minKelvin;		kBT=1000.*kelvin(k)*kB;										%Thermal energy (meV)   	beta=1./kBT;   		x=((n*1.e6)/2.)*(((2.e-15*pi*beta*(hbar^2))/(echarge*m0*m1))^1.5);		mumin=(+1./beta)*log(x);									%The minimum value of the chemical potential      	emax=eF+(15./beta);											%Maximum energy in the integral   	de=emax/1000.;													%Energy integration step		for j=1:25   mu1=mumin+((mumax-mumin)/2.);	energy=0.0;	ainter=0.0;   %	calculate carrier density n'	for i=1:1000;		energy=energy+de;		ainter=ainter+(((sqrt(energy))*de)*fermi(beta,energy,mu1));   end;   nprime=const*ainter;      delta=(n-nprime)/n;					%relative error in carrier density   	if((abs(delta)) < rerr)      	break;     			elseif(delta < 0.)          	mumax=mu1;			else 			mumin=mu1;   	end;end;			if j >= 25   			'check convergence!'			end;                  mu(k)=mu1;endhold on;figure(1);plot(kelvin,mu);axis([0 maxKelvin ymin ymax]);endxlabel('Temperature, T (K)');ylabel('Chemical potential,  \mu (meV)');ttl=sprintf('Chapt7Fig4b, m* = %4.2f m0, n(min) = %7.2e cm-3',m1,nmin);title(ttl);
+```
+
+---
+
+[← Back to Chapter 7 - Fig 4B](./)

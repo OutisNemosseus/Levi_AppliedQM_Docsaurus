@@ -1,0 +1,28 @@
+---
+title: Chapter 2 - Fig 3A - MATLAB
+sidebar_label: MATLAB Code
+---
+
+# Chapter 2 - Fig 3A - MATLAB Code
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+
+  <a href="/programs/matlab/Chapt2Fig3a/Chapt2Fig3a.m" download="Chapt2Fig3a.m"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .m
+  </a>
+  <a href="/programs/matlab/Chapt2Fig3a/Chapt2Fig3a.m" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+## Source Code
+
+```matlab title="Chapt2Fig3a.m"
+%Chapt2Fig3a.m%200 THz electric field modulated by Gaussian envelope;clear;clf;tau0=14.14e-15;							%time constant (s)tau02=tau0^2;w0=2*pi*200.e12;							%200 THz optical frequency (rad s-1)t0=0.5e-13;									%time t0 (s)npoints=500;								%number of points plottedtmax=1.e-13;								%maximum time (s)tstep=tmax/npoints						%time step (s)t=[0:tstep:tmax];							%time [start:increment:stop]   y=cos(w0*t);y=y.*exp(-(t-t0).^2/tau02);figure(1);plot(t,y,'b');								%electric field as function of timeaxis([0,tmax,-1,1]);temp2=sprintf('Chapt2Fig3a, w0 = %5.3e rad s-1, tau0 = %5.3e s',w0,tau0);title(temp2);xlabel(['Time, t (s)']);ylabel(['Amplitude']);
+```
+
+---
+
+[← Back to Chapter 2 - Fig 3A](./)

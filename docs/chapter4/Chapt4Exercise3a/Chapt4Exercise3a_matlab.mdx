@@ -1,0 +1,28 @@
+---
+title: Chapter 4 - Exercise 3A - MATLAB
+sidebar_label: MATLAB Code
+---
+
+# Chapter 4 - Exercise 3A - MATLAB Code
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+
+  <a href="/programs/matlab/Chapt4Exercise3a/Chapt4Exercise3a.m" download="Chapt4Exercise3a.m"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .m
+  </a>
+  <a href="/programs/matlab/Chapt4Exercise3a/Chapt4Exercise3a.m" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+## Source Code
+
+```matlab title="Chapt4Exercise3a.m"
+%Chapt4Exercise3a.m%resonant tunneling through 12 barriersclearclf;nbarrier=12;					%number of potential barriersbx=0.1e-9;						%barrier width (m)wx=0.4e-9;						%well width (m)V0=10;							%barrier energy (eV)N=(2*nbarrier)+1;				%number of samples of potentialfor j=1:2:(2*nbarrier)		%set up distance and potential array   dL(j)=wx;   V(j)=0;   dL(j+1)=bx; V(j+1)=V0;end   dL(N)=wx;   V(N)=0;   Emin=pi*1e-5;					%add (pi*1.0e-5) to energy to avoid divide by zeroEmax=15;							%maximum particle energy (eV)npoints=1500;					%number of points in energy plotdE=Emax/npoints;				%energy increment (eV)hbar=1.05457159e-34;			%Planck's constant (J s)eye=complex(0.,1.);			%square root of -1m0=9.109382e-31;				%bare electron mass (kg)meff=1.0;						%effective electron mass / m0m=meff*m0;						%effective electron mass (kg)echarge=1.6021764e-19;		%electron charge (C)   for j=1:npoints      E(j)=dE*j+Emin;      bigP=[1,0;0,1];													%default value of matrix bigP      	for i=1:N         k(i)=sqrt(2*echarge*m*(E(j)-V(i)))/hbar;				%wave vector at energy E      	end      for n=1:(N-1)														%multiply out propagation matrix         p(1,1)=0.5*(1+k(n+1)/k(n))*exp(-eye*k(n)*dL(n));         p(1,2)=0.5*(1-k(n+1)/k(n))*exp(-eye*k(n)*dL(n));         p(2,1)=0.5*(1-k(n+1)/k(n))*exp(eye*k(n)*dL(n));         p(2,2)=0.5*(1+k(n+1)/k(n))*exp(eye*k(n)*dL(n));         bigP=bigP*p;      end      Trans(j)=(abs(1/bigP(1,1)))^2;								%transmission coefficient   end   figure(1);																	%plot potential and transmission coefficientVp=[V;V];Vp=Vp(:);xcell=bx+wx;deltax=xcell/1000;x0=[wx-deltax,wx,xcell-deltax,xcell];x=x0;for j=1:(N-3)/2,x=[x,x0+j*xcell];end;x=[0,x,(nbarrier+1)*xcell];subplot(1,2,1),plot(x,Vp),axis([0,(nbarrier+1)*xcell,0,Emax]),xlabel('Distance (m)'),ylabel('Potential energy, V (eV)');ttl=['Chapt4Exercise3a (',num2str(nbarrier),'-barriers), m_{eff} = ',num2str(meff),' x m_0'];title(ttl);subplot(1,2,2),plot(Trans,E),axis([0,1,0,Emax]),xlabel('Transmission coefficient'),ylabel('Energy, E (eV)');  figure(2);subplot(1,2,1),plot(x,Vp);axis([0,(nbarrier+1)*xcell,0,Emax]),xlabel('Distance (m)');ylabel('Potential energy, V (eV)');title(ttl);subplot(1,2,2);plot(-log(Trans),E);axis([0,70,0,Emax]);xlabel('-ln trans. coeff.');ylabel('Energy, E (eV)');
+```
+
+---
+
+[← Back to Chapter 4 - Exercise 3A](./)

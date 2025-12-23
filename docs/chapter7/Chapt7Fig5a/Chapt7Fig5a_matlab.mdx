@@ -1,0 +1,28 @@
+---
+title: Chapter 7 - Fig 5A - MATLAB
+sidebar_label: MATLAB Code
+---
+
+# Chapter 7 - Fig 5A - MATLAB Code
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+
+  <a href="/programs/matlab/Chapt7Fig5a/Chapt7Fig5a.m" download="Chapt7Fig5a.m"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .m
+  </a>
+  <a href="/programs/matlab/Chapt7Fig5a/Chapt7Fig5a.m" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+## Source Code
+
+```matlab title="Chapt7Fig5a.m"
+% Chapt7Fig5a.m% plots Fermi function for fixed carrier density and a number of temperatures% carrier density n(cm-3), temperature kelvin(K), effective mass m1, relative error rerr% uses function fermi.m and chempot.mclear;clf;	n=1.e18						%carrier density (cm-3)      m0=9.109382;				%bare electron mass (x10^31 kg)   m1=0.07;						%effective electron mass	echarge=1.6021764;		%electron charge (x10^19 C)	hbar=1.05457159;			%Planck's constant (x10^34 J s)   kB=8.61734e-5;				%Boltzmann constant (eV K^-1)      rerr=1.e-3;					%relative error in calculation of chemical potential   Temperature=[0.1,100,200,300,400];				%Temperature values(K)   nTemp=length(Temperature)							%number of different temperatures   	nplotpoints=300;			%number of data points in each plot   Emin=0;						%minimum energy (meV)   Emax=200;					%maximum energy (meV) 	Estep=(Emax-Emin)/nplotpoints;			%Step in energy (meV)    for j=1:1:nTemp   kelvin=Temperature(j);   kBT=1000.*kelvin*kB;   beta=1./kBT;   mu1=chempot(kelvin,m1,n,rerr);  for k = 1:1:nplotpoints+1     energy=((k-1)*Estep)+Emin;     E(k)=energy;     Prob=fermi(beta,energy,mu1);     FD(k)=Prob;  end;    hold on;figure(1);plot(E,FD);axis([0 Emax 0 1]);endxlabel('Energy, E (meV)');ylabel('Occupation factor');ttl=sprintf('Chapt7Fig5a, m* = %4.2f m0, Tmax = %4.1f K, n = %7.2e cm-3',m1,kelvin,n);title(ttl);
+```
+
+---
+
+[← Back to Chapter 7 - Fig 5A](./)

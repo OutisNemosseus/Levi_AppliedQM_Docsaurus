@@ -1,0 +1,28 @@
+---
+title: Chapter 4 - Exercise 2B - MATLAB
+sidebar_label: MATLAB Code
+---
+
+# Chapter 4 - Exercise 2B - MATLAB Code
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+
+  <a href="/programs/matlab/Chapt4Exercise2b/Chapt4Exercise2b.m" download="Chapt4Exercise2b.m"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .m
+  </a>
+  <a href="/programs/matlab/Chapt4Exercise2b/Chapt4Exercise2b.m" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+## Source Code
+
+```matlab title="Chapt4Exercise2b.m"
+%Chapt4Exercise2b.m%transmission through parabolic potential well clearclf;N=120;									%number of samples of potentialdL=1e-10;								%distance increment (m)for j=1:101   y(j)=((j-51)/50)^2;				%parabolic potentialendV(1:9)=0;V(10:110)=y;V(111:N)=0;	%potential arrayEmin=pi*1e-5;							%add (pi*1.0e-5) to energy to avoid divide by zeroEmax=1.2;								%maximum particle energy (eV)npoints=400;							%number of points in energy plotdE=Emax/npoints;						%energy increment (eV)hbar=1.05457159e-34;					%Planck's constant (J s)eye=complex(0.,1.);					%square root of -1m0=9.109382e-31;						%bare electron mass (kg)meff=0.07;								%effective electron mass / m0m=meff*m0;								%effective electron mass (kg)echarge=1.6021764e-19;				%electron charge (C)   for j=1:npoints      E(j)=dE*j+Emin;      bigP=[1,0;0,1];											%default value of matrix bigP      	for i=1:N         k(i)=sqrt(2*echarge*m*(E(j)-V(i)))/hbar;		%wave vector at energy E      	end      for n=1:(N-1)												%multiply out propagation matrix         p(1,1)=0.5*(1+k(n+1)/k(n))*exp(-eye*k(n)*dL);         p(1,2)=0.5*(1-k(n+1)/k(n))*exp(-eye*k(n)*dL);         p(2,1)=0.5*(1-k(n+1)/k(n))*exp(eye*k(n)*dL);         p(2,2)=0.5*(1+k(n+1)/k(n))*exp(eye*k(n)*dL);         bigP=bigP*p;      end      Trans(j)=(abs(1/bigP(1,1)))^2;						%transmission coefficient   end   figure(1);															%plot potential and transmission coefficientttl=(['Chapt4Exercise2b, m_{eff} = ',num2str(meff),' x m_0']);subplot(1,2,1),plot([1:N]/10,V),axis([0,N/10,0,Emax]),xlabel('Distance (nm)'),ylabel('Potential energy, V (eV)');title(ttl);subplot(1,2,2),plot(Trans,E),axis([0,1,0,1.2]),xlabel('Transmission coefficient'),ylabel('Energy, E (eV)');figure(2);subplot(1,2,1),plot([1:N]/10,V),axis([0,N/10,0,Emax]),xlabel('Distance (nm)'),ylabel('Potential energy, V (eV)');title(ttl);subplot(1,2,2),plot(-log(Trans),E),axis([0,20,0,Emax]),xlabel('-ln trans. coeff.'),ylabel('Energy, E (eV)');
+```
+
+---
+
+[← Back to Chapter 4 - Exercise 2B](./)

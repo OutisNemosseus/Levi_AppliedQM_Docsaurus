@@ -1,0 +1,28 @@
+---
+title: Chapter 8 - Fig 15 - MATLAB
+sidebar_label: MATLAB Code
+---
+
+# Chapter 8 - Fig 15 - MATLAB Code
+
+<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
+
+  <a href="/programs/matlab/Chapt8Fig15/Chapt8Fig15.m" download="Chapt8Fig15.m"
+    style={{padding: '10px 20px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    📥 Download .m
+  </a>
+  <a href="/programs/matlab/Chapt8Fig15/Chapt8Fig15.m" target="_blank" rel="noopener noreferrer"
+    style={{padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold'}}>
+    🔗 Open Raw
+  </a>
+</div>
+
+## Source Code
+
+```matlab title="Chapt8Fig15.m"
+%Chapt8Fig15%Plot Thomas Fermi scattering rate as function of angleclear;clf;n=1e18;									%electron carrier density (cm-3)n=n*1e6;									%convert to (m-3)m0=9.109382e-31;						%bare electron mass (kg)eharge=1.6021764e-19;				%electron charge (C)epsilon0=8.8541878e-12;				%Permittivity of free space (F m-1)hbar=1.05457159e-34;					%Planck's constant (J s)hbar3=hbar^3;m=0.07*m0;								%effective electron massepsilonr0=13.2;						%relative low frequency dielectric constantepsilon=epsilon0*epsilonr0;kF=(3*(pi^2)*n)^(1/3)				%Fermi wave vector (m-1)E=-0.1*eharge;for j=1:1:2E=E+0.2*eharge							%Electron energy (eV)   k=sqrt(2*m*E)/hbar;					%Electron wave vector (m-1)k3=k^3;%RPA model constants   rs0=((3/(4*pi*n))^(1/3))*(m*(eharge^2)/(4*pi*epsilon0*(hbar^2)));   xi=((32*(pi^2)/9)^(1/3))/(pi^2);%Thomas-Fermi model constants  qTF=sqrt(kF*m*eharge^2/(epsilon*(pi^2)*(hbar^2)));%plot scattering rate as function of scattered angletheta=[pi/180:pi/180:pi];	q=2*k*sin(theta/2);				%scattered wave vector (m-1)   eta=sin(theta/2);					%eta calculated using theta in radians   deta=pi*cos(theta/2)./2/180;	%differential value of eta in degrees   eta3=eta.^3;      %Thomas-Fermi model   TFepsilon=epsilon*(1+qTF^2./q.^2);      NoScreenRate=2*pi*m/hbar3/k3*n*(eharge^2/4/pi)^2.*deta./epsilon.^2./eta3;   TFrate =2*pi*m/hbar3/k3*n*(eharge^2/4/pi)^2.*deta./TFepsilon.^2./eta3;     %plot(theta*180/pi, RPArate);  %hold on;  hold on;  figure(1);  plot(theta*180/pi, TFrate,'r');  axis([0 180 0 0.3e12]);  xlabel('angle, theta (degree)');  ylabel('scattering rate, 1/tau (s-1 degree-1)');  %plot(theta*180/pi, NoScreenRate);  hold on;  plot(theta*180/pi, NoScreenRate,'b');  xlabel('angle, theta (degree)');  ylabel('Elastic scattering rate, 1/tau (s-1 degree-1)'); end ttl=sprintf('Chapt8Fig15, n=%4.1e cm-3, m*=%5.2f, epsilon0r=%5.1f',(n/1e6),(m/m0),epsilonr0);title(ttl); hold off;
+```
+
+---
+
+[← Back to Chapter 8 - Fig 15](./)
