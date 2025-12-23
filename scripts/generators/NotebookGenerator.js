@@ -4,6 +4,7 @@
  */
 
 const BaseGenerator = require('./BaseGenerator');
+const { generateSidebarLabel } = require('../utils/helpers');
 
 /**
  * Generator for Jupyter Notebook (.ipynb) file pages
@@ -24,12 +25,13 @@ class NotebookGenerator extends BaseGenerator {
    * @returns {string} MDX page content
    */
   generate(programInfo, fileData) {
-    const { programId, displayName } = programInfo;
+    const { programId, displayName, chapterNum } = programInfo;
     const { filename, staticPath, config } = fileData;
 
+    const sidebarLabel = generateSidebarLabel(programId, chapterNum, 'ipynb');
     const frontmatter = this.generateFrontmatter(
       `${displayName} - Notebook`,
-      'Jupyter Notebook'
+      sidebarLabel
     );
 
     const buttons = `<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>

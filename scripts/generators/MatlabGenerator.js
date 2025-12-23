@@ -4,6 +4,7 @@
  */
 
 const BaseGenerator = require('./BaseGenerator');
+const { generateSidebarLabel } = require('../utils/helpers');
 
 /**
  * Generator for MATLAB (.m) file pages
@@ -28,12 +29,13 @@ class MatlabGenerator extends BaseGenerator {
    * @returns {string} MDX page content
    */
   generate(programInfo, fileData) {
-    const { displayName } = programInfo;
+    const { displayName, programId, chapterNum } = programInfo;
     const { filename, staticPath, content, config } = fileData;
 
+    const sidebarLabel = generateSidebarLabel(programId, chapterNum, 'matlab');
     const frontmatter = this.generateFrontmatter(
       `${displayName} - MATLAB`,
-      'MATLAB Code'
+      sidebarLabel
     );
 
     const viewerButton = this.generateViewerButton(programInfo.programId);

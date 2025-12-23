@@ -4,6 +4,7 @@
  */
 
 const BaseGenerator = require('./BaseGenerator');
+const { generateSidebarLabel } = require('../utils/helpers');
 
 /**
  * Generator for LaTeX (.tex) file pages
@@ -24,12 +25,13 @@ class LatexGenerator extends BaseGenerator {
    * @returns {string} MDX page content
    */
   generate(programInfo, fileData) {
-    const { displayName } = programInfo;
+    const { displayName, programId, chapterNum } = programInfo;
     const { filename, staticPath, content, config } = fileData;
 
+    const sidebarLabel = generateSidebarLabel(programId, chapterNum, 'latex');
     const frontmatter = this.generateFrontmatter(
       `${displayName} - LaTeX`,
-      'LaTeX Source'
+      sidebarLabel
     );
 
     // Handle content truncation

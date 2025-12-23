@@ -4,7 +4,7 @@
  */
 
 const { getChapterName } = require('../config/chapters');
-const { sortChapterKeys, extractLabelFromProgramId } = require('../utils/helpers');
+const { sortChapterKeys, generateSidebarLabel } = require('../utils/helpers');
 
 /**
  * Generator for Docusaurus sidebar configuration
@@ -158,46 +158,14 @@ module.exports = sidebars;
     const folder = chapterNum === 'utilities' ? 'utilities' : `chapter${chapterNum}`;
     const { config } = file;
 
-    // Extract short label: e.g., "Chapt7Fig6a" -> "Fig6a"
-    const shortLabel = this.extractShortLabel(programId, chapterNum);
-
-    // Create label like "Fig6a-matlab" or "Fig6a-pdf"
-    const label = `${shortLabel}-${config.type}`;
+    // Use shared helper to generate consistent sidebar label
+    const label = generateSidebarLabel(programId, chapterNum, config.type);
 
     return {
       type: 'doc',
       id: `${folder}/${programId}/${programId}_${config.type}`,
       label,
     };
-  }
-
-  /**
-   * Extract short label from program ID
-   * @param {string} programId - Full program ID like "Chapt7Fig6a"
-   * @param {string} chapterNum - Chapter number
-   * @returns {string} Short label like "Fig6a" or "Ex8"
-   */
-  extractShortLabel(programId, chapterNum) {
-    // Remove "Chapt" prefix and chapter number
-    let label = programId;
-
-    // Try to extract the meaningful part (Fig, Exercise, etc.)
-    const match = programId.match(/Chapt\d+(Fig|Exercise|Ex)(.+)/i);
-    if (match) {
-      const type = match[1];
-      const id = match[2];
-      // Shorten "Exercise" to "Ex"
-      const shortType = type.toLowerCase() === 'exercise' ? 'Ex' : type;
-      return `${shortType}${id}`;
-    }
-
-    // For utility files, just use the program ID
-    if (chapterNum === 'utilities') {
-      return programId;
-    }
-
-    // Fallback: remove "Chapt" and number prefix
-    return programId.replace(/^Chapt\d+/, '') || programId;
   }
 }
 

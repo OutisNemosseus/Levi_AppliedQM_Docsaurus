@@ -66,9 +66,49 @@ function extractLabelFromProgramId(programId) {
   return programId;
 }
 
+/**
+ * Extract short label from program ID for sidebar
+ * @param {string} programId - Full program ID like "Chapt7Fig6a"
+ * @param {string} chapterNum - Chapter number
+ * @returns {string} Short label like "Fig6a" or "Ex8"
+ */
+function extractShortLabel(programId, chapterNum) {
+  // Try to extract the meaningful part (Fig, Exercise, etc.)
+  const match = programId.match(/Chapt\d+(Fig|Exercise|Ex)(.+)/i);
+  if (match) {
+    const type = match[1];
+    const id = match[2];
+    // Shorten "Exercise" to "Ex"
+    const shortType = type.toLowerCase() === 'exercise' ? 'Ex' : type;
+    return `${shortType}${id}`;
+  }
+
+  // For utility files, just use the program ID
+  if (chapterNum === 'utilities') {
+    return programId;
+  }
+
+  // Fallback: remove "Chapt" and number prefix
+  return programId.replace(/^Chapt\d+/, '') || programId;
+}
+
+/**
+ * Generate sidebar label for a specific file type
+ * @param {string} programId - Program ID
+ * @param {string} chapterNum - Chapter number
+ * @param {string} fileType - File type (e.g., 'matlab', 'pdf')
+ * @returns {string} Sidebar label like "Fig6a-matlab"
+ */
+function generateSidebarLabel(programId, chapterNum, fileType) {
+  const shortLabel = extractShortLabel(programId, chapterNum);
+  return `${shortLabel}-${fileType}`;
+}
+
 module.exports = {
   escapeForYaml,
   debounce,
   sortChapterKeys,
   extractLabelFromProgramId,
+  extractShortLabel,
+  generateSidebarLabel,
 };

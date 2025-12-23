@@ -4,6 +4,7 @@
  */
 
 const BaseGenerator = require('./BaseGenerator');
+const { generateSidebarLabel } = require('../utils/helpers');
 
 /**
  * Generator for HTML (.html) file pages
@@ -24,12 +25,13 @@ class HtmlGenerator extends BaseGenerator {
    * @returns {string} MDX page content
    */
   generate(programInfo, fileData) {
-    const { displayName } = programInfo;
+    const { displayName, programId, chapterNum } = programInfo;
     const { filename, staticPath, content, config } = fileData;
 
+    const sidebarLabel = generateSidebarLabel(programId, chapterNum, 'html');
     const frontmatter = this.generateFrontmatter(
       `${displayName} - HTML`,
-      'HTML Page'
+      sidebarLabel
     );
 
     const buttons = `<div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '24px'}}>
