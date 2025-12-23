@@ -61,6 +61,7 @@ ${categories.map(cat => `        ${JSON.stringify(cat, null, 2).split('\n').join
       collapsed: true,
       items: [
         { type: 'doc', id: 'developer-guide/index', label: 'Overview' },
+        { type: 'doc', id: 'developer-guide/changelog', label: '📝 Changelog' },
         {
           type: 'category',
           label: 'Configuration',

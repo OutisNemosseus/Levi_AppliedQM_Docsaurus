@@ -1,0 +1,541 @@
+# Changelog & Development History
+
+This page documents the major changes made to the Applied QM Documentation Generator, explaining **what** was changed, **why** it was changed, and showing the **code** that was modified.
+
+---
+
+## 644182d - Fix Sidebar Labels to Show Specific File Identifiers
+
+**Date:** December 23, 2025
+
+### Problem
+
+The sidebar was showing generic labels like "MATLAB Code", "PDF Document", "Text File" for every file, making it impossible to distinguish between different programs in the same chapter.
+
+**Before (broken):**
+```
+Ch 7: Band Structure
+├── MATLAB Code      ← Which program?
+├── MATLAB Code      ← Can't tell!
+├── PDF Document
+├── PDF Document
+└── LaTeX Source
+```
+
+### Solution
+
+Updated all generators to use a shared `generateSidebarLabel()` helper function that creates specific labels like "Fig6a-matlab", "Ex8-pdf".
+
+**After (fixed):**
+```
+Ch 7: Band Structure
+├── Fig3-matlab
+├── Fig4a-matlab
+├── Fig6a-matlab
+├── Fig6a-latex
+├── Fig6a-pdf
+└── Fig6b-matlab
+```
+
+### Code Changes
+
+#### 1. Added helper functions in `scripts/utils/helpers.js`
+
+```javascript
+/**
+ * Extract short label from program ID for sidebar
+ * @param {string} programId - Full program ID like "Chapt7Fig6a"
+ * @param {string} chapterNum - Chapter number
+ * @returns {string} Short label like "Fig6a" or "Ex8"
+ */
+function extractShortLabel(programId, chapterNum) {
+  // Try to extract the meaningful part (Fig, Exercise, etc.)
+  const match = programId.match(/Chapt\d+(Fig|Exercise|Ex)(.+)/i);
+  if (match) {
+    const type = match[1];
+    const id = match[2];
+    // Shorten "Exercise" to "Ex"
+    const shortType = type.toLowerCase() === 'exercise' ? 'Ex' : type;
+    return `${shortType}${id}`;
+  }
+
+  // For utility files, just use the program ID
+  if (chapterNum === 'utilities') {
+    return programId;
+  }
+
+  // Fallback: remove "Chapt" and number prefix
+  return programId.replace(/^Chapt\d+/, '') || programId;
+}
+
+/**
+ * Generate sidebar label for a specific file type
+ * @param {string} programId - Program ID
+ * @param {string} chapterNum - Chapter number
+ * @param {string} fileType - File type (e.g., 'matlab', 'pdf')
+ * @returns {string} Sidebar label like "Fig6a-matlab"
+ */
+function generateSidebarLabel(programId, chapterNum, fileType) {
+  const shortLabel = extractShortLabel(programId, chapterNum);
+  return `${shortLabel}-${fileType}`;
+}
+```
+
+#### 2. Updated all generators to use the helper
+
+**MatlabGenerator.js** (and similar for all other generators):
+
+```javascript
+// Before:
+const frontmatter = this.generateFrontmatter(
+  `${displayName} - MATLAB`,
+  'MATLAB Code'  // ← Generic label!
+);
+
+// After:
+const { generateSidebarLabel } = require('../utils/helpers');
+
+const sidebarLabel = generateSidebarLabel(programId, chapterNum, 'matlab');
+const frontmatter = this.generateFrontmatter(
+  `${displayName} - MATLAB`,
+  sidebarLabel  // ← Specific label like "Fig6a-matlab"
+);
+```
+
+#### 3. Updated SidebarGenerator.js to use shared helper
+
+```javascript
+// Before: Had its own extractShortLabel method (duplicate code)
+// After: Uses shared generateSidebarLabel from helpers.js
+
+const { sortChapterKeys, generateSidebarLabel } = require('../utils/helpers');
+
+generateFileItem(chapterNum, programId, file) {
+  const folder = chapterNum === 'utilities' ? 'utilities' : `chapter${chapterNum}`;
+  const { config } = file;
+
+  // Use shared helper to generate consistent sidebar label
+  const label = generateSidebarLabel(programId, chapterNum, config.type);
+
+  return {
+    type: 'doc',
+    id: `${folder}/${programId}/${programId}_${config.type}`,
+    label,
+  };
+}
+```
+
+---
+
+## 4ff7423 - Enhance Generator with Embedded Code Preview
+
+**Date:** December 23, 2025
+
+### Problem
+
+1. The index pages only showed links to detail pages - users had to click through to see the code
+2. The sidebar showed one entry per program (e.g., "Chapt7Fig6a") instead of individual file entries
+
+### Solution
+
+1. Embedded collapsible code previews directly in index pages
+2. Changed sidebar to show individual file entries
+
+### Code Changes
+
+#### 1. Updated `IndexGenerator.js` to embed code
+
+```javascript
+// Build code block if content is available
+let codeSection = '';
+if (config.canReadText && content) {
+  const lang = config.codeLanguage || 'text';
+  codeSection = `
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '${config.color}'}}>
+  📜 View Source Code
+</summary>
+
+\`\`\`${lang} title="${filename}"
+${content}
+\`\`\`
+
+</details>`;
+} else if (config.useIframe) {
+  // PDF/HTML iframe preview
+  const iframeHeight = config.iframeHeight || '600px';
+  codeSection = `
+<details style={{marginTop: '12px'}}>
+<summary style={{cursor: 'pointer', fontWeight: 'bold', color: '${config.color}'}}>
+  📄 View Document
+</summary>
+
+<iframe
+  src="${staticPath}"
+  width="100%"
+  height="${iframeHeight}"
+  style={{border: '1px solid #e5e7eb', borderRadius: '4px', marginTop: '8px'}}
+/>
+
+</details>`;
+}
+```
+
+#### 2. Updated `SidebarGenerator.js` to show individual files
+
+```javascript
+// Before: One entry per program
+generateItem(chapterNum, programId) {
+  return {
+    type: 'doc',
+    id: `${folder}/${programId}/index`,
+    label,
+  };
+}
+
+// After: One entry per file
+generateCategory(chapterNum, programs, programFiles) {
+  const items = [];
+
+  for (const programId of sortedPrograms) {
+    const { files } = programFiles.get(programId);
+
+    // Generate sidebar item for EACH file
+    for (const file of sortedFiles) {
+      items.push(this.generateFileItem(chapterNum, programId, file));
+    }
+  }
+
+  return { type: 'category', label, collapsed: true, items };
+}
+```
+
+---
+
+## a1bc387 - Refactor to SOLID Architecture
+
+**Date:** December 23, 2025
+
+### Problem
+
+The original `generate-program-docs.js` was a monolithic 1172-line file that:
+- Was hard to maintain and understand
+- Had tightly coupled components
+- Violated SOLID principles
+- Made adding new file types difficult
+
+### Solution
+
+Refactored into 22 separate modules following SOLID principles:
+
+```
+scripts/
+├── index.js                    # CLI entry point
+├── app.js                      # Dependency injection container
+├── config/
+│   ├── index.js               # Configuration factory
+│   ├── fileTypes.js           # FILE_TYPES definitions
+│   └── chapters.js            # CHAPTER_NAMES mapping
+├── utils/
+│   ├── fileSystem.js          # File I/O abstraction
+│   ├── logger.js              # Logging interface
+│   └── helpers.js             # Utility functions
+├── parsers/
+│   ├── programParser.js       # Extract program info
+│   └── fileClassifier.js      # Classify files by extension
+├── generators/
+│   ├── BaseGenerator.js       # Abstract base class
+│   ├── MatlabGenerator.js     # MATLAB pages
+│   ├── LatexGenerator.js      # LaTeX pages
+│   ├── PdfGenerator.js        # PDF pages
+│   ├── HtmlGenerator.js       # HTML pages
+│   ├── NotebookGenerator.js   # Jupyter pages
+│   ├── TextGenerator.js       # Text pages
+│   ├── IndexGenerator.js      # Index pages
+│   ├── SidebarGenerator.js    # Sidebar config
+│   └── GeneratorFactory.js    # Factory pattern
+└── services/
+    ├── DocumentProcessor.js   # Main orchestration
+    ├── CleanService.js        # Cleanup operations
+    └── WatchService.js        # File watching
+```
+
+### SOLID Principles Applied
+
+| Principle | Implementation |
+|-----------|----------------|
+| **S**ingle Responsibility | Each module has ONE job (e.g., Logger only logs) |
+| **O**pen/Closed | GeneratorFactory allows new generators without modifying existing code |
+| **L**iskov Substitution | All generators extend BaseGenerator with consistent interface |
+| **I**nterface Segregation | Small, focused interfaces (FileSystem doesn't include logging) |
+| **D**ependency Inversion | Services depend on abstractions injected via factory |
+
+### Code Changes
+
+#### 1. Created `BaseGenerator.js` (Template Method Pattern)
+
+```javascript
+class BaseGenerator {
+  constructor(config) {
+    this.config = config;
+  }
+
+  generateFrontmatter(title, label) {
+    return `---
+title: ${escapeForYaml(title)}
+sidebar_label: ${escapeForYaml(label)}
+---`;
+  }
+
+  generateButtons(staticPath, filename, config) { /* ... */ }
+  generateBackLink(displayName) { /* ... */ }
+
+  // Abstract method - must be implemented by subclasses
+  generate(programInfo, fileData) {
+    throw new Error('generate() must be implemented by subclass');
+  }
+
+  getType() {
+    throw new Error('getType() must be implemented by subclass');
+  }
+}
+```
+
+#### 2. Created `GeneratorFactory.js` (Factory Pattern)
+
+```javascript
+class GeneratorFactory {
+  constructor(config) {
+    this.config = config;
+    this.generators = new Map();
+    this.initializeGenerators();
+  }
+
+  initializeGenerators() {
+    const generators = [
+      new MatlabGenerator(this.config),
+      new LatexGenerator(this.config),
+      new PdfGenerator(this.config),
+      new HtmlGenerator(this.config),
+      new NotebookGenerator(this.config),
+      new TextGenerator(this.config),
+    ];
+
+    for (const generator of generators) {
+      this.generators.set(generator.getType(), generator);
+    }
+  }
+
+  getGenerator(type) {
+    return this.generators.get(type) || null;
+  }
+
+  // Easy to add new generators without modifying existing code
+  registerGenerator(generator) {
+    this.generators.set(generator.getType(), generator);
+  }
+}
+```
+
+#### 3. Created `app.js` (Dependency Injection Container)
+
+```javascript
+function createApp(cliOptions = null) {
+  // Parse CLI options
+  const options = cliOptions || parseArgs();
+
+  // Create configuration
+  const config = createConfig(options);
+
+  // Create dependencies
+  const fileSystem = createFileSystem(config.inboxDir);
+  const logger = createLogger({ verbose: config.verbose });
+  const parser = createProgramParser(config.programPattern);
+  const classifier = createFileClassifier();
+  const generatorFactory = createGeneratorFactory(config);
+
+  // Wire everything together
+  const processor = new DocumentProcessor({
+    config, fileSystem, logger, parser, classifier, generatorFactory
+  });
+
+  return {
+    run: () => processor.process(),
+    clean: () => new CleanService(config, fileSystem, logger).clean(),
+    watch: () => new WatchService(config, processor, logger).start(),
+    help: () => logger.printHelp(),
+  };
+}
+```
+
+---
+
+## c84b722 - Add Architecture Documentation
+
+**Date:** December 23, 2025
+
+### What Changed
+
+Created comprehensive architecture documentation explaining:
+- Module structure and responsibilities
+- Design patterns used (Factory, Template Method, Strategy)
+- SOLID principles implementation
+- Data flow diagrams
+- Extension points
+
+### Files Added
+
+- `docs/developer-guide/index.mdx` - Overview
+- `docs/developer-guide/config/index.mdx` - Config module docs
+- `docs/developer-guide/generators/index.mdx` - Generators docs
+- `docs/developer-guide/services/index.mdx` - Services docs
+- `docs/developer-guide/utils/index.mdx` - Utils docs
+
+---
+
+## cb6f1be - Enhance Generator with Multi-Format Support
+
+**Date:** December 23, 2025
+
+### Problem
+
+The original script only supported MATLAB files. Users needed to document:
+- LaTeX source files (.tex)
+- PDF documents (.pdf)
+- HTML files (.html)
+- Jupyter notebooks (.ipynb)
+- Text files (.txt)
+
+### Solution
+
+Added `FILE_TYPES` configuration with metadata for each format:
+
+```javascript
+const FILE_TYPES = {
+  '.m': {
+    type: 'matlab',
+    label: 'MATLAB',
+    emoji: '📊',
+    color: '#0076a8',
+    canReadText: true,
+    codeLanguage: 'matlab',
+  },
+  '.tex': {
+    type: 'latex',
+    label: 'LaTeX',
+    emoji: '📝',
+    color: '#008080',
+    canReadText: true,
+    codeLanguage: 'latex',
+    maxPreviewLength: 15000,
+  },
+  '.pdf': {
+    type: 'pdf',
+    label: 'PDF Document',
+    emoji: '📕',
+    color: '#dc2626',
+    canReadText: false,
+    useIframe: true,
+    iframeHeight: '900px',
+  },
+  // ... more types
+};
+```
+
+### Added Utility File Support
+
+Files not matching `Chapt*` pattern are now categorized as utilities:
+
+```javascript
+function parseFilename(filename) {
+  const chapterMatch = filename.match(/Chapt(\d+)/i);
+
+  if (chapterMatch) {
+    return { chapterNum: chapterMatch[1], programId: /* ... */ };
+  }
+
+  // Utility file - doesn't match chapter pattern
+  return {
+    chapterNum: 'utilities',
+    programId: path.parse(filename).name,
+    displayName: path.parse(filename).name,
+  };
+}
+```
+
+---
+
+## Summary of All Changes
+
+| Commit | Description | Files Changed |
+|--------|-------------|---------------|
+| `644182d` | Fix sidebar labels | 98 files |
+| `4ff7423` | Embedded code preview + individual sidebar entries | 63 files |
+| `a1bc387` | SOLID refactoring + documentation | 247 files |
+| `c84b722` | Architecture documentation | 5 files |
+| `cb6f1be` | Multi-format support | 15 files |
+
+---
+
+## How to Add a New File Type
+
+Thanks to the SOLID architecture, adding a new file type is straightforward:
+
+### Step 1: Add type definition in `config/fileTypes.js`
+
+```javascript
+'.xyz': {
+  type: 'xyz',
+  label: 'XYZ Format',
+  emoji: '🔬',
+  color: '#ff6600',
+  canReadText: true,
+  codeLanguage: 'xyz',
+},
+```
+
+### Step 2: Create generator in `generators/XyzGenerator.js`
+
+```javascript
+const BaseGenerator = require('./BaseGenerator');
+const { generateSidebarLabel } = require('../utils/helpers');
+
+class XyzGenerator extends BaseGenerator {
+  getType() {
+    return 'xyz';
+  }
+
+  generate(programInfo, fileData) {
+    const { displayName, programId, chapterNum } = programInfo;
+    const { filename, staticPath, content } = fileData;
+
+    const sidebarLabel = generateSidebarLabel(programId, chapterNum, 'xyz');
+    const frontmatter = this.generateFrontmatter(
+      `${displayName} - XYZ`,
+      sidebarLabel
+    );
+
+    // ... generate page content
+
+    return `${frontmatter}\n\n# ${displayName}\n\n...`;
+  }
+}
+
+module.exports = XyzGenerator;
+```
+
+### Step 3: Register in `GeneratorFactory.js`
+
+```javascript
+const XyzGenerator = require('./XyzGenerator');
+
+initializeGenerators() {
+  const generators = [
+    // ... existing generators
+    new XyzGenerator(this.config),
+  ];
+  // ...
+}
+```
+
+That's it! No other files need to be modified (Open/Closed Principle).
